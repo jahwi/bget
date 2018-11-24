@@ -351,6 +351,7 @@ exit /b
 set upgrade_bool=
 set upgrade_method=
 set upgrade_hash_location=https://raw.githubusercontent.com/jahwi/bget/master/bin/hash.txt
+set upgrade_script_location=https://raw.githubusercontent.com/jahwi/bget/master/upgrade/upgrade.bat
 set bget_location=https://raw.githubusercontent.com/jahwi/bget/master/bget.bat
 set changelog_location=https://raw.githubusercontent.com/jahwi/bget/master/changelog.txt
 if "%~1"=="" echo Error: No update method supplied. && exit /b
@@ -383,15 +384,16 @@ if /i "!new_upgrade_hash!"=="!current_upgrade_hash!" echo You already have the l
 
 ::the actual upgrade
 if exist upgrade.bat del /f /q upgrade.bat
+if exist changelog.txt del /f /q changelog.txt
+if exist temp\bget.bat del /f /q temp\bget.bat
+call :download -!upgrade_method! "!upgrade_script_location!#%cd%\upgrade.bat"
 call :download -!upgrade_method! "!bget_location!#%cd%\temp\bget.bat"
-call :download -!upgrade_method! "!changelog_location!#%cd%\temp\changelog.txt"
-if not exist "temp\bget.bat" echo Failed to get the latest version of bget. && exit /b
-if not exist "temp\changelog.txt" echo Failed to get the changelog. && exit /b
-echo echo Updating>upgrade.bat
-echo timeout /nobreak /t 5^>nul >>upgrade.bat
-echo move /Y "temp\bget.bat">>upgrade.bat
-echo move /Y "temp\changelog.txt">>upgrade.bat
-echo notepad changelog.txt>>upgrade.bat
+call :download -!upgrade_method! "!upgrade_hash_location!#%cd%\temp\hash.txt"
+call :download -!upgrade_method! "!changelog_location!#%cd%\changelog.txt"
+if not exist "upgrade.bat" echo Failed to get the Bget upgrade script. && exit /b
+if not exist "temp\hash.txt" echo Failed to get the Bget hash. && exit /b
+if not exist "changelog.txt" echo Failed to get the changelog. && exit /b
+if not exist "temp\bget.bat" echo Failed to get Bget's latest version. && exit /b
 start upgrade.bat
 exit
 
