@@ -352,6 +352,7 @@ set upgrade_bool=
 set upgrade_method=
 set upgrade_hash_location=https://raw.githubusercontent.com/jahwi/bget/master/bin/hash.txt
 set bget_location=https://raw.githubusercontent.com/jahwi/bget/master/bget.bat
+set changelog_location=https://raw.githubusercontent.com/jahwi/bget/master/changelog.txt
 set 
 if "%~1"=="" echo Error: No update method supplied. && exit /b
 if not "%~2"=="" echo Error: Invalid number of arguments. && exit /b
@@ -384,9 +385,14 @@ if /i "!new_upgrade_hash!"=="!current_upgrade_hash!" echo You already have the l
 ::the actual upgrade
 if exist upgrade.bat del /f /q upgrade.bat
 call :download -!upgrade_method! "!bget_location!#%cd%\temp\bget.bat"
+call :download -!upgrade_method! "!changelog_location!#%cd%\temp\changelog.txt"
+if not exist "temp\bget.bat" echo Failed to get the latest version of bget. && exit /b
+if not exist "temp\changelog.txt" echo Failed to get the changelog. && exit /b
 echo echo Updating>upgrade.bat
 echo timeout /nobreak /t 5^>nul >>upgrade.bat
 echo move /Y "temp\bget.bat">>upgrade.bat
+echo move /Y "temp\changelog.txt">>upgrade.bat
+echo notepad changelog.txt>>upgrade.bat
 start upgrade.bat
 exit
 
