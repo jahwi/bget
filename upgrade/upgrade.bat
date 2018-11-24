@@ -37,8 +37,7 @@ if not exist "changelog.txt" echo Failed to get the changelog. && exit /b
 if not exist "temp\bget.bat" echo Failed to get Bget's latest version. && exit /b
 move /Y "temp\bget.bat"
 move /Y "temp\hash.txt" "bin\hash.txt"
-notepad changelog.txt
-pause
+start notepad changelog.txt
 exit
 
 
