@@ -353,7 +353,6 @@ set upgrade_method=
 set upgrade_hash_location=https://raw.githubusercontent.com/jahwi/bget/master/bin/hash.txt
 set bget_location=https://raw.githubusercontent.com/jahwi/bget/master/bget.bat
 set changelog_location=https://raw.githubusercontent.com/jahwi/bget/master/changelog.txt
-set 
 if "%~1"=="" echo Error: No update method supplied. && exit /b
 if not "%~2"=="" echo Error: Invalid number of arguments. && exit /b
 for %%s in (curl js vbs bits ps) do (
