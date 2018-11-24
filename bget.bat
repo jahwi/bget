@@ -40,7 +40,7 @@ exit /b
 :main
 ::print the bget intro, followed by the relevant output
 echo ------------------------------------------
-echo Bget v0.1
+echo Bget v0.1.1
 echo Batch script fetcher
 echo Made by Jahwi, Icarus, and Ben in 2018.
 echo ------------------------------------------
