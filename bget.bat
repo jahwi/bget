@@ -386,7 +386,6 @@ exit
 
 :download
 
-
 ::BITSADMIN download function
 if /i "%~1"=="-bits" (
 	set /a rnd=%random%
@@ -430,7 +429,7 @@ exit /b
 ::powershell download function
 if /i "%~1"=="-ps" (
 	for /f "tokens=1,2 delims=#" %%b in ("%~2") do (
-	powershell -Command wget "%%b" -OutFile "%%c"
+	powershell -Command wget "%%b" -OutFile "%%~sc"
 	)
 	exit /b
 )
