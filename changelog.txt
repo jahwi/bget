@@ -1,0 +1,2 @@
+v0.1 Released on Github [23-NOV-2018]
+v0.1.1 Fixed an issue where file paths containing spaces and brackets broke bget
