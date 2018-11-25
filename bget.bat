@@ -11,7 +11,7 @@ if not exist scripts md scripts
 
 ::init global vars and settings
 set info_mode=off
-set list_location=https://raw.githubusercontent.com/jahwi/bget/list/master.txt
+set list_location=https://raw.githubusercontent.com/jahwi/bget-list/master/master.txt
 goto :main
 
 ::check for curl
