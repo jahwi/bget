@@ -48,7 +48,7 @@ Scenario: You want to fetch a script named test from the server.  The easiest wa
 
 ### -Get: 
 
-This is the script fetching function.
+This is the script fetching function. Use it to download one or more scripts at once.
 
 Usage:
 
@@ -61,6 +61,12 @@ Example:
 `BGET -get -usevbs test`
 
 The above will download the script named “test” from the Bget server using the VBS download function.
+
+You can also download multiple scripts at once.
+
+Example:
+
+`BGET -get -usejs "test tetris bigtext"`
 
 ### -Pastebin: 
 
@@ -94,7 +100,13 @@ Example:
 
 `BGET -remove test`
 
-If “script” is “Pastebin”, it deletes all downloaded Pastebin scripts.
+If “script” is “Pastebin”, it deletes all downloaded Pastebin scripts.1 script2 script3....scriptn"
+
+Example:
+
+`BGET -remove "test tetris bigtext"
+
+To remove more than one script, use `BGET -remove "script"
 
 ### -Update: 
 Updates the specified script.
@@ -122,6 +134,12 @@ Supported methods: JS, VBS, PS, CURL, BITS
 Example:
 
 `BGET -info -usevbs test`
+
+To update more than one script at once, 
+
+Example:
+
+`BGET -update -usecurl "test tetris bigtext"`
 
 ### -List: 
 

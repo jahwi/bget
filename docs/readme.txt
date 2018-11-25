@@ -51,6 +51,9 @@ Supported methods: JS, VBS, PS, CURL, BITS
 Example:
 BGET -get -usevbs test
 The above will download the script named “test” from the Bget server using the VBS download function.
+To get more than one script at once, 
+Example:
+BGET -get -usecurl "test tetris bigtext"
 
 -Pastebin:
 This fetches a pastebin raw and saves it as a .bat script.
@@ -70,6 +73,9 @@ BGET -remove script
 Example:
 BGET -remove test
 If “script” is “Pastebin”, it deletes all downloaded Pastebin scripts.
+To remove more than one script at once, 
+Example:
+BGET -remove "test tetris bigtext"
 
 -Update:
 Updates the specified script.
@@ -78,6 +84,9 @@ BGET -update -usemethod script
 Supported methods: JS, VBS, PS, CURL, BITS
 Example:
 BGET -update -usejs test
+To update more than one script at once, 
+Example:
+BGET -update -usecurl "test tetris bigtext"
 
 -Info:
 Retrieves basic info about a script.

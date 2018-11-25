@@ -70,7 +70,7 @@ set valid_bool=
 ::is printed if help switch, no switch or an incorrect switch is supplied.
 echo ---------------------------------------------------------------------------
 echo BGET [-switch {subswitches} {ARG} ]
-echo [-get {-usemethod} SCRIPT ]           Fetches a script from Bget's server.
+echo [-get {-usemethod} "SCRIPTs" ]           Fetches a script from Bget's server.
 echo [-pastebin {-usemethod} PASTE_CODE local_filename ] Gets a Pastebin script.
 echo [-remove SCRIPT ]                     Removes the script.
 echo [-update {-usemethod} SCRIPT ]        Updates the script.
@@ -114,37 +114,39 @@ set get_bool=
 ::downloads
 ::will attempt to download curl if when using the curl get method, curl isnt found in the curl subdirectory.
 	echo Reading script list...
-	set /a sess_rand=%random%
-	if exist temp\master!sess_rand!.txt del /f /q temp\master!sess_rand!.txt
-	call :download -!get_method! "!list_location!#%cd%\temp\master!sess_rand!.txt"
-	if not exist temp\master!sess_rand!.txt echo An error occured getting the script list && exit /b
-	set script_count=
-	for /f "tokens=1-8 delims=," %%a in ('findstr /b /c:"[#],%~2," temp\master!sess_rand!.txt') do (
-		if "!info_mode!"=="on" (
-			echo.
-			echo Name: %%~b
-			echo Author:%%~g
-			echo Description: %%~d
-			echo Category: %%~h
-			echo Location: %%~c
-			echo Hash: %%~f
-			set info_mode=off
-			exit /b
+	for %%r in (%~2) do (
+		set /a sess_rand=%random%
+		if exist temp\master!sess_rand!.txt del /f /q temp\master!sess_rand!.txt
+		call :download -!get_method! "!list_location!#%cd%\temp\master!sess_rand!.txt"
+		if not exist temp\master!sess_rand!.txt echo An error occured getting the script list && exit /b
+		set script_count=
+		for /f "tokens=1-8 delims=," %%a in ('findstr /b /c:"[#],%%~r," temp\master!sess_rand!.txt') do (
+			if "!info_mode!"=="on" (
+				echo.
+				echo Name: %%~b
+				echo Author:%%~g
+				echo Description: %%~d
+				echo Category: %%~h
+				echo Location: %%~c
+				echo Hash: %%~f
+				set info_mode=off
+				exit /b
+			)
+			if exist scripts\%%~b\ echo The script "%%~b" already exists in this directory. && exit /b
+			set /a script_count+=1
+			echo Fetching %%~b...
+			if not exist "scripts\%%~b" md "scripts\%%~b"
+			call :download -!get_method! "%%~c#%cd%\scripts\%%~b\%%~e"
+			if not exist "scripts\%%~b\%%~e" echo An error occured while fetching the script. && exit /b
+			if exist "scripts\%%~b\%%~e" (
+				echo %%f>scripts\%%~b\hash.txt
+				echo %%d>scripts\%%~b\info.txt
+				echo %%g>scripts\%%~b\author.txt
+				echo Done.
+			)
 		)
-		if exist scripts\%%~b\ echo The script "%%~b" already exists in this directory. && exit /b
-		set /a script_count+=1
-		echo Fetching %%~b...
-		if not exist "scripts\%%~b" md "scripts\%%~b"
-		call :download -!get_method! "%%~c#%cd%\scripts\%%~b\%%~e"
-		if not exist "scripts\%%~b\%%~e" echo An error occured while fetching the script. && exit /b
-		if exist "scripts\%%~b\%%~e" (
-			echo %%f>scripts\%%~b\hash.txt
-			echo %%d>scripts\%%~b\info.txt
-			echo %%g>scripts\%%~b\author.txt
-			echo Done.
-		)
+		if not defined script_count echo The script "%%~r" does not exist on the server. && exit /b
 	)
-	if not defined script_count echo The script does not exist on the server. && exit /b
 	exit /b
 ::----------------------------------------------------------
 
@@ -191,30 +193,35 @@ exit /b
 :remove
 ::removes a script (You guessed it!)
 
-::check if the script exists
+::check for errors
 if "%~1"=="" (
 	set msg=Error: No script supplied.
 	call :help
 	exit /b
 )
-if not exist "scripts\%~1" echo The script does not exist. && exit /b
 
-::checks if it is asked to remove the pastebin folder
-if /i "%~1"=="pastebin" (
-	choice /c yn /n /m "Clear ALL your pastebin scripts? This can't be undone. [(Y)es/(N)o]"
-	if "!errorlevel!"=="2" exit /b
-	if "!errorlevel!"=="1" (
-		rd /s /q scripts\pastebin
-		if exist scripts\pastebin echo An error occured while deleting the pastebin folder.
-		if not exist scripts\pastebin echo Pastebin folder removed.
-		exit /b
-	)	
+
+::check if the script exists
+
+for %%r in (%~1) do (
+	if not exist "scripts\%%~r" echo The script "%%~r" does not exist. && exit /b
+
+	if /i "%%~r"=="pastebin" (
+		choice /c yn /n /m "Clear ALL your pastebin scripts? This can't be undone. [(Y)es/(N)o]"
+		if "!errorlevel!"=="2" exit /b
+		if "!errorlevel!"=="1" (
+			rd /s /q scripts\pastebin
+			if exist scripts\pastebin echo An error occured while deleting the pastebin folder.
+			if not exist scripts\pastebin echo Pastebin folder removed.
+			exit /b
+		)	
+	)
+
+
+	rd /s /q "scripts\%%~r"
+	if exist "scripts\%%~r" echo Bget could not delete "%%~r". && exit /b
+	if not exist "scripts\%%~r" echo Removed %%r.
 )
-
-::remove de files
-rd /s /q "scripts\%~1"
-if exist "scripts\%~1" echo Bget could not delete the specified script. && exit /b
-if not exist "scripts\%~1" echo Script removed. && exit /b
 ::more paranoia
 exit /b
 
@@ -242,44 +249,46 @@ if not "!update_bool!"=="yes" (
 	exit /b
 )
 set update_bool=
-if not exist "scripts\%~2" echo Error: The script does not exist. && exit /b
 
 
 ::update
 ::will attempt to download curl if when using the curl update method, curl isnt found in the curl subdirectory.
 ::sess rand allows multiple bget instances to be run without running into a "file is in use" issue
 	echo Reading script list...
-	set /a sess_rand=%random%
-	if exist temp\master!sess_rand!.txt del /f /q temp\master!sess_rand!.txt
-	call :download -!update_method! "!list_location!#%cd%\temp\master!sess_rand!.txt"
-	if not exist temp\master!sess_rand!.txt echo An error occured getting the script list. && exit /b
-	set script_count=
-	for /f "tokens=1-7 delims=," %%a in ('findstr /b /c:"[#],%~2," temp\master!sess_rand!.txt') do (
-		set /a script_count+=1
-		echo Updating %%~b...
-		set hash=
-		if not exist scripts\%%~b\hash.txt echo hash file for %%~b is missing. Updating anyway.
-		if exist scripts\%%~b\hash.txt (
-			set/p hash=<scripts\%%~b\hash.txt
-			if /i "!hash!"=="%%~f" echo This is already the latest version. && exit /b
+	for %%r in (%~2) do (
+		if not exist "scripts\%%~r" echo Error: "%%~r" does not exist on the local machine. && exit /b
+		set /a sess_rand=%random%
+		if exist temp\master!sess_rand!.txt del /f /q temp\master!sess_rand!.txt
+		call :download -!update_method! "!list_location!#%cd%\temp\master!sess_rand!.txt"
+		if not exist temp\master!sess_rand!.txt echo An error occured getting the script list. && exit /b
+		set script_count=
+		for /f "tokens=1-7 delims=," %%a in ('findstr /b /c:"[#],%%~r," temp\master!sess_rand!.txt') do (
+			set /a script_count+=1
+			echo Updating %%~b...
+			set hash=
+			if not exist scripts\%%~b\hash.txt echo hash file for %%~b is missing. Updating anyway.
+			if exist scripts\%%~b\hash.txt (
+				set/p hash=<scripts\%%~b\hash.txt
+				if /i "!hash!"=="%%~f" echo This is already the latest version. && exit /b
+			)
+			if not exist "temp\%%~b" md "temp\%%~b"
+			call :download -!update_method! "%%~c#%cd%\temp\%%~b\%%~e"
+			if not exist "temp\%%~b\%%~e" echo An error occured while downloading the latest version of the script. && exit /b
+			if not defined hash set /a hash=%random%
+			md "scripts\%%~b\old-!hash!"
+			echo Cleaning up old version...
+			move /Y "scripts\%%~b\%%~e" "scripts\%%~b\old-!hash!"
+			move /Y "temp\%%~b\%%~e" "scripts\%%~b\"
+			rd /s /q "temp\%%~b"
+			if not exist "scripts\%%~b\%%~e" echo An error occured while updating the script. && exit /b
+			if exist "scripts\%%~b\%%~e" (
+				echo %%f>scripts\%%~b\hash.txt
+				echo %%d>scripts\%%~b\info.txt
+				echo %%g>scripts\%%~b\author.txt
+				echo Done.
+			)
 		)
-		if not exist "temp\%%~b" md "temp\%%~b"
-		call :download -!update_method! "%%~c#%cd%\temp\%%~b\%%~e"
-		if not exist "temp\%%~b\%%~e" echo An error occured while downloading the latest version of the script. && exit /b
-		if not defined hash set /a hash=%random%
-		md "scripts\%%~b\old-!hash!"
-		echo Cleaning up old version...
-		move /Y "scripts\%%~b\%%~e" "scripts\%%~b\old-!hash!"
-		move /Y "temp\%%~b\%%~e" "scripts\%%~b\"
-		rd /s /q "temp\%%~b"
-		if not exist "scripts\%%~b\%%~e" echo An error occured while updating the script. && exit /b
-		if exist "scripts\%%~b\%%~e" (
-			echo %%f>scripts\%%~b\hash.txt
-			echo %%d>scripts\%%~b\info.txt
-			echo %%g>scripts\%%~b\author.txt
-			echo Done.
-		)
-	)
+)
 	if not defined script_count echo The script does not exist on the server. && exit /b
 	exit /b
 ::----------------------------------------------------------
