@@ -1,4 +1,6 @@
-v0.1 Released on Github [23-NOV-2018]
-
-v0.1.1  Fixed an issue where file paths containing spaces and brackets broke bget
-	Fixed an issue where the update script did not get downloaded
+v0.1       Released on Github [23-NOV-2018]
+v0.1.1     Fixed an issue where file paths containing spaces and brackets broke bget
+           Fixed an issue where the update script did not get downloaded
+           Added the ability to specify file download name to the pastebin function
+		   Reformatted help text
+		   Added script category to the server list function
