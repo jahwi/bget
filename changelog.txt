@@ -8,7 +8,7 @@ Changelog:
 
 v0.1   [23-NOV-2018]                 Released on Github
 v0.1.1 [23-NOV-2018]                 Fixed an issue where file paths containing spaces and brackets broke bget.
-       [23-NOV-2018]                 Fixed an issue where the update script did not get downloaded.
-       [23-NOV-2018]                 Added the ability to specify file download name to the pastebin function.
-       [23-NOV-2018]                 Reformatted help text.
-       [23-NOV-2018]                 List function can now display script categories.
+       [24-NOV-2018]                 Fixed an issue where the update script did not get downloaded.
+       [24-NOV-2018]                 Added the ability to specify file download name to the pastebin function.
+       [24-NOV-2018]                 Reformatted help text.
+       [24-NOV-2018]                 List function can now display script categories.
