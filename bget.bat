@@ -340,10 +340,10 @@ if /i "%~1"=="-server" (
 	if not exist "temp\master!sess_rand!.txt" echo An error occured while fetching the script list. && exit /b
 	echo Reading script list...
 	set script_count=
-	echo No, Name, Description, Author
-	for /f "tokens=1-7 delims=," %%a in ('findstr /b /c:"[#]," temp\master!sess_rand!.txt') do (
+	echo No, Name, Category, Description, Author
+	for /f "tokens=1-8 delims=," %%a in ('findstr /b /c:"[#]," temp\master!sess_rand!.txt') do (
 		set /a script_count+=1
-		echo !script_count!. %%~b^| %%~d^| %%g
+		echo !script_count!. %%~b^| %%~h^| %%~d^| %%g
 	)
 	if not defined script_count echo Could not get the script list. && exit /b
 	exit /b
