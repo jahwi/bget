@@ -5,7 +5,6 @@ setlocal enabledelayedexpansion
 
 ::init global vars
 set upgrade_hash_location=https://raw.githubusercontent.com/jahwi/bget/master/bin/hash.txt
-set upgrade_list_location=https://raw.githubusercontent.com/jahwi/bget/master/upgrade/upgrade.txt
 set upgrade_script_location=https://raw.githubusercontent.com/jahwi/bget/master/upgrade/upgrade.bat
 set bget_location=https://raw.githubusercontent.com/jahwi/bget/master/bget.bat
 set changelog_location=https://raw.githubusercontent.com/jahwi/bget/master/docs/changelog.txt
