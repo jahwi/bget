@@ -118,12 +118,13 @@ set get_bool=
 	call :download -!get_method! "!list_location!#%cd%\temp\master!sess_rand!.txt"
 	if not exist temp\master!sess_rand!.txt echo An error occured getting the script list && exit /b
 	set script_count=
-	for /f "tokens=1-7 delims=," %%a in ('findstr /b /c:"[#],%~2," temp\master!sess_rand!.txt') do (
+	for /f "tokens=1-8 delims=," %%a in ('findstr /b /c:"[#],%~2," temp\master!sess_rand!.txt') do (
 		if "!info_mode!"=="on" (
 			echo.
 			echo Name: %%~b
 			echo Author:%%~g
 			echo Description: %%~d
+			echo Category: %%~h
 			echo Location: %%~c
 			echo Hash: %%~f
 			set info_mode=off
