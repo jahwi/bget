@@ -70,7 +70,7 @@ set valid_bool=
 echo ---------------------------------------------------------------------------
 echo BGET [-switch {subswitches} {ARG} ]
 echo [-get {-usemethod} SCRIPT ]           Fetches a script from Bget's server.
-echo [-pastebin {-usemethod} PASTE_CODE ]  Gets a script from Pastebin.
+echo [-pastebin {-usemethod} PASTE_CODE local_filename ] Gets a Pastebin script.
 echo [-remove SCRIPT ]                     Removes the script.
 echo [-update {-usemethod} SCRIPT ]        Updates the script.
 echo [-info {-usemethod} SCRIPT ]          Gets info on the specified script.
@@ -80,6 +80,8 @@ echo [-upgrade {-usemethod} ]              Updates Bget.
 echo bget -help                            Prints this help screen.
 echo.
 echo Supported methods: -useJS -useVBS -usePS -useBITS -useCURL
+echo Some Antiviruses flag the JS and VBS download functions as viruses.
+echo Either witelist them or use the BITS method.
 echo Example: bget -get -useVBS test
 echo ---------------------------------------------------------------------------
 if defined msg echo !msg!
@@ -171,14 +173,16 @@ if not "!paste_bool!"=="yes" (
 	exit /b
 )
 if "%~2"=="" echo Error: No paste code supplied. && exit /b
+if "%~3"=="" echo Error: You must specify a local filename. && exit /b
 set paste_bool=
 
 ::begin the pastebin fetching
-if not exist scripts\pastebin\%~2 md scripts\pastebin\%~2
-echo Fetching "%~2"...
-call :download -!paste_method! "https://pastebin.com/raw/%~2#%cd%\scripts\pastebin\%~2\script.bat"
-if not exist scripts\pastebin\%~2\script.bat echo An error occured fetching the pastebin script. && exit /b
-if exist scripts\pastebin\%~2\script.bat echo Done. && exit /b
+if exist "scripts\pastebin\%~2\%~3" echo Error: The file name already exists && exit /b
+if not exist "scripts\pastebin\%~2" md "scripts\pastebin\%~2"
+echo Fetching "%~2" into "%~3"...
+call :download -!paste_method! "https://pastebin.com/raw/%~2#%cd%\scripts\pastebin\%~2\%~3"
+if not exist "scripts\pastebin\%~2\%~3" echo An error occured fetching the pastebin script. && exit /b
+if exist "scripts\pastebin\%~2\%~3" echo Done. && exit /b
 ::paranoia
 exit /b
 
