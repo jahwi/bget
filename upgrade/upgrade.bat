@@ -8,7 +8,7 @@ set upgrade_hash_location=https://raw.githubusercontent.com/jahwi/bget/master/bi
 set upgrade_list_location=https://raw.githubusercontent.com/jahwi/bget/master/upgrade/upgrade.txt
 set upgrade_script_location=https://raw.githubusercontent.com/jahwi/bget/master/upgrade/upgrade.bat
 set bget_location=https://raw.githubusercontent.com/jahwi/bget/master/bget.bat
-set changelog_location=https://raw.githubusercontent.com/jahwi/bget/master/changelog.txt
+set changelog_location=https://raw.githubusercontent.com/jahwi/bget/master/docs/changelog.txt
 set upgrade_method=js
 
 echo Updating...
