@@ -401,7 +401,6 @@ exit
 ::-vbs uses a Visual Basic Script
 ::-curl uses the Curl client
 ::-ps uses a powershell command.
-::bitsadmin is slower so we've added a few other options. You're welcome.
 
 :download
 
