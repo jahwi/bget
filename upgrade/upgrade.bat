@@ -1,5 +1,5 @@
 @echo off
-title Bget updater
+title Bget Updater
 setlocal enabledelayedexpansion
 
 
@@ -16,28 +16,35 @@ echo Updating...
 ::get bget's file hash
 set /a sess_rand=%random%
 call :download -!upgrade_method! "!upgrade_hash_location!#%cd%\temp\hash!sess_rand!.txt"
-if not exist temp\hash!sess_rand!.txt echo Failed to get the upgrade hash. && exit /b
+if not exist temp\hash!sess_rand!.txt echo Failed to get the upgrade hash. && pause && exit /b
 set/p new_upgrade_hash=<temp\hash!sess_rand!.txt
 if not exist bin\hash.txt (
 	echo No local hash found. Will upgrade anyway.
 	echo %random%%random%%random%>bin\hash.txt
 )
+
+::compare old and new hashes
 set/p current_upgrade_hash=<bin\hash.txt
-if /i "!new_upgrade_hash!"=="!current_upgrade_hash!" echo You already have the latest version. && exit /b
+if /i "!new_upgrade_hash!"=="!current_upgrade_hash!" echo You already have the latest version. && pause && exit /b
 
 ::the actual upgrade
-if exist changelog.txt del /f /q changelog.txt
+
+::make dirs
+if not exist docs md docs
+if exist temp\changelog.txt del /f /q changelog.txt
 if exist temp\bget.bat del /f /q temp\bget.bat
 if exist temp\hash.txt del /f /q temp\hash.txt
 call :download -!upgrade_method! "!bget_location!#%cd%\temp\bget.bat"
 call :download -!upgrade_method! "!upgrade_hash_location!#%cd%\temp\hash.txt"
-call :download -!upgrade_method! "!changelog_location!#%cd%\changelog.txt"
-if not exist "temp\hash.txt" echo Failed to get the Bget hash. && exit /b
-if not exist "changelog.txt" echo Failed to get the changelog. && exit /b
-if not exist "temp\bget.bat" echo Failed to get Bget's latest version. && exit /b
+call :download -!upgrade_method! "!changelog_location!#%cd%\temp\changelog.txt"
+if not exist "temp\hash.txt" echo Failed to get the Bget hash. && pause && exit /b
+if not exist "temp\changelog.txt" echo Failed to get the changelog. && pause && exit /b
+if not exist "temp\bget.bat" echo Failed to get Bget's latest version. && pause && exit /b
 move /Y "temp\bget.bat"
 move /Y "temp\hash.txt" "bin\hash.txt"
-start notepad changelog.txt
+move /Y "temp\changelog.txt" "docs\changelog.txt"
+start /max notepad temp\changelog.txt
+pause
 exit
 
 
@@ -62,7 +69,7 @@ if /i "%~1"=="-js" (
 		if "!errorlevel!"=="1" (
 		if not exist bin md bin
 			call :download -bits "https://raw.githubusercontent.com/jahwi/bget/master/bin/download.js#%cd%\bin\download.js"
-			if not exist bin\download.js echo An error occured when downloading the JS function. && exit /b
+			if not exist bin\download.js echo An error occured when downloading the JS function. && pause && exit /b
 		)
 
 	)
@@ -86,7 +93,7 @@ exit /b
 ::powershell download function
 if /i "%~1"=="-ps" (
 	for /f "tokens=1,2 delims=#" %%b in ("%~2") do (
-	powershell -Command wget "%%b" -OutFile "%%c"
+	powershell -Command wget "%%b" -OutFile "%%~sc"
 	)
 	exit /b
 )
@@ -100,7 +107,7 @@ if /i "%~1"=="-vbs" (
 		if "!errorlevel!"=="1" (
 		if not exist bin md bin
 		call :download -bits "https://raw.githubusercontent.com/jahwi/bget/master/bin/download.vbs#%cd%\bin\download.vbs"
-		if not exist bin\download.vbs echo An error occured when downloading the VBS function. && exit /b
+		if not exist bin\download.vbs echo An error occured when downloading the VBS function. && pause && exit /b
 		)
 
 	)
