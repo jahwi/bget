@@ -1,6 +1,6 @@
 # Bget
 Table of Contents
-1. Introduction
+1. [Introduction] (https://github.com/jahwi/bget/blob/master/README.md#introduction)
 2. Features
 3. Running Bget
 4. Switches
