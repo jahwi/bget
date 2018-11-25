@@ -1,5 +1,6 @@
 # Bget
-Table of Contents
+
+## Table of Contents
 1. [Introduction](https://github.com/jahwi/bget/blob/master/README.md#introduction)
 2. [Features](https://github.com/jahwi/bget/blob/master/README.md#features)
 3. [Running Bget](https://github.com/jahwi/bget/blob/master/README.md#running-bget)
