@@ -1,5 +1,0 @@
-call :download -!upgrade_method! "!upgrade_script_location!#%cd%\upgrade.bat"
-call :download -!upgrade_method! "!upgrade_list_location!#%cd%\upgrade.bat"
-call :download -!upgrade_method! "!bget_location!#%cd%\temp\bget.bat"
-call :download -!upgrade_method! "!upgrade_hash_location!#%cd%\temp\hash.txt"
-call :download -!upgrade_method! "!changelog_location!#%cd%\changelog.txt"
