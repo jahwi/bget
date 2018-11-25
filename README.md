@@ -40,7 +40,7 @@ Captain Obvious: Bget is a command-line tool, so it needs to be run from the com
 
 Here’s an example:
 
-Scenario: You want to fetch a script from the server called “test”.  The easiest way to do this would be:
+Scenario: You want to fetch a script named test from the server.  The easiest way to do this would be:
 
 `BGET -get -usecurl test`
 
