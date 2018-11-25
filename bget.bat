@@ -44,6 +44,7 @@ echo Bget v0.1.1
 echo Batch script fetcher
 echo Made by Jahwi in 2018.
 echo Edits made by Icarus.
+echo https://github.com/jahwi/bget
 echo ---------------------------------------------------------------------------
 echo.
 
@@ -77,12 +78,12 @@ echo [-info {-usemethod} SCRIPT ]          Gets info on the specified script.
 echo [-list -server {-usemethod} ]         Lists scripts on Bget's server.
 echo [-list -local]                        Lists local scripts scripts.
 echo [-upgrade {-usemethod} ]              Updates Bget.
-echo bget -help                            Prints this help screen.
+echo -help                                 Prints this help screen.
 echo.
 echo Supported methods: -useJS -useVBS -usePS -useBITS -useCURL
+echo Example: bget -get -useVBS test
 echo Some Antiviruses flag the JS and VBS download functions as viruses.
 echo Either witelist them or use the BITS method.
-echo Example: bget -get -useVBS test
 echo ---------------------------------------------------------------------------
 if defined msg echo !msg!
 set msg=
