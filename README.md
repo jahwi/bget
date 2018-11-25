@@ -45,7 +45,9 @@ Scenario: You want to fetch a script from the server called “test”.  The eas
 
 ## Switches
 
-### -Get: This is the script fetching function.
+### -Get: 
+
+This is the script fetching function.
 
 Usage:
 
@@ -59,7 +61,10 @@ Example:
 
 The above will download the script named “test” from the Bget server using the VBS download function.
 
-### -Pastebin: This fetches a pastebin raw and saves it as a .bat script.
+### -Pastebin: 
+
+This fetches a pastebin raw and saves it as a .bat script.
+
 Usage:
 
 `BGET -pastebin -usemethod PASTECODE`
@@ -76,7 +81,9 @@ The paste code is the unique element of a Pastebin URL.
 
 i.e., A Pastebin script located at https://pastebin.com/YkEtQYFR would have **YkEtQYFR** as its paste code. If you get the paste code wrong, you'll get a Pastebin error webpage as the output file instead of your intended script. Also, the Pastebin scripts have not been vetted by us so be sure to inspect all scripts fetched from Pastebin.
 
-### -Remove: Removes a downloaded script
+### -Remove: 
+
+Removes a downloaded script
 
 Usage:
 
@@ -88,7 +95,9 @@ Example:
 
 If “script” is “Pastebin”, it deletes all downloaded Pastebin scripts.
 
-### -Update: Updates the specified script.
+### -Update: 
+Updates the specified script.
+
 Usage:
 
 `BGET -update -usemethod script`
@@ -99,7 +108,10 @@ Example:
 
 `BGET -update -usejs test`
 
-### -Info: Retrieves basic info about a script.
+### -Info:
+
+Retrieves basic info about a script.
+
 Usage:
 
 `BGET -info -usemethod script`
@@ -110,7 +122,9 @@ Example:
 
 `BGET -info -usevbs test`
 
-### -List: Lists either local scripts or scripts on the server.
+### -List: 
+
+Lists either local scripts or scripts on the server.
 
 Usage:
 
@@ -128,7 +142,9 @@ Example:
 
 Supported methods: JS, VBS, PS, CURL, BITS
 
-### -Upgrade: Updates bget to the latest version
+### -Upgrade: 
+
+Updates bget to the latest version
 
 Usage:
 
@@ -140,7 +156,9 @@ Example:
 
 Supported methods: JS, VBS, PS, CURL, BITS
 
-### -Help: prints the help text.
+### -Help: 
+
+Prints the help text.
 
 ## Methods
 Bget’s  ‘methods’ are the various ways through which Bget interacts with servers.
