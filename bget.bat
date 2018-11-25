@@ -26,9 +26,9 @@ if "!missing_curl!"=="yes" (
 	if "!errorlevel!"=="2" exit /b
 	if "!errorlevel!"=="1" (
 		if not exist curl md curl
-		call :download -js "https://archive.org/download/batchget_gmail_Curl/curl.exe#%cd%\curl\curl.exe"
-		call :download -js "https://archive.org/download/batchget_gmail_Curl/curl-ca-bundle.crt#%cd%\curl\curl-ca-bundle.crt"
-		call :download -js "https://archive.org/download/batchget_gmail_Curl/libcurl.dll#%cd%\curl\libcurl.dll"
+		call :download -js "https://github.com/jahwi/bget/raw/master/curl/curl.exe#%cd%\curl\curl.exe"
+		call :download -js "https://raw.githubusercontent.com/jahwi/bget/master/curl/curl-ca-bundle.crt#%cd%\curl\curl-ca-bundle.crt"
+		call :download -js "https://github.com/jahwi/bget/raw/master/curl/libcurl.dll#%cd%\curl\libcurl.dll"
 		set missing_curl_download=
 		for %%a in ("curl\curl.exe" "curl\curl-ca-bundle.crt" "curl\libcurl.dll" ) do ( if not exist "%%~a" set missing_curl_download=yes )
 		if "!missing_curl_download!"=="yes" echo An error occured when downloading curl. && exit /b
@@ -39,11 +39,12 @@ exit /b
 
 :main
 ::print the bget intro, followed by the relevant output
-echo ------------------------------------------
+echo ---------------------------------------------------------------------------
 echo Bget v0.1.1
 echo Batch script fetcher
-echo Made by Jahwi, Icarus, and Ben in 2018.
-echo ------------------------------------------
+echo Made by Jahwi in 2018.
+echo Edits made by Icarus.
+echo ---------------------------------------------------------------------------
 echo.
 
 ::checks for errors in user input, then calls the switch.
@@ -66,21 +67,21 @@ set valid_bool=
 ::Beginning of switch space
 :help
 ::is printed if help switch, no switch or an incorrect switch is supplied.
-echo ------------------------------------------------------------------------------------------------
+echo ---------------------------------------------------------------------------
 echo BGET [-switch {subswitches} {ARG} ]
-echo [-get {-usemethod} SCRIPT ]             Fetches the script using the specified method.
-echo [-pastebin {-usemethod} PASTE_CODE ]    Gets a Pastebin script using the specified method.
-echo [-remove SCRIPT ]                       Removes the script.
-echo [-update {-usemethod} SCRIPT ]          Fetches the script using the specified method.
-echo [-info {-usemethod} SCRIPT ]            Gets info on the specified script.
-echo [-list -server {-usemethod} ]           Gets the list of scripts on Bget's server.
-echo [-list -local]                          Gets the list of scripts on the local computer.
-echo [-upgrade {-usemethod} ]                Gets Bget's latest version.
-echo bget -help                              Prints this help screen.
+echo [-get {-usemethod} SCRIPT ]           Fetches a script from Bget's server.
+echo [-pastebin {-usemethod} PASTE_CODE ]  Gets a script from Pastebin.
+echo [-remove SCRIPT ]                     Removes the script.
+echo [-update {-usemethod} SCRIPT ]        Updates the script.
+echo [-info {-usemethod} SCRIPT ]          Gets info on the specified script.
+echo [-list -server {-usemethod} ]         Lists scripts on Bget's server.
+echo [-list -local]                        Lists local scripts scripts.
+echo [-upgrade {-usemethod} ]              Updates Bget.
+echo bget -help                            Prints this help screen.
 echo.
-echo Supported methods: JS (Jscript),VBS, PS (Powershell), BITS (bitsadmin), CURL.
-echo Example: bget -get -usevbs test
-echo -------------------------------------------------------------------------------------------------
+echo Supported methods: -useJS -useVBS -usePS -useBITS -useCURL
+echo Example: bget -get -useVBS test
+echo ---------------------------------------------------------------------------
 if defined msg echo !msg!
 set msg=
 exit /b
