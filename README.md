@@ -4,14 +4,14 @@ Table of Contents
 2. [Features](https://github.com/jahwi/bget/blob/master/README.md#features)
 3. [Running Bget](https://github.com/jahwi/bget/blob/master/README.md#running-bget)
 4. [Switches](https://github.com/jahwi/bget/blob/master/README.md#switches)
-	- GET
-	- PASTEBIN
-	- REMOVE
-	- Update
-	- INFO
-	- LIST
-	- UPGRADE
-	- HELP
+	- [GET](https://github.com/jahwi/bget/blob/master/README.md#-get)
+	- [PASTEBIN](https://github.com/jahwi/bget/blob/master/README.md#-pastebin)
+	- [REMOVE](https://github.com/jahwi/bget/blob/master/README.md#-remove)
+	- [Update](https://github.com/jahwi/bget/blob/master/README.md#-update)
+	- [INFO](https://github.com/jahwi/bget/blob/master/README.md#-info)
+	- [LIST](https://github.com/jahwi/bget/blob/master/README.md#-list)
+	- [UPGRADE](https://github.com/jahwi/bget/blob/master/README.md#-upgrade)
+	- [HELP](https://github.com/jahwi/bget/blob/master/README.md#-help)
 5. [Methods](https://github.com/jahwi/bget/blob/master/README.md#methods)
 	- Jscript -JS
 	- Visual Basic Script -VBS
