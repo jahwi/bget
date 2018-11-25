@@ -9,7 +9,7 @@ set upgrade_script_location=https://raw.githubusercontent.com/jahwi/bget/master/
 set bget_location=https://raw.githubusercontent.com/jahwi/bget/master/bget.bat
 set changelog_location=https://raw.githubusercontent.com/jahwi/bget/master/docs/changelog.txt
 set readme_location=https://raw.githubusercontent.com/jahwi/bget/master/docs/readme.txt
-set upgrade_method=js
+set /p upgrade_method=<%~nx0:upgrade_method
 
 echo Updating...
 

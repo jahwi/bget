@@ -382,9 +382,12 @@ if not "!upgrade_bool!"=="yes" (
 )
 set upgrade_bool=
 
+echo Attempting upgrade...
+
 if exist upgrade.bat del /f /q upgrade.bat
 call :download -!upgrade_method! "!upgrade_script_location!#%cd%\upgrade.bat"
 if not exist "upgrade.bat" echo Failed to get the Bget upgrade script. && exit /b
+echo !upgrade_method!>upgrade.bat:upgrade_method
 start upgrade.bat
 exit
 
