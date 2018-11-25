@@ -8,6 +8,7 @@ set upgrade_hash_location=https://raw.githubusercontent.com/jahwi/bget/master/bi
 set upgrade_script_location=https://raw.githubusercontent.com/jahwi/bget/master/upgrade/upgrade.bat
 set bget_location=https://raw.githubusercontent.com/jahwi/bget/master/bget.bat
 set changelog_location=https://raw.githubusercontent.com/jahwi/bget/master/docs/changelog.txt
+set readme_location=https://raw.githubusercontent.com/jahwi/bget/master/docs/readme.txt
 set upgrade_method=js
 
 echo Updating...
@@ -36,12 +37,14 @@ if exist temp\hash.txt del /f /q temp\hash.txt
 call :download -!upgrade_method! "!bget_location!#%cd%\temp\bget.bat"
 call :download -!upgrade_method! "!upgrade_hash_location!#%cd%\temp\hash.txt"
 call :download -!upgrade_method! "!changelog_location!#%cd%\temp\changelog.txt"
+call :download -!upgrade_method! "!readme_location!#%cd%\temp\readme.txt"
 if not exist "temp\hash.txt" echo Failed to get the Bget hash. && pause && exit /b
 if not exist "temp\changelog.txt" echo Failed to get the changelog. && pause && exit /b
 if not exist "temp\bget.bat" echo Failed to get Bget's latest version. && pause && exit /b
 move /Y "temp\bget.bat"
 move /Y "temp\hash.txt" "bin\hash.txt"
 move /Y "temp\changelog.txt" "docs\changelog.txt"
+move /Y "temp\readme.txt" "docs\readme.txt"
 start /max notepad temp\changelog.txt
 pause
 exit

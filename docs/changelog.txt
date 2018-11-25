@@ -13,4 +13,4 @@ v0.1.1 [23-NOV-2018]                 Fixed an issue where file paths containing 
        [24-NOV-2018]                 Reformatted help text.
        [24-NOV-2018]                 List function can now display script categories.
 	   [25-NOV-2018]                 Changed the scripts location to a separate repository.
-	   [25-NOV-2018]                 Get, remove and update switches now accept multiple scriptnames.
+	   [25-NOV-2018]                 Get, remove and update switches now accept simultaneous multiple scriptnames.
