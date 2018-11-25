@@ -1,9 +1,9 @@
 # Bget
 Table of Contents
-1. [Introduction] (https://github.com/jahwi/bget/blob/master/README.md#introduction)
-2. Features
-3. Running Bget
-4. Switches
+1. [Introduction](https://github.com/jahwi/bget/blob/master/README.md#introduction)
+2. [Features](https://github.com/jahwi/bget/blob/master/README.md#features)
+3. [Running Bget](https://github.com/jahwi/bget/blob/master/README.md#running-bget)
+4. [Switches](https://github.com/jahwi/bget/blob/master/README.md#switches)
 	- GET
 	- PASTEBIN
 	- REMOVE
@@ -12,12 +12,13 @@ Table of Contents
 	- LIST
 	- UPGRADE
 	- HELP
-5. Methods
+5. [Methods](https://github.com/jahwi/bget/blob/master/README.md#methods)
 	- Jscript -JS
 	- Visual Basic Script -VBS
 	- Powershell -PS
 	- BITSAdmin -BITS
 	- CURL
+6. [Contact](https://github.com/jahwi/bget/blob/master/README.md#contact)
 
 ## INTRODUCTION
 Bget is a batch-file command-line tool for handling Windows scripts. It is built to be a companion to those who write, use and maintain Windows scripts. It helps those who use scripts easily download, update and remove scripts. It’s built for scripters, by scripters.
