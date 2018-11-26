@@ -45,7 +45,7 @@ move /Y "temp\bget.bat"
 move /Y "temp\hash.txt" "bin\hash.txt"
 move /Y "temp\changelog.txt" "docs\changelog.txt"
 move /Y "temp\readme.txt" "docs\readme.txt"
-start /max notepad docs\changelog.txt
+start /max /B notepad docs\changelog.txt
 start del /f /q %~nx0
 pause
 exit
