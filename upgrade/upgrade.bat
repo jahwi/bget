@@ -10,6 +10,7 @@ set bget_location=https://raw.githubusercontent.com/jahwi/bget/master/bget.bat
 set changelog_location=https://raw.githubusercontent.com/jahwi/bget/master/docs/changelog.txt
 set readme_location=https://raw.githubusercontent.com/jahwi/bget/master/docs/readme.txt
 set /p upgrade_method=<%~nx0:upgrade_method
+set /p force_bool=<%~nx0:force_bool
 if not defined upgrade_method set upgrade_method=bits
 echo Updating...
 
@@ -24,6 +25,13 @@ if not exist bin\hash.txt (
 )
 
 ::compare old and new hashes
+
+::force if switch is applied
+if /i "!force_bool!"=="-force" (
+	echo Forcing upgrade...
+	echo %random%%random%%random%>bin\hash.txt
+)
+
 set/p current_upgrade_hash=<bin\hash.txt
 if /i "!new_upgrade_hash!"=="!current_upgrade_hash!" echo You already have the latest version. && pause && exit /b
 
@@ -41,11 +49,17 @@ call :download -!upgrade_method! "!readme_location!#%cd%\temp\readme.txt"
 if not exist "temp\hash.txt" echo Failed to get the Bget hash. && pause && exit /b
 if not exist "temp\changelog.txt" echo Failed to get the changelog. && pause && exit /b
 if not exist "temp\bget.bat" echo Failed to get Bget's latest version. && pause && exit /b
+
+::move downloaded files
 move /Y "temp\bget.bat"
 move /Y "temp\hash.txt" "bin\hash.txt"
 move /Y "temp\changelog.txt" "docs\changelog.txt"
 move /Y "temp\readme.txt" "docs\readme.txt"
+
+::start changelog
 start /max notepad docs\changelog.txt
+
+::delete self
 start /B del /f /q %~nx0
 pause
 exit
