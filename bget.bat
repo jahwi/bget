@@ -74,7 +74,7 @@ if /i "!switch_string:~0,10!"=="-help -doc" (
 	if not "%~3"=="" echo Invalid number of arguments. && exit /b
 	if /i not "!switch_string!"=="-help -doc" echo Invalid help switch. && exit /b
 	if exist docs\readme.txt (
-		start /max notepad docs\readme.txt
+		type docs\readme.txt
 		exit /b
 	)
 	if not exist docs\readme.txt echo the bget help doc is missing. run bget -upgrade -usebits to get it. && exit /b
