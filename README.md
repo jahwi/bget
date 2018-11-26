@@ -139,7 +139,7 @@ To update more than one script at once,
 
 Example:
 
-`BGET -update -usecurl "test tetris bigtext" `
+```BGET -update -usecurl "test tetris bigtext"```
 
 ### -List: 
 
