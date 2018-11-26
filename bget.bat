@@ -303,6 +303,10 @@ set update_bool=
 				echo %%f>scripts\%%~b\hash.txt
 				echo %%d>scripts\%%~b\info.txt
 				echo %%g>scripts\%%~b\author.txt
+				if "%%~xe"==".cab" (
+					echo Extracting...
+					expand "scripts\%%~b\%%~e" -F:* "scripts\%%~b" >nul
+				)
 				echo Done.
 			)
 		)

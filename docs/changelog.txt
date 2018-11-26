@@ -15,3 +15,4 @@ v0.1.1 [23-NOV-2018]                 Fixed an issue where file paths containing 
        [25-NOV-2018]                 Changed the scripts location to a separate repository.
        [25-NOV-2018]                 Get, remove and update switches now accept simultaneous multiple scriptnames.
        [25-NOV-2018]                 Added -doc switch to help function.
+       [26-NOV-2018]                 get and update functions can now handle cab packages.
