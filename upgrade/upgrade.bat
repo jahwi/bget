@@ -19,6 +19,7 @@ set /a sess_rand=%random%
 call :download -!upgrade_method! "!upgrade_hash_location!#%cd%\temp\hash!sess_rand!.txt"
 if not exist temp\hash!sess_rand!.txt echo Failed to get the upgrade hash. && pause && exit /b
 set/p new_upgrade_hash=<temp\hash!sess_rand!.txt
+
 if not exist bin\hash.txt (
 	echo No local hash found. Will upgrade anyway.
 	echo %random%%random%%random%>bin\hash.txt
@@ -27,7 +28,7 @@ if not exist bin\hash.txt (
 ::compare old and new hashes
 
 ::force if switch is applied
-if /i "!force_bool!"=="-force" (
+if /i "!force_bool!"=="yes" (
 	echo Forcing upgrade...
 	echo %random%%random%%random%>bin\hash.txt
 )
