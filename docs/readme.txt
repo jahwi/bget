@@ -51,7 +51,10 @@ Supported methods: JS, VBS, PS, CURL, BITS
 Example:
 BGET -get -usevbs test
 The above will download the script named “test” from the Bget server using the VBS download function.
-To get more than one script at once, 
+To get more than one script at once, use:
+
+BGET -get -usemethod "scripts"
+
 Example:
 BGET -get -usecurl "test tetris bigtext"
 
@@ -117,6 +120,7 @@ Supported methods: JS, VBS, PS, CURL, BITS
 
 -Help:
 Prints the help text.
+-help -doc opens this readme.
 
 Methods
 Bget’s ‘methods’ are the various ways through which Bget interacts with servers. There are currently 5 methods:

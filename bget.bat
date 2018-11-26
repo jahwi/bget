@@ -66,19 +66,33 @@ set valid_bool=
 
 ::----------------------------------------------------------
 ::Beginning of switch space
+
 :help
+
+::opens helpdoc
+if /i "!switch_string:~0,10!"=="-help -doc" (
+	if not "%~3"=="" echo Invalid number of arguments. && exit /b
+	if /i not "!switch_string!"=="-help -doc" echo Invalid help switch. && exit /b
+	if exist docs\readme.txt (
+		start /max notepad docs\readme.txt
+		exit /b
+	)
+	if not exist docs\readme.txt echo the bget help doc is missing. run bget -upgrade -usebits to get it. && exit /b
+)
+
 ::is printed if help switch, no switch or an incorrect switch is supplied.
 echo ---------------------------------------------------------------------------
 echo BGET [-switch {subswitches} {ARG} ]
-echo [-get {-usemethod} "SCRIPTs" ]           Fetches a script from Bget's server.
+echo [-get {-usemethod} "SCRIPTs" ]        Fetches a script/scripts.
 echo [-pastebin {-usemethod} PASTE_CODE local_filename ] Gets a Pastebin script.
-echo [-remove SCRIPT ]                     Removes the script.
-echo [-update {-usemethod} SCRIPT ]        Updates the script.
+echo [-remove "SCRIPTs" ]                  Removes a script/scripts
+echo [-update {-usemethod} "SCRIPTs" ]     Updates the script/scripts
 echo [-info {-usemethod} SCRIPT ]          Gets info on the specified script.
 echo [-list -server {-usemethod} ]         Lists scripts on Bget's server.
 echo [-list -local]                        Lists local scripts scripts.
 echo [-upgrade {-usemethod} ]              Updates Bget.
 echo -help                                 Prints this help screen.
+echo -help -doc                            Opens the full help text.
 echo.
 echo Supported methods: -useJS -useVBS -usePS -useBITS -useCURL
 echo Example: bget -get -useVBS test
