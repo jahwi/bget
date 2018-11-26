@@ -389,6 +389,7 @@ exit /b
 set upgrade_bool=
 set upgrade_method=
 set upgrade_script_location=https://raw.githubusercontent.com/jahwi/bget/master/upgrade/upgrade.bat
+set upgrade_hash_location=https://raw.githubusercontent.com/jahwi/bget/master/bin/hash.txt
 if "%~1"=="" echo Error: No update method supplied. && exit /b
 if not "%~2"=="" echo Error: Invalid number of arguments. && exit /b
 for %%s in (curl js vbs bits ps) do (
@@ -405,6 +406,23 @@ if not "!upgrade_bool!"=="yes" (
 set upgrade_bool=
 
 echo Attempting upgrade...
+
+::get bget's file hash
+set /a sess_rand=%random%
+call :download -!upgrade_method! "!upgrade_hash_location!#%cd%\temp\hash!sess_rand!.txt"
+if not exist temp\hash!sess_rand!.txt echo Failed to get the upgrade hash. && pause && exit /b
+set new_upgrade_hash=
+set current_upgrade_hash=
+set/p new_upgrade_hash=<temp\hash!sess_rand!.txt
+if not exist bin\hash.txt (
+	echo No local hash found. Will upgrade anyway.
+	echo %random%%random%%random%>bin\hash.txt
+)
+
+::compare old and new hashes
+set/p current_upgrade_hash=<bin\hash.txt
+if /i "!new_upgrade_hash!"=="!current_upgrade_hash!" echo You already have the latest version. && pause && exit /b
+
 
 if exist upgrade.bat del /f /q upgrade.bat
 call :download -!upgrade_method! "!upgrade_script_location!#%cd%\upgrade.bat"
