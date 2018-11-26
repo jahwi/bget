@@ -117,6 +117,11 @@ BGET -upgrade -usemethod
 Example:
 BGET -upgrade -usevbs
 Supported methods: JS, VBS, PS, CURL, BITS
+You can also force Bget to get the latest version, regardless of that currently installed.
+Usage:
+BGET -upgrade -usemethod -force
+Example:
+BGET -upgrade -usecurl -force
 
 -Help:
 Prints the help text.

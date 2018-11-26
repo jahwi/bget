@@ -91,6 +91,7 @@ echo [-info {-usemethod} SCRIPT ]          Gets info on the specified script.
 echo [-list -server {-usemethod} ]         Lists scripts on Bget's server.
 echo [-list -local]                        Lists local scripts scripts.
 echo [-upgrade {-usemethod} ]              Updates Bget.
+echo [-upgrade {-usemethod} -force ]       Updates Bget, regardless of version.
 echo -help                                 Prints this help screen.
 echo -help -doc                            Opens the full help text.
 echo.
