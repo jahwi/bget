@@ -39,14 +39,13 @@ exit /b
 
 :main
 ::print the bget intro, followed by the relevant output
-echo ---------------------------------------------------------------------------
-echo Bget v0.1.1
-echo Batch script fetcher
-echo Made by Jahwi in 2018.
-echo Edits made by Icarus.
-echo https://github.com/jahwi/bget
-echo ---------------------------------------------------------------------------
-echo.
+for %%a in (" ---------------------------------------------------------------------------" 
+" Bget v0.1.1		Batch script fetcher" 
+" Made by Jahwi in 2018	Edits made by Icarus." 
+" https://github.com/jahwi/bget" 
+" ---------------------------------------------------------------------------" 
+""
+) do echo=%%~a
 
 ::checks for errors in user input, then calls the switch.
 if "%~1"=="" set msg=Error: No switch supplied. && call :help && exit /b
@@ -81,25 +80,27 @@ if /i "!switch_string:~0,10!"=="-help -doc" (
 )
 
 ::is printed if help switch, no switch or an incorrect switch is supplied.
-echo ---------------------------------------------------------------------------
-echo BGET [-switch {subswitches} {ARG} ]
-echo [-get {-usemethod} "SCRIPTs" ]        Fetches a script/scripts.
-echo [-pastebin {-usemethod} PASTE_CODE local_filename ] Gets a Pastebin script.
-echo [-remove "SCRIPTs" ]                  Removes a script/scripts
-echo [-update {-usemethod} "SCRIPTs" ]     Updates the script/scripts
-echo [-info {-usemethod} SCRIPT ]          Gets info on the specified script.
-echo [-list -server {-usemethod} ]         Lists scripts on Bget's server.
-echo [-list -local]                        Lists local scripts scripts.
-echo [-upgrade {-usemethod} ]              Updates Bget.
-echo [-upgrade {-usemethod} -force ]       Updates Bget, regardless of version.
-echo -help                                 Prints this help screen.
-echo -help -doc                            Opens the full help text.
-echo.
-echo Supported methods: -useJS -useVBS -usePS -useBITS -useCURL
-echo Example: bget -get -useVBS test
-echo Some Antiviruses flag the JS and VBS download functions as viruses.
-echo Either witelist them or use the BITS method.
-echo ---------------------------------------------------------------------------
+for %%a in (
+	"  ---------------------------------------------------------------------------"
+	"  BGET [-switch {subswitches} {ARG} ]"
+	"  [-get {-usemethod} "SCRIPTs" ]        Fetches a script/scripts."
+	"  [-pastebin {-usemethod} PASTE_CODE local_filename ] Gets a Pastebin script."
+	"  [-remove "SCRIPTs" ]                  Removes a script/scripts"
+	"  [-update {-usemethod} "SCRIPTs" ]     Updates the script/scripts"
+	"  [-info {-usemethod} SCRIPT ]          Gets info on the specified script."
+	"  [-list -server {-usemethod} ]         Lists scripts on Bget's server."
+	"  [-list -local]                        Lists local scripts."
+	"  [-upgrade {-usemethod} ]              Updates Bget."
+	"  [-upgrade {-usemethod} -force ]       Updates Bget, regardless of version."
+	"  -help                                 Prints this help screen."
+	"  -help -doc                            Opens the full help text."
+	""
+	"  Supported methods: -useJS -useVBS -usePS -useBITS -useCURL"
+	"  Example: bget -get -useVBS test"
+	"  Some Antiviruses flag the JS and VBS download functions as viruses."
+	"  Either witelist them or use the BITS method."
+	"  ---------------------------------------------------------------------------"
+) do echo=%%~a
 if defined msg echo !msg!
 set msg=
 exit /b
