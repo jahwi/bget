@@ -104,9 +104,9 @@ If “script” is “Pastebin”, it deletes all downloaded Pastebin scripts.1 
 
 Example:
 
-`BGET -remove "test tetris bigtext"
+`BGET -remove "test tetris bigtext"`
 
-To remove more than one script, use `BGET -remove "script"
+To remove more than one script, use `BGET -remove "script"`
 
 ### -Update: 
 Updates the specified script.
