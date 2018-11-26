@@ -85,7 +85,12 @@ if /i "%~1"=="-js" (
 ::Curl download function
 if /i "%~1"=="-curl" (
 	call :checkcurl
-	if "!missing_curl!"=="yes" exit /b
+	if "!missing_curl!"=="yes" (
+		set upgrade_method=bits
+		echo Defaulting to BITSADMIN...
+		call :download -bits "%~2"
+		exit /b
+	)
 	for /f "tokens=1,2 delims=#" %%b in ("%~2") do (
 		curl -s "%%b" -o "%%c"
 	)
@@ -118,6 +123,31 @@ if /i "%~1"=="-vbs" (
 			cscript //NoLogo //e:VBScript bin\download.vbs "%%e" "%%f"
 		)
 		exit /b
+	)
+)
+exit /b
+
+:checkcurl
+set missing_curl=
+for %%a in (curl.exe libcurl.dll curl-ca-bundle.crt) do (
+	if not exist "curl\%%a" set missing_curl=yes
+)
+if not "!missing_curl!"=="yes" exit /b
+if "!missing_curl!"=="yes" (
+	choice /c yn /n /m "Curl could not be found in the curl sub-directory. Download Curl now? [(Y)es/(N)o]"
+	if "!errorlevel!"=="2" (
+		set upgrade_method=bits
+		exit /b
+	)
+	if "!errorlevel!"=="1" (
+		if not exist curl md curl
+		call :download -bits "https://github.com/jahwi/bget/raw/master/curl/curl.exe#%cd%\curl\curl.exe"
+		call :download -bits "https://raw.githubusercontent.com/jahwi/bget/master/curl/curl-ca-bundle.crt#%cd%\curl\curl-ca-bundle.crt"
+		call :download -bits "https://github.com/jahwi/bget/raw/master/curl/libcurl.dll#%cd%\curl\libcurl.dll"
+		set missing_curl_download=
+		for %%a in ("curl\curl.exe" "curl\curl-ca-bundle.crt" "curl\libcurl.dll" ) do ( if not exist "%%~a" set missing_curl_download=yes )
+		if "!missing_curl_download!"=="yes" echo An error occured when downloading curl. && exit /b
+		if not "!missing_curl_download!"=="yes" set missing_curl=
 	)
 )
 exit /b

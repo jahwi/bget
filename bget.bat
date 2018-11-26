@@ -26,9 +26,9 @@ if "!missing_curl!"=="yes" (
 	if "!errorlevel!"=="2" exit /b
 	if "!errorlevel!"=="1" (
 		if not exist curl md curl
-		call :download -js "https://github.com/jahwi/bget/raw/master/curl/curl.exe#%cd%\curl\curl.exe"
-		call :download -js "https://raw.githubusercontent.com/jahwi/bget/master/curl/curl-ca-bundle.crt#%cd%\curl\curl-ca-bundle.crt"
-		call :download -js "https://github.com/jahwi/bget/raw/master/curl/libcurl.dll#%cd%\curl\libcurl.dll"
+		call :download -bits "https://github.com/jahwi/bget/raw/master/curl/curl.exe#%cd%\curl\curl.exe"
+		call :download -bits "https://raw.githubusercontent.com/jahwi/bget/master/curl/curl-ca-bundle.crt#%cd%\curl\curl-ca-bundle.crt"
+		call :download -bits "https://github.com/jahwi/bget/raw/master/curl/libcurl.dll#%cd%\curl\libcurl.dll"
 		set missing_curl_download=
 		for %%a in ("curl\curl.exe" "curl\curl-ca-bundle.crt" "curl\libcurl.dll" ) do ( if not exist "%%~a" set missing_curl_download=yes )
 		if "!missing_curl_download!"=="yes" echo An error occured when downloading curl. && exit /b
