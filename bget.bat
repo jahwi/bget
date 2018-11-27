@@ -48,6 +48,19 @@ for %%a in (" ------------------------------------------------------------------
 ) do echo=%%~a
 
 ::checks for errors in user input, then calls the switch.
+
+::input validation
+set input_string=%*
+if defined input_string for %%a in (a b c d e f g h i j k l m n o p q r s t u v w x y z -) do (
+	set input_string=!input_string:%%a=!
+	if defined input_string set input_string=!input_string: =!
+)
+if not "!input_string!"=="" ( 
+	set msg=Invalid input.
+	call :help
+	exit /b
+)
+
 if "%~1"=="" set msg=Error: No switch supplied. && call :help && exit /b
 set valid_bool=
 for %%x in (get remove update info list upgrade help pastebin) do (
