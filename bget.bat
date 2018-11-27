@@ -89,7 +89,7 @@ if /i "!switch_string:~0,10!"=="-help -doc" (
 		type docs\readme.txt
 		exit /b
 	)
-	if not exist docs\readme.txt echo the bget help doc is missing. run bget -upgrade -usebits to get it. && exit /b
+	if not exist docs\readme.txt echo the bget help doc is missing. Run bget -upgrade -usebits to get it. && exit /b
 )
 
 ::is printed if help switch, no switch or an incorrect switch is supplied.
