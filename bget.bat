@@ -14,6 +14,7 @@ if not exist docs md docs
 ::init global vars and settings
 set info_mode=off
 set list_location=https://raw.githubusercontent.com/jahwi/bget-list/master/master.txt
+set auto-delete_logs=yes
 
 goto :main
 
@@ -73,10 +74,14 @@ if not "!valid_bool!"=="yes" set msg=Error: Invalid switch && call :help && exit
 if "!valid_bool!"=="yes" ( 
 	set switch_string=%*
 	call :!switch_string:~1!
+	if /i "!auto-delete_logs!"=="yes" (
+		if exist "temp\master!sess_rand!.txt" del /f /q "temp\master!sess_rand!.txt" >nul
+		if exist "temp\hash!sess_rand!.txt" del /f /q "temp\hash!sess_rand!.txt" >nul
+	)
 	exit /b
 )
-::if exist master!sess_rand!.txt del /f /q master!sess_rand!.txt
-::add this above to suppress the log files clutter
+
+
 set valid_bool=
 
 ::--------------------------------------------------------------------
@@ -323,11 +328,11 @@ exit /b
 set update_bool=
 set update_method=
 if "%~1"=="" echo Error: No update method supplied. && exit /b
-if "%~2"=="" echo Error: No script name supplied. && exit /b
 for %%s in (curl js vbs bits ps) do (
 	if /i "%~1"=="-use%%s" (
 		set update_bool=yes
 		set update_method=%%s
+		if "%~2"=="" echo Error: Invalid argument. && exit /b
 	)
 )
 if not "!update_bool!"=="yes" (
