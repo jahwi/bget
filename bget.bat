@@ -278,9 +278,11 @@ if /i "%~1"=="-all" (
 	choice /c yn /n /m "Delete all scripts? [y/n]
 	if "!errorlevel!"=="2" exit /b
 	if "!errorlevel!"=="1" (
-		rd /s /q scripts
-		md scripts
-		echo Cleared.
+		set script_count=
+		for /d %%a in (scripts\*) do (
+			echo Removing "%%~na"... && rd /s /q "%%a"
+			if exist "%%a" echo Failed to remove %%~na.
+		)
 		exit /b
 	)
 	
