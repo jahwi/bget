@@ -19,14 +19,14 @@ Table of Contents
 	e.	CURL
 
 INTRODUCTION
-Bget is a batch-file command-line tool for handling Windows scripts. It is built to be a companion to those who write, use and maintain Windows scripts. It helps those who use scripts easily download, update and remove scripts. It’s built for scripters, by scripters.
+Bget is a batch-file command-line tool for handling Windows scripts. It is built to be a companion to those who write, use and maintain Windows scripts. It helps those who use scripts easily download, update and remove scripts. It's built for scripters, by scripters.
 Bget was conceived in 2016, but this reincarnation of Bget was made in 2018.
 
 Features
-1.	Download scripts from the Bget server: These scripts are vetted and sorted by us. We’ve gone about curating some of the most interesting scripts we could find that we think would be interesting and useful to you as well.
-2.	Download scripts from Pastebin: Pastebin has long been the coder’s friend, and so we added the ability to fetch scripts from Pastebin. These scripts are not pre-vetted however, but they offer the ability for fast code downloading without waiting for us to vet them.
-3.	Update scripts: Rather than manually re-download the latest version of every script, Bget handles that for you, getting the latest version of any script you’ve downloaded.
-4.	Easily remove scripts: Don’t like a script you downloaded? Easily remove it with Bget. One command and it’s buh-bye script.
+1.	Download scripts from the Bget server: These scripts are vetted and sorted by us. We've gone about curating some of the most interesting scripts we could find that we think would be interesting and useful to you as well.
+2.	Download scripts from Pastebin: Pastebin has long been the coder's friend, and so we added the ability to fetch scripts from Pastebin. These scripts are not pre-vetted however, but they offer the ability for fast code downloading without waiting for us to vet them.
+3.	Update scripts: Rather than manually re-download the latest version of every script, Bget handles that for you, getting the latest version of any script you've downloaded.
+4.	Easily remove scripts: Don't like a script you downloaded? Easily remove it with Bget. One command and it's buh-bye script.
 5.	View script info: This allows you to see basic information about a script such as its name, author and description, allowing you to make an informed decision before downloading.
 6.	Bget also allows you to list all scripts on the server and list downloaded scripts on the local computer.
 7.	Upgrade feature: Bget also updates itself so you always stay up-to-date.
@@ -37,28 +37,31 @@ Running Bget
 Captain Obvious: Bget is a command-line tool, so it needs to be run from the command line. A typical Bget command looks like this: 
 Bget [-switch] [-method] SCRIPT
 
-Here’s an example:
+Here's an example:
 Scenario: You want to fetch a script named test from the server. The easiest way to do this would be:
 BGET -get -usecurl test
 
 Switches
 
--Get:
+[A] -Get:
 This is the script fetching function.
 Usage:
 BGET -get -usemethod script
 Supported methods: JS, VBS, PS, CURL, BITS
 Example:
 BGET -get -usevbs test
-The above will download the script named “test” from the Bget server using the VBS download function.
+The above will download the script named "test" from the Bget server using the VBS download function.
 To get more than one script at once, use:
-
 BGET -get -usemethod "scripts"
-
 Example:
 BGET -get -usecurl "test tetris bigtext"
+You can also get all the scripts on the bget server.
+Usage:
+BGET -get -usemethod -all
+Example:
+BGET -get -usejs -all
 
--Pastebin:
+[B] -Pastebin:
 This fetches a pastebin raw and saves it as a .bat script.
 Usage:
 BGET -pastebin -usemethod PASTECODE
@@ -69,29 +72,35 @@ BGET -pastebin -usecurl 1wsBxRs4
 The paste code is the unique element of a Pastebin URL.
 i.e., A Pastebin script located at https://pastebin.com/YkEtQYFR would have YkEtQYFR as its paste code. If you get the paste code wrong, you'll get a Pastebin error webpage as the output file instead of your intended script. Also, the Pastebin scripts have not been vetted by us so be sure to inspect all scripts fetched from Pastebin.
 
--Remove:
+[C] -Remove:
 Removes a downloaded script
 Usage:
 BGET -remove script
 Example:
 BGET -remove test
-If “script” is “Pastebin”, it deletes all downloaded Pastebin scripts.
+If "script" is "Pastebin", it deletes all downloaded Pastebin scripts.
 To remove more than one script at once, 
 Example:
 BGET -remove "test tetris bigtext"
 
--Update:
+[D] -Update:
 Updates the specified script.
 Usage:
 BGET -update -usemethod script
 Supported methods: JS, VBS, PS, CURL, BITS
 Example:
 BGET -update -usejs test
-To update more than one script at once, 
+To update more than one script at once,
+BGET -update -usemethod "script1 script2 script3 scriptn"
 Example:
 BGET -update -usecurl "test tetris bigtext"
+You can also update all your scripts at once.
+Usage:
+BGET -update -usemethod -all
+Example:
+BGET -update -usejs -all
 
--Info:
+[E] -Info:
 Retrieves basic info about a script.
 Usage:
 BGET -info -usemethod script
@@ -99,7 +108,7 @@ Supported methods: JS, VBS, PS, CURL, BITS
 Example:
 BGET -info -usevbs test
 
--List:
+[F] -List:
 Lists either local scripts or scripts on the server.
 Usage:
 To list local sctipts:
@@ -110,7 +119,7 @@ Example:
 BGET -list -server -usejs
 Supported methods: JS, VBS, PS, CURL, BITS
 
--Upgrade:
+[G] -Upgrade:
 Updates bget to the latest version
 Usage:
 BGET -upgrade -usemethod
@@ -123,12 +132,12 @@ BGET -upgrade -usemethod -force
 Example:
 BGET -upgrade -usecurl -force
 
--Help:
+[H] -Help:
 Prints the help text.
 -help -doc opens this readme.
 
 Methods
-Bget’s ‘methods’ are the various ways through which Bget interacts with servers. There are currently 5 methods:
+Bget's 'methods' are the various ways through which Bget interacts with servers. There are currently 5 methods:
 
 The JS method: It uses a JS download script.
 The VBS method: Uses a download script written in VBS.
