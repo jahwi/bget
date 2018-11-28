@@ -5,6 +5,10 @@ setlocal enabledelayedexpansion
 ::Made by Jahwi, Icarus and Ben
 :: Conceived, coded and died in 2016, resurrected and recoded in 2018. Enjoy! \o/
 
+::init window size
+::mode con cols=120 lines=30
+::call :powerMode 100 100
+
 ::init directories
 if not exist temp md temp
 if not exist scripts md scripts
@@ -662,6 +666,10 @@ for /f "skip=1 delims=" %%z in ('certutil -hashfile "%~1" MD5') do (
 	set tmp_hash=%%z"
 	if /i not "!tmp_hash:~0,4!"=="Cert" set "hash=%%z"
 )
+exit /b
+
+:powerMode bufWidth  bufHeight
+powershell -command "&{$H=get-host;$W=$H.ui.rawui;$B=$W.buffersize;$S=$W.windowsize;$B.width=if (%1 -gt $S.width) {%1} else {$S.width};$B.height=if (%2 -gt $S.height) {%2} else {$S.height};$W.buffersize=$B;}"
 exit /b
 
 
