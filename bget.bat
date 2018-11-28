@@ -8,6 +8,8 @@ setlocal enabledelayedexpansion
 ::init directories
 if not exist temp md temp
 if not exist scripts md scripts
+if not exist bin md bin
+if not exist docs md docs
 
 ::init global vars and settings
 set info_mode=off
@@ -272,7 +274,17 @@ if "%~1"=="" (
 	exit /b
 )
 
-
+if /i "%~1"=="-all" (
+	choice /c yn /n /m "Delete all scripts? [y/n]
+	if "!errorlevel!"=="2" exit /b
+	if "!errorlevel!"=="1" (
+		rd /s /q scripts
+		md scripts
+		echo Cleared.
+		exit /b
+	)
+	
+)
 ::check if the script exists
 
 for %%r in (%~1) do (
@@ -343,6 +355,7 @@ set update_bool=
 					
 					
 					if exist "scripts\%%~b\%%~e" (
+						set /a script_count+=1
 						set hash=
 						if not exist scripts\%%~b\hash.txt echo hash file for %%~b is missing. Updating anyway.
 						if exist scripts\%%~b\hash.txt (
@@ -377,6 +390,7 @@ set update_bool=
 					)
 				)
 			)
+			if not defined script_count echo You have no scripts. && exit /b
 			exit /b
 		)		
 		
@@ -420,7 +434,7 @@ set update_bool=
 ::--------------------------------------------------------------------
 
 :info
-::retrieves relevant information about the script from thr bget server
+::retrieves relevant information about the script from the bget server
 set info_mode=on
 call :get %*
 set info_mode=off

@@ -13,9 +13,10 @@ v0.1.1 [23-NOV-2018]                 Fixed an issue where file paths containing 
        [24-NOV-2018]                 Reformatted help text.
        [24-NOV-2018]                 List function can now display script categories.
        [25-NOV-2018]                 Changed the scripts location to a separate repository.
-       [25-NOV-2018]                 Get, remove and update switches now accept simultaneous multiple scriptnames.
+       [25-NOV-2018]                 GET, REMOVE, and UPDATE functions now accept simultaneous multiple scriptnames.
        [25-NOV-2018]                 Added -doc switch to help function.
-       [26-NOV-2018]                 get and update functions can now handle cab packages.
-       [26-NOV-2018]                 Added -force switch to upgrade function.
+       [26-NOV-2018]                 GET and UPDATE functions can now handle cab packages.
+       [26-NOV-2018]                 Added -force switch to UPGRADE function.
        [26-NOV-2018]                 Bget -help -doc now prints the entire help doc instead of opening it with notepad
 v0.1.2 [27-NOV-2018]                 GET and UPDATE functions can now download/update all scripts with the -all switch.
+       [28-NOV-2018]                 REMOVE function can now remove all scripts with the -all switch.
