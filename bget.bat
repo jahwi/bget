@@ -541,7 +541,7 @@ echo Attempting upgrade...
 ::get bget's file hash
 set /a sess_rand=%random%
 call :download -!upgrade_method! "!upgrade_hash_location!#%cd%\temp\hash!sess_rand!.txt"
-if not exist temp\hash!sess_rand!.txt echo Failed to get the upgrade hash. && pause && exit /b
+if not exist temp\hash!sess_rand!.txt echo Failed to get the upgrade hash. && exit /b
 set new_upgrade_hash=
 set current_upgrade_hash=
 set/p new_upgrade_hash=<temp\hash!sess_rand!.txt
@@ -558,7 +558,7 @@ if /i "%~2"=="-force" (
 
 ::compare old and new hashes
 set/p current_upgrade_hash=<bin\hash.txt
-if /i "!new_upgrade_hash!"=="!current_upgrade_hash!" echo You already have the latest version. && pause && exit /b
+if /i "!new_upgrade_hash!"=="!current_upgrade_hash!" echo You already have the latest version. && exit /b
 
 ::ge tthe upgrade script and run it
 if exist upgrade.bat del /f /q upgrade.bat
@@ -624,10 +624,11 @@ if /i "%~1"=="-curl" (
 exit /b
 )
 
+::powershell -Command wget "%%b" -OutFile "%%~sc"
 ::powershell download function
 if /i "%~1"=="-ps" (
 	for /f "tokens=1,2 delims=#" %%b in ("%~2") do (
-	powershell -Command wget "%%b" -OutFile "%%~sc"
+	Powershell.exe -command "(New-Object System.Net.WebClient).DownloadFile('%%b','%%~sc')"
 	)
 	exit /b
 )
