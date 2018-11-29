@@ -1,5 +1,7 @@
 @echo off
 setlocal enabledelayedexpansion
+
+
 :: Bget-  Batch script fetcher
 :: v0.1.1
 ::Made by Jahwi, Icarus and Ben
@@ -10,10 +12,9 @@ setlocal enabledelayedexpansion
 ::call :powerMode 100 100
 
 ::init directories
-if not exist temp md temp
-if not exist scripts md scripts
-if not exist bin md bin
-if not exist docs md docs
+for %%a in (scripts temp bin docs) do (
+	if not exist "%~dp0\%%~a" md "%~dp0\%%~a"
+)
 
 ::init global vars and settings
 set info_mode=off
@@ -26,19 +27,19 @@ goto :main
 :checkcurl
 set missing_curl=
 for %%a in (curl.exe libcurl.dll curl-ca-bundle.crt) do (
-	if not exist "curl\%%a" set missing_curl=yes
+	if not exist "%~dp0\curl\%%a" set missing_curl=yes
 )
 if not "!missing_curl!"=="yes" exit /b
 if "!missing_curl!"=="yes" (
 	choice /c yn /n /m "Curl could not be found in the curl sub-directory. Download Curl now? [(Y)es/(N)o]"
 	if "!errorlevel!"=="2" exit /b
 	if "!errorlevel!"=="1" (
-		if not exist curl md curl
-		call :download -bits "https://github.com/jahwi/bget/raw/master/curl/curl.exe#%cd%\curl\curl.exe"
-		call :download -bits "https://raw.githubusercontent.com/jahwi/bget/master/curl/curl-ca-bundle.crt#%cd%\curl\curl-ca-bundle.crt"
-		call :download -bits "https://github.com/jahwi/bget/raw/master/curl/libcurl.dll#%cd%\curl\libcurl.dll"
+		if not exist "%~dp0\curl" md "%~dp0\curl"
+		call :download -bits "https://github.com/jahwi/bget/raw/master/curl/curl.exe#%~dp0\curl\curl.exe"
+		call :download -bits "https://raw.githubusercontent.com/jahwi/bget/master/curl/curl-ca-bundle.crt#%~dp0\curl\curl-ca-bundle.crt"
+		call :download -bits "https://github.com/jahwi/bget/raw/master/curl/libcurl.dll#%~dp0\curl\libcurl.dll"
 		set missing_curl_download=
-		for %%a in ("curl\curl.exe" "curl\curl-ca-bundle.crt" "curl\libcurl.dll" ) do ( if not exist "%%~a" set missing_curl_download=yes )
+		for %%a in ("curl\curl.exe" "curl\curl-ca-bundle.crt" "curl\libcurl.dll" ) do ( if not exist "%~dp0\%%~a" set missing_curl_download=yes )
 		if "!missing_curl_download!"=="yes" echo An error occured when downloading curl. && exit /b
 		if not "!missing_curl_download!"=="yes" set missing_curl=
 	)
@@ -62,6 +63,7 @@ set input_string=%*
 if defined input_string for %%a in (a b c d e f g h i j k l m n o p q r s t u v w x y z -) do (
 	set input_string=!input_string:%%a=!
 	if defined input_string set input_string=!input_string: =!
+	if defined input_string set input_string=!input_string:"=!
 )
 if not "!input_string!"=="" ( 
 	set msg=Invalid input.
@@ -79,8 +81,8 @@ if "!valid_bool!"=="yes" (
 	set switch_string=%*
 	call :!switch_string:~1!
 	if /i "!auto-delete_logs!"=="yes" (
-		if exist "temp\master!sess_rand!.txt" del /f /q "temp\master!sess_rand!.txt" >nul
-		if exist "temp\hash!sess_rand!.txt" del /f /q "temp\hash!sess_rand!.txt" >nul
+		if exist "%~dp0\temp\master!sess_rand!.txt" del /f /q "%~dp0\temp\master!sess_rand!.txt" >nul
+		if exist "%~dp0\temp\hash!sess_rand!.txt" del /f /q "%~dp0\temp\hash!sess_rand!.txt" >nul
 	)
 	exit /b
 )
@@ -97,11 +99,11 @@ set valid_bool=
 if /i "!switch_string:~0,10!"=="-help -doc" (
 	if not "%~3"=="" echo Invalid number of arguments. && exit /b
 	if /i not "!switch_string!"=="-help -doc" echo Invalid help switch. && exit /b
-	if exist docs\readme.txt (
-		type docs\readme.txt
+	if exist "%~dp0\docs\readme.txt" (
+		type "%~dp0\docs\readme.txt"
 		exit /b
 	)
-	if not exist docs\readme.txt echo the bget help doc is missing. Run bget -upgrade -usebits to get it. && exit /b
+	if not exist "%~dp0\docs\readme.txt" echo the Bget help doc is missing. Run bget -upgrade -usebits to get it. && exit /b
 )
 
 ::is printed if help switch, no switch or an incorrect switch is supplied.
@@ -161,40 +163,44 @@ set get_bool=
 	echo Reading script list...
 	for %%r in (%~2) do (
 		set /a sess_rand=%random%
-		if exist temp\master!sess_rand!.txt del /f /q temp\master!sess_rand!.txt
-		call :download -!get_method! "!list_location!#%cd%\temp\master!sess_rand!.txt"
-		if not exist temp\master!sess_rand!.txt echo An error occured getting the script list && exit /b
+		if exist "%~dp0\temp\master!sess_rand!.txt" del /f /q "%~dp0\temp\master!sess_rand!.txt"
+		call :download -!get_method! "!list_location!#%~dp0\temp\master!sess_rand!.txt"
+		if not exist "%~dp0\temp\master!sess_rand!.txt" echo An error occured getting the script list && exit /b
 		set script_count=
-		
 		%=download all scripts on the server if all switch is triggered=%
 		if /i "%~2"=="-all" (
-			for /f "tokens=1-8 delims=," %%a in ('findstr /b /c:"[#]," temp\master!sess_rand!.txt') do (
-				if exist "scripts\%%~b\" echo "%%~b" already exists. Skipping.
-				if not exist "scripts\%%~b\" (
+			for /f "tokens=1-8 delims=," %%a in ('findstr /b /c:"[#]," "%~dp0\temp\master!sess_rand!.txt"') do (
+				set /a script_count+=1
+				if exist "%~dp0\scripts\%%~b\" echo "%%~b" already exists. Skipping.
+				if not exist "%~dp0\scripts\%%~b\" (
 					echo Fetching "%%~b"...
-					if not exist "scripts\%%~b" md "scripts\%%~b"
-					call :download -!get_method! "%%~c#%cd%\scripts\%%~b\%%~e"
-					if not exist "scripts\%%~b\%%~e" echo Failed to get "%%~b"
-					if exist "scripts\%%~b\%%~e" (
-						echo %%f>scripts\%%~b\hash.txt
-						echo %%d>scripts\%%~b\info.txt
-						echo %%g>scripts\%%~b\author.txt
+					if not exist "%~dp0\scripts\%%~b" md "%~dp0\scripts\%%~b"
+					call :download -!get_method! "%%~c#%~dp0\scripts\%%~b\%%~e"
+					if not exist "%~dp0\scripts\%%~b\%%~e" echo Failed to get "%%~b"
+					%=Export the current hash, description and author=%
+					if exist "%~dp0\scripts\%%~b\%%~e" (
+						echo %%f>"%~dp0\scripts\%%~b\hash.txt"
+						echo %%d>"%~dp0\scripts\%%~b\info.txt"
+						echo %%g>"%~dp0\scripts\%%~b\author.txt"
 						%=Deal with .cab packages=%
 						if "%%~xe"==".cab" (
 							echo Extracting...
-							expand "scripts\%%~b\%%~e" -F:* "scripts\%%~b" >nul
-							if not exist "scripts\%%~b\package" md "scripts\%%~b\package"
-							move /Y "scripts\%%~b\%%~e" "scripts\%%~b\package"
+							expand "%~dp0\scripts\%%~b\%%~e" -F:* "%~dp0\scripts\%%~b" >nul
+							if not exist "%~dp0\scripts\%%~b\package" md "%~dp0\scripts\%%~b\package"
+							move /Y "%~dp0\scripts\%%~b\%%~e" "%~dp0\scripts\%%~b\package"
 						)
 						echo Done.
 					)
 				)
 			)
+			if not defined script_count echo Could not read entries from the server list.
 			exit /b
 		)
 		
-		%=From info function.=%
-		for /f "tokens=1-8 delims=," %%a in ('findstr /b /c:"[#],%%~r," temp\master!sess_rand!.txt') do (
+		
+		for /f "tokens=1-8 delims=," %%a in ('findstr /b /c:"[#],%%~r," "%~dp0\temp\master!sess_rand!.txt"') do (
+		
+			%=From info function.=%
 			if "!info_mode!"=="on" (
 				echo.
 				echo Name: %%~b
@@ -208,28 +214,33 @@ set get_bool=
 			)
 			
 			
-			if exist scripts\%%~b\ echo The script "%%~b" already exists in this directory. && exit /b
-			set /a script_count+=1
-			echo Fetching %%~b...
-			if not exist "scripts\%%~b" md "scripts\%%~b"
-			call :download -!get_method! "%%~c#%cd%\scripts\%%~b\%%~e"
-			if not exist "scripts\%%~b\%%~e" echo An error occured while fetching the script. && exit /b
-			if exist "scripts\%%~b\%%~e" (
-				echo %%f>scripts\%%~b\hash.txt
-				echo %%d>scripts\%%~b\info.txt
-				echo %%g>scripts\%%~b\author.txt
-				if "%%~xe"==".cab" (
-					echo Extracting...
-					expand "scripts\%%~b\%%~e" -F:* "scripts\%%~b" >nul
-					if not exist "scripts\%%~b\package" md "scripts\%%~b\package"
-					move /Y "scripts\%%~b\%%~e" "scripts\%%~b\package"
+			if exist "%~dp0\scripts\%%~b\" (
+				echo The script "%%~b" already exists in this directory.
+				set /a script_count+=1
+			)	
+			if not exist "%~dp0\scripts\%%~b\" (
+				set /a script_count+=1
+				echo Fetching %%~b...
+				if not exist "%~dp0\scripts\%%~b" md "%~dp0\scripts\%%~b"
+				call :download -!get_method! "%%~c#%~dp0\scripts\%%~b\%%~e"
+				if not exist "%~dp0\scripts\%%~b\%%~e" echo An error occured while fetching "%%~nb".
+				if exist "%~dp0\scripts\%%~b\%%~e" (
+					echo %%f>"%~dp0\scripts\%%~b\hash.txt"
+					echo %%d>"%~dp0\scripts\%%~b\info.txt"
+					echo %%g>"%~dp0\scripts\%%~b\author.txt"
+					if "%%~xe"==".cab" (
+						echo Extracting...
+						expand "%~dp0\scripts\%%~b\%%~e" -F:* "%~dp0\scripts\%%~b" >nul
+						if not exist "%~dp0\scripts\%%~b\package" md "%~dp0\scripts\%%~b\package"
+						move /Y "%~dp0\scripts\%%~b\%%~e" "%~dp0\scripts\%%~b\package"
+					)
+					echo Done.
 				)
-				echo Done.
 			)
 		)
-		if not defined script_count echo The script "%%~r" does not exist on the server. && exit /b
+		if not defined script_count echo The script "%%~r" does not exist on the server.
 	)
-	exit /b
+exit /b
 ::--------------------------------------------------------------------
 
 :pastebin
@@ -263,12 +274,12 @@ if "%~3"=="" echo Error: You must specify a local filename. && exit /b
 set paste_bool=
 
 ::begin the pastebin fetching
-if exist "scripts\pastebin\%~2\%~3" echo Error: The file name already exists && exit /b
-if not exist "scripts\pastebin\%~2" md "scripts\pastebin\%~2"
+if exist "%~dp0\scripts\pastebin\%~2\%~3" echo Error: The file name already exists && exit /b
+if not exist "%~dp0\scripts\pastebin\%~2" md "%~dp0\scripts\pastebin\%~2"
 echo Fetching "%~2" into "%~3"...
-call :download -!paste_method! "https://pastebin.com/raw/%~2#%cd%\scripts\pastebin\%~2\%~3"
-if not exist "scripts\pastebin\%~2\%~3" echo An error occured fetching the pastebin script. && exit /b
-if exist "scripts\pastebin\%~2\%~3" echo Done. && exit /b
+call :download -!paste_method! "https://pastebin.com/raw/%~2#%~dp0\scripts\pastebin\%~2\%~3"
+if not exist "%~dp0\scripts\pastebin\%~2\%~3" echo An error occured fetching the pastebin script. && exit /b
+if exist "%~dp0\scripts\pastebin\%~2\%~3" echo Done. && exit /b
 ::paranoia
 exit /b
 ::--------------------------------------------------------------------
@@ -288,8 +299,8 @@ if /i "%~1"=="-all" (
 	if "!errorlevel!"=="2" exit /b
 	if "!errorlevel!"=="1" (
 		set script_count=
-		for /d %%a in (scripts\*) do (
-			echo Removing "%%~na"... && rd /s /q "%%a"
+		for /d %%a in ("%~dp0\scripts\*") do (
+			echo Removing "%%~na"... && rd /s /q "%%~a"
 			if exist "%%a" echo Failed to remove %%~na.
 		)
 		exit /b
@@ -299,25 +310,25 @@ if /i "%~1"=="-all" (
 ::check if the script exists
 
 for %%r in (%~1) do (
-	if not exist "scripts\%%~r" echo The script "%%~r" does not exist. && exit /b
+	if not exist "%~dp0\scripts\%%~r" echo The script "%%~r" does not exist.
+	if exist "%~dp0\scripts\%%~r" (
+		if /i "%%~r"=="pastebin" (
+			choice /c yn /n /m "Clear ALL your pastebin scripts? This can't be undone. [(Y)es/(N)o]"
+			if "!errorlevel!"=="2" exit /b
+			if "!errorlevel!"=="1" (
+				rd /s /q "%~dp0\scripts\pastebin"
+				if exist "%~dp0\scripts\pastebin" echo An error occured while deleting the pastebin folder.
+				if not exist "%~dp0\scripts\pastebin" echo Pastebin scripts removed.
+				exit /b
+			)	
+		)
 
-	if /i "%%~r"=="pastebin" (
-		choice /c yn /n /m "Clear ALL your pastebin scripts? This can't be undone. [(Y)es/(N)o]"
-		if "!errorlevel!"=="2" exit /b
-		if "!errorlevel!"=="1" (
-			rd /s /q scripts\pastebin
-			if exist scripts\pastebin echo An error occured while deleting the pastebin folder.
-			if not exist scripts\pastebin echo Pastebin folder removed.
-			exit /b
-		)	
+
+		rd /s /q "%~dp0\scripts\%%~r"
+		if exist "%~dp0\scripts\%%~r" echo Bget could not delete "%%~r".
+		if not exist "%~dp0\scripts\%%~r" echo Removed %%r.
 	)
-
-
-	rd /s /q "scripts\%%~r"
-	if exist "scripts\%%~r" echo Bget could not delete "%%~r". && exit /b
-	if not exist "scripts\%%~r" echo Removed %%r.
 )
-::more paranoia
 exit /b
 ::--------------------------------------------------------------------
 
@@ -350,98 +361,105 @@ set update_bool=
 ::update
 ::will attempt to download curl if when using the curl update method, curl isnt found in the curl subdirectory.
 ::sess rand allows multiple bget instances to be run without running into a "file is in use" issue
-	echo Reading script list...
-	for %%r in (%~2) do (
+echo Reading script list...
+for %%r in (%~2) do (
 		
 		set /a sess_rand=%random%
-		if exist temp\master!sess_rand!.txt del /f /q temp\master!sess_rand!.txt
-		call :download -!update_method! "!list_location!#%cd%\temp\master!sess_rand!.txt"
-		if not exist temp\master!sess_rand!.txt echo An error occured getting the script list. && exit /b
+		if exist "%~dp0\temp\master!sess_rand!.txt" del /f /q "%~dp0\temp\master!sess_rand!.txt"
+		call :download -!update_method! "!list_location!#%~dp0\temp\master!sess_rand!.txt"
+		if not exist "%~dp0\temp\master!sess_rand!.txt" echo An error occured getting the script list. && exit /b
 		set script_count=
 
 		%= updates all scripts =%
 		if /i "%~2"=="-all" (
-			for /f "tokens=1-8 delims=," %%a in ('findstr /b /c:"[#]," temp\master!sess_rand!.txt') do (
-				if exist "scripts\%%~b\" (
+			for /f "tokens=1-8 delims=," %%a in ('findstr /b /c:"[#]," "%~dp0\temp\master!sess_rand!.txt"') do (
+				if exist "%~dp0\scripts\%%~b\" (
 					
 					
-					if exist "scripts\%%~b\%%~e" (
+					if exist "%~dp0\scripts\%%~b\%%~e" (
 						set /a script_count+=1
 						set hash=
-						if not exist scripts\%%~b\hash.txt echo hash file for %%~b is missing. Updating anyway.
-						if exist scripts\%%~b\hash.txt (
-							set/p hash=<scripts\%%~b\hash.txt
+						if not exist "%~dp0\scripts\%%~b\hash.txt" echo hash file for %%~b is missing. Updating anyway.
+						if exist "%~dp0\scripts\%%~b\hash.txt" (
+							set/p hash=<"%~dp0\scripts\%%~b\hash.txt"
 							if /i "!hash!"=="%%~f" echo "%%~b" is up-to-date. Skipping.
 						)
 						
 						if /i not "!hash!"=="%%~f" (
-						if not exist "temp\%%~b" md "temp\%%~b"
-						echo Updating "%%~b"...
-						call :download -!update_method! "%%~c#%cd%\temp\%%~b\%%~e"
-						if not exist "temp\%%~b\%%~e" echo Could not update "%%~b".
-							if exist "temp\%%~b\%%~e" (
+							if not exist "%~dp0\temp\%%~b" md "%~dp0\temp\%%~b"
+							echo Updating "%%~b"...
+							call :download -!update_method! "%%~c#%~dp0\temp\%%~b\%%~e"
+							if not exist "%~dp0\temp\%%~b\%%~e" echo Could not update "%%~b".
+							if exist "%~dp0\temp\%%~b\%%~e" (
 								if not defined hash set /a hash=%random%
-								if not exist "scripts\%%~b\old-!hash!" md "scripts\%%~b\old-!hash!"
+								if not exist "%~dp0\scripts\%%~b\old-!hash!" md "%~dp0\scripts\%%~b\old-!hash!"
 								echo Cleaning up old version...
-								move /Y "scripts\%%~b\%%~e" "scripts\%%~b\old-!hash!"
-								move /Y "temp\%%~b\%%~e" "scripts\%%~b\"
-								rd /s /q "temp\%%~b"
-								echo %%f>scripts\%%~b\hash.txt
-								echo %%d>scripts\%%~b\info.txt
-								echo %%g>scripts\%%~b\author.txt
+								move /Y "%~dp0\scripts\%%~b\%%~e" "%~dp0\scripts\%%~b\old-!hash!"
+								move /Y "%~dp0\temp\%%~b\%%~e" "%~dp0\scripts\%%~b\"
+								rd /s /q "%~dp0\temp\%%~b"
+								echo %%f>"%~dp0\scripts\%%~b\hash.txt"
+								echo %%d>"%~dp0\scripts\%%~b\info.txt"
+								echo %%g>"%~dp0\scripts\%%~b\author.txt"
 								if "%%~xe"==".cab" (
 									echo Extracting...
-									expand "scripts\%%~b\%%~e" -F:* "scripts\%%~b" >nul
-									if not exist "scripts\%%~b\package" md "scripts\%%~b\package"
-									move /Y "scripts\%%~b\%%~e" "scripts\%%~b\package"
+									expand "%~dp0\scripts\%%~b\%%~e" -F:* "%~dp0\scripts\%%~b" >nul
+									if not exist "%~dp0\scripts\%%~b\package" md "%~dp0\scripts\%%~b\package"
+									move /Y "%~dp0\scripts\%%~b\%%~e" "%~dp0\scripts\%%~b\package"
 								)
-								echo Done.
+									echo Done.
 							)
 						)
 					)
 				)
 			)
-			if not defined script_count echo You have no scripts. && exit /b
+			if not defined script_count echo You have no scripts.
 			exit /b
 		)		
 		
 		
-		if not exist "scripts\%%~r" echo Error: "%%~r" does not exist on the local machine. && exit /b
-		for /f "tokens=1-8 delims=," %%a in ('findstr /b /c:"[#],%%~r," temp\master!sess_rand!.txt') do (
-			set /a script_count+=1
-			echo Updating %%~b...
-			set hash=
-			if not exist scripts\%%~b\hash.txt echo hash file for %%~b is missing. Updating anyway.
-			if exist scripts\%%~b\hash.txt (
-				set/p hash=<scripts\%%~b\hash.txt
-				if /i "!hash!"=="%%~f" echo This is already the latest version. && exit /b
-			)
-			if not exist "temp\%%~b" md "temp\%%~b"
-			call :download -!update_method! "%%~c#%cd%\temp\%%~b\%%~e"
-			if not exist "temp\%%~b\%%~e" echo "%%~b" is already up-to-date.. && exit /b
-			if not defined hash set /a hash=%random%
-			md "scripts\%%~b\old-!hash!"
-			echo Cleaning up old version...
-			move /Y "scripts\%%~b\%%~e" "scripts\%%~b\old-!hash!"
-			move /Y "temp\%%~b\%%~e" "scripts\%%~b\"
-			rd /s /q "temp\%%~b"
-			if not exist "scripts\%%~b\%%~e" echo An error occured while updating the script. && exit /b
-			if exist "scripts\%%~b\%%~e" (
-				echo %%f>scripts\%%~b\hash.txt
-				echo %%d>scripts\%%~b\info.txt
-				echo %%g>scripts\%%~b\author.txt
-				if "%%~xe"==".cab" (
-					echo Extracting...
-					expand "scripts\%%~b\%%~e" -F:* "scripts\%%~b" >nul
-					if not exist "scripts\%%~b\package" md "scripts\%%~b\package"
-					move /Y "scripts\%%~b\%%~e" "scripts\%%~b\package"
+		if not exist "%~dp0\scripts\%%~r" echo Error: "%%~r" does not exist on the local machine.
+		if exist "%~dp0\scripts\%%~r" (
+			for /f "tokens=1-8 delims=," %%a in ('findstr /b /c:"[#],%%~r," "%~dp0\temp\master!sess_rand!.txt"') do (
+				set /a script_count+=1
+				echo Updating %%~b...
+				set hash=
+				if not exist "%~dp0\scripts\%%~b\hash.txt" echo hash file for %%~b is missing. Updating anyway.
+				if exist "%~dp0\scripts\%%~b\hash.txt" (
+					set/p hash=<"%~dp0\scripts\%%~b\hash.txt"
+					if /i "!hash!"=="%%~f" echo "%%~b" is up-to-date. Skipping.
 				)
-				echo Done.
+				if /i not "!hash!"=="%%~f" (
+					if not exist "%~dp0\temp\%%~b" md "%~dp0\temp\%%~b"
+					call :download -!update_method! "%%~c#%~dp0\temp\%%~b\%%~e"
+					if not exist "%~dp0\temp\%%~b\%%~e" echo Could not update "%%~b".
+					if exist "%~dp0\temp\%%~b\%%~e" (
+						if not defined hash set /a hash=%random%
+						if not exist "%~dp0\scripts\%%~b\old-!hash!" md "%~dp0\scripts\%%~b\old-!hash!"
+						echo Cleaning up old version...
+						move /Y "%~dp0\scripts\%%~b\%%~e" "%~dp0\scripts\%%~b\old-!hash!"
+						move /Y "%~dp0\temp\%%~b\%%~e" "%~dp0\scripts\%%~b\"
+						rd /s /q "%~dp0\temp\%%~b"
+						if not exist "%~dp0\scripts\%%~b\%%~e" echo An error occured while updating the script.
+						if exist "%~dp0\scripts\%%~b\%%~e" (
+							echo %%f>"%~dp0\scripts\%%~b\hash.txt"
+							echo %%d>"%~dp0\scripts\%%~b\info.txt"
+							echo %%g>"%~dp0\scripts\%%~b\author.txt"
+							if "%%~xe"==".cab" (
+								echo Extracting...
+								expand "%~dp0\scripts\%%~b\%%~e" -F:* "%~dp0\scripts\%%~b" >nul
+								if not exist "%~dp0\scripts\%%~b\package" md "%~dp0\scripts\%%~b\package"
+								move /Y "%~dp0\scripts\%%~b\%%~e" "%~dp0\scripts\%%~b\package"
+							)
+							echo Done.
+						)
+					)
+				)
 			)
+			if not defined script_count echo The script does not exist on the server.
 		)
+
 )
-	if not defined script_count echo The script does not exist on the server. && exit /b
-	exit /b
+exit /b
 ::--------------------------------------------------------------------
 
 :info
@@ -473,7 +491,7 @@ if not "%~3"=="" echo Invalid number of arguments.
 if /i "%~1"=="-local" (
 	if not "%~2"=="" echo Invalid number of arguments. && exit /b
 	set script_count=
-	for /d %%a in (scripts\*) do (
+	for /d %%a in ("%~dp0\scripts\*") do (
 		set /a script_count+=1
 		echo !script_count!. %%~na
 	)
@@ -495,13 +513,14 @@ if /i "%~1"=="-server" (
 	)
 	if not defined list_bool echo Invalid method. && exit /b
 	set /a sess_rand=%random%
-	if exist temp\master!sess_rand!.txt del /f /q temp\master!sess_rand!.txt
-	call :download -!list_method! "!list_location!#%cd%\temp\master!sess_rand!.txt"
-	if not exist "temp\master!sess_rand!.txt" echo An error occured while fetching the script list. && exit /b
+	if exist "%~dp0\temp\master!sess_rand!.txt" del /f /q "%~dp0\emp\master!sess_rand!.txt"
+	call :download -!list_method! "!list_location!#%~dp0\temp\master!sess_rand!.txt"
+	if not exist "%~dp0\temp\master!sess_rand!.txt" echo An error occured while fetching the script list. && exit /b
 	echo Reading script list...
+	echo.
 	set script_count=
 	echo No, Name, Category, Description, Author
-	for /f "tokens=1-8 delims=," %%a in ('findstr /b /c:"[#]," temp\master!sess_rand!.txt') do (
+	for /f "tokens=1-8 delims=," %%a in ('findstr /b /c:"[#]," "%~dp0\temp\master!sess_rand!.txt"') do (
 		set /a script_count+=1
 		echo !script_count!. %%~b^| %%~h^| %%~d^| %%g
 	)
@@ -540,34 +559,34 @@ echo Attempting upgrade...
 
 ::get bget's file hash
 set /a sess_rand=%random%
-call :download -!upgrade_method! "!upgrade_hash_location!#%cd%\temp\hash!sess_rand!.txt"
-if not exist temp\hash!sess_rand!.txt echo Failed to get the upgrade hash. && exit /b
+call :download -!upgrade_method! "!upgrade_hash_location!#%~dp0\temp\hash!sess_rand!.txt"
+if not exist "%~dp0\temp\hash!sess_rand!.txt" echo Failed to get the upgrade hash. && exit /b
 set new_upgrade_hash=
 set current_upgrade_hash=
-set/p new_upgrade_hash=<temp\hash!sess_rand!.txt
-if not exist bin\hash.txt (
+set/p new_upgrade_hash=<"%~dp0\temp\hash!sess_rand!.txt"
+if not exist "%~dp0\bin\hash.txt" (
 	echo No local hash found. Will upgrade anyway.
-	echo %random%%random%%random%>bin\hash.txt
+	echo %random%%random%%random%>"%~dp0\bin\hash.txt"
 )
 
 ::force upgrade
 if /i "%~2"=="-force" (
 	echo Forcing upgrade...
-	echo %random%%random%%random%>bin\hash.txt
+	echo %random%%random%%random%>"%~dp0\bin\hash.txt"
 )
 
 ::compare old and new hashes
-set/p current_upgrade_hash=<bin\hash.txt
+set/p current_upgrade_hash=<"%~dp0\bin\hash.txt"
 if /i "!new_upgrade_hash!"=="!current_upgrade_hash!" echo You already have the latest version. && exit /b
 
 ::ge tthe upgrade script and run it
-if exist upgrade.bat del /f /q upgrade.bat
-call :download -!upgrade_method! "!upgrade_script_location!#%cd%\upgrade.bat"
-if not exist "upgrade.bat" echo Failed to get the Bget upgrade script. && exit /b
-echo !upgrade_method!>upgrade.bat:upgrade_method
+if exist "%~dp0\upgrade.bat" del /f /q "%~dp0\upgrade.bat"
+call :download -!upgrade_method! "!upgrade_script_location!#%~dp0\upgrade.bat"
+if not exist "%~dp0\upgrade.bat" echo Failed to get the Bget upgrade script. && exit /b
+echo !upgrade_method!>"%~dp0\upgrade.bat:upgrade_method"
 ::pass the force switch as an ADS to the upgrade switch
-if /i "%~2"=="-force" echo yes>upgrade.bat:force_bool
-start upgrade.bat
+if /i "%~2"=="-force" echo yes>"%~dp0\upgrade.bat:force_bool"
+start /d "%~dp0" upgrade.bat
 exit
 ::-----------------------------------------------------------------------------------------------------
 ::End of Functions.
@@ -597,19 +616,19 @@ if /i "%~1"=="-bits" (
 ::Jscript download function.
 ::Download.js was made by jsjoberg @ https://gist.github.com/jsjoberg/8203376
 if /i "%~1"=="-js" (
-	if not exist "bin\download.js" (
+	if not exist "%~dp0\bin\download.js" (
 		choice /c yn /n /m  "Bget's JS download function could not be found. Download? [(Y)es/(N)o]"
 		if "!errorlevel!"=="2" exit /b
 		if "!errorlevel!"=="1" (
-		if not exist bin md bin
-			call :download -bits "https://raw.githubusercontent.com/jahwi/bget/master/bin/download.js#%cd%\bin\download.js"
-			if not exist bin\download.js echo An error occured when downloading the JS function. && exit /b
+		if not exist "%~dp0\bin" md "%~dp0\bin"
+			call :download -bits "https://raw.githubusercontent.com/jahwi/bget/master/bin/download.js#%~dp0\bin\download.js"
+			if not exist "%~dp0\bin\download.js" echo An error occured when downloading the JS function. && exit /b
 		)
 
 	)
-	if exist "bin\download.js" (
+	if exist "%~dp0\bin\download.js" (
 		for /f "tokens=1,2 delims=#" %%e in ("%~2") do (
-			cscript //NoLogo //e:Jscript bin\download.js "%%e" "%%f"
+			cscript //NoLogo //e:Jscript "%~dp0\bin\download.js" "%%e" "%%f"
 		)
 	)
 	exit /b
@@ -636,19 +655,19 @@ if /i "%~1"=="-ps" (
 ::vbs thingy
 ::vbs script gotten from http://semitwist.com/articles/article/view/downloading-files-from-plain-batch-with-zero-dependencies
 if /i "%~1"=="-vbs" (
-	if not exist "bin\download.vbs" (
+	if not exist "%~dp0\bin\download.vbs" (
 		choice /c yn /n /m  "Bget's VBS download function could not be found. Download? [(Y)es/(N)o]"
 		if "!errorlevel!"=="2" exit /b
 		if "!errorlevel!"=="1" (
-		if not exist bin md bin
-		call :download -bits "https://raw.githubusercontent.com/jahwi/bget/master/bin/download.vbs#%cd%\bin\download.vbs"
-		if not exist bin\download.vbs echo An error occured when downloading the VBS function. && exit /b
+		if not exist "%~dp0\bin" md "%~dp0\bin"
+		call :download -bits "https://raw.githubusercontent.com/jahwi/bget/master/bin/download.vbs#%~dp0\bin\download.vbs"
+		if not exist "%~dp0\bin\download.vbs" echo An error occured when downloading the VBS function. && exit /b
 		)
 
 	)
 	if exist "bin\download.vbs" (
 		for /f "tokens=1,2 delims=#" %%e in ("%~2") do (
-			cscript //NoLogo //e:VBScript bin\download.vbs "%%e" "%%f"
+			cscript //NoLogo //e:VBScript "%~dp0\bin\download.vbs" "%%e" "%%f"
 		)
 		exit /b
 	)

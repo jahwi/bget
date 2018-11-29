@@ -22,3 +22,4 @@ v0.1.2 [27-NOV-2018]                 GET and UPDATE functions can now download/u
        [28-NOV-2018]                 REMOVE function can now remove all scripts with the -all switch.
        [29-NOV-2018]                 Fixed an issue where powershell GET method didn't work with Windows 7 and under.
                                      BITS GET method no longer displays the bitsadmin download monitor output.
+                                     Fixed an issue where calling Bget from another dir broke Bget.

@@ -162,4 +162,4 @@ BGET -list -server -usebits
 BGET -upgrade -usecurl
 BGET -info -usejs test
 Contact
-If you're having an issue with bget, would like to submit a script or just want to chat, contact us at batchget [at] gmail [dot com]
+If you're having an issue with bget, would like to submit a script or just want to chat (jk, we're boring people), contact us at batchget [at] gmail [dot com]
