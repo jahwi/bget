@@ -588,7 +588,7 @@ exit
 if /i "%~1"=="-bits" (
 	set /a rnd=%random%
 	for /f "tokens=1,2 delims=#" %%w in ("%~2") do (
-		bitsadmin /transfer Bget!rnd! /download /priority HIGH "%%w" "%%x"
+		bitsadmin /transfer Bget!rnd! /download /priority HIGH "%%w" "%%x" >nul
 	)
 	set rnd=
 	set bits_string=
