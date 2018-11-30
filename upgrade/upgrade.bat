@@ -65,8 +65,7 @@ start /max /d "%~dp0" notepad "docs\changelog.txt"
 echo Cleaning up...
 (goto) 2>nul & del "%~dpnx0"
 ::del /f /q "%~dpnx0"
-pause
-exit
+exit /b
 
 
 :download
