@@ -3,7 +3,6 @@ setlocal enabledelayedexpansion
 
 
 :: Bget-  Batch script fetcher
-:: v0.1.1
 ::Made by Jahwi, Icarus and Ben
 :: Conceived, coded and died in 2016, resurrected and recoded in 2018. Enjoy! \o/
 

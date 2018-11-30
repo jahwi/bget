@@ -3,6 +3,7 @@ title Bget Updater
 setlocal enabledelayedexpansion
 
 
+
 ::init global vars
 set upgrade_hash_location=https://raw.githubusercontent.com/jahwi/bget/master/bin/hash.txt
 set upgrade_script_location=https://raw.githubusercontent.com/jahwi/bget/master/upgrade/upgrade.bat
@@ -61,7 +62,7 @@ move /Y "%~dp0\temp\readme.txt" "%~dp0\docs\readme.txt"
 start /max /d "%~dp0" notepad "docs\changelog.txt"
 
 ::delete self
-start /B del /f /q "%~dp0\%~nx0"
+del /f /q "%~dpnx0"
 pause
 exit
 
