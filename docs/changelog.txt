@@ -25,3 +25,4 @@ v0.1.2 [27-NOV-2018]                 GET and UPDATE functions can now download/u
                                      Fixed an issue where calling Bget from another dir broke Bget.
                                      Fixed an issue where using the VBS GET method from another directory broke Bget.
                                      Upgrade window no longer pops up. Yay.
+                                     Fixed an issue where using the CURL GET method broke Bget.
