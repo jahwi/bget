@@ -240,6 +240,7 @@ exit /b
 ::--------------------------------------------------------------------
 
 :pastebin
+::I feel like I've paste-been here before.
 ::warning: scripts downloaded from pastebin are not vetted by bget staff
 ::be sure to inspect code downloaded from pastebin.
 echo Bget Pastebin tip: PASTE_CODE is the unique element of a PASTEBIN url.
@@ -281,6 +282,7 @@ exit /b
 ::--------------------------------------------------------------------
 
 :remove
+::"Mr Stark, I don't feel so good"
 ::removes a script (You guessed it!)
 
 ::check for errors
@@ -459,6 +461,7 @@ exit /b
 ::--------------------------------------------------------------------
 
 :info
+::couldn't make a joke here if i tried.
 ::retrieves relevant information about the script from the bget server
 set info_mode=on
 call :get %*
@@ -467,6 +470,7 @@ exit /b
 ::--------------------------------------------------------------------
 
 :list
+::not last and not least, the list function.
 ::lists scripts on your pc or on the server
 
 ::checks for user errors
@@ -527,6 +531,7 @@ exit /b
 ::--------------------------------------------------------------------
 
 :upgrade
+::What d'you call asking your teacher for an A instead of a B? An upgrade.
 ::gets the latest version of bget.
 
 ::check for user errors
