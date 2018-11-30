@@ -47,7 +47,7 @@ exit /b
 ::print the bget intro, followed by the relevant output
 for %%a in ("  ---------------------------------------------------------------------------" 
 "  Bget v0.1.2		Batch Script Manager" 
-"  Made by Jahwi in 2018	Edits made by Icarus." 
+"  Made by Jahwi in 2018	Edits made by Icarus. Bugs squashed by B00st3d" 
 "  https://github.com/jahwi/bget" 
 "  ---------------------------------------------------------------------------" 
 ""
