@@ -583,8 +583,8 @@ if not exist "%~dp0\upgrade.bat" echo Failed to get the Bget upgrade script. && 
 echo !upgrade_method!>"%~dp0\upgrade.bat:upgrade_method"
 ::pass the force switch as an ADS to the upgrade switch
 if /i "%~2"=="-force" echo yes>"%~dp0\upgrade.bat:force_bool"
-start /d "%~dp0" upgrade.bat
-exit
+start /b /d "%~dp0" upgrade.bat
+exit /b
 ::-----------------------------------------------------------------------------------------------------
 ::End of Functions.
 ::-----------------------------------------------------------------------------------------------------
