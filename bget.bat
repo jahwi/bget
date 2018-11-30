@@ -575,7 +575,7 @@ if /i "%~2"=="-force" (
 set/p current_upgrade_hash=<"%~dp0\bin\hash.txt"
 if /i "!new_upgrade_hash!"=="!current_upgrade_hash!" echo You already have the latest version. && exit /b
 
-::ge tthe upgrade script and run it
+::get the upgrade script and run it
 if exist "%~dp0\upgrade.bat" del /f /q "%~dp0\upgrade.bat"
 call :download -!upgrade_method! "!upgrade_script_location!#%~dp0\upgrade.bat"
 if not exist "%~dp0\upgrade.bat" echo Failed to get the Bget upgrade script. && exit /b
