@@ -105,7 +105,7 @@ if /i "%~1"=="-curl" (
 	call :checkcurl
 	if "!missing_curl!"=="yes" exit /b
 	for /f "tokens=1,2 delims=#" %%b in ("%~2") do (
-		"%~dp0\curl" -s "%%b" -o "%%c"
+		"%~dp0\curl\curl.exe" -s "%%b" -o "%%c"
 	)
 exit /b
 )
