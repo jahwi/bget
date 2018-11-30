@@ -62,7 +62,7 @@ move /Y "%~dp0\temp\readme.txt" "%~dp0\docs\readme.txt"
 start /max /d "%~dp0" notepad "docs\changelog.txt"
 
 ::delete self
-echo Cleaning up...
+echo Cleaning up...press enter to continue.
 (goto) 2>nul & del "%~dpnx0"
 ::del /f /q "%~dpnx0"
 exit /b
