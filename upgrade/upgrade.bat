@@ -61,7 +61,7 @@ move /Y "%~dp0\temp\readme.txt" "%~dp0\docs\readme.txt"
 start /max /d "%~dp0" notepad "docs\changelog.txt"
 
 ::delete self
-::start /B del /f /q "%~dp0\%~nx0"
+start /B del /f /q "%~dp0\%~nx0"
 pause
 exit
 
