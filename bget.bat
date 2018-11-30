@@ -662,7 +662,7 @@ if /i "%~1"=="-vbs" (
 		)
 
 	)
-	if exist "bin\download.vbs" (
+	if exist "%~dp0\bin\download.vbs" (
 		for /f "tokens=1,2 delims=#" %%e in ("%~2") do (
 			cscript //NoLogo //e:VBScript "%~dp0\bin\download.vbs" "%%e" "%%f"
 		)
