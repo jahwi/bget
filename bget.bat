@@ -7,9 +7,6 @@ setlocal enabledelayedexpansion
 ::Made by Jahwi, Icarus and Ben
 :: Conceived, coded and died in 2016, resurrected and recoded in 2018. Enjoy! \o/
 
-::init window size
-::mode con cols=120 lines=30
-::call :powerMode 100 100
 
 ::init directories
 for %%a in (scripts temp bin docs) do (
