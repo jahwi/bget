@@ -99,7 +99,7 @@ if /i "!switch_string:~0,10!"=="-help -doc" (
 		type "%~dp0\docs\readme.txt"
 		exit /b
 	)
-	if not exist "%~dp0\docs\readme.txt" echo the Bget help doc is missing. Run bget -upgrade -usebits to get it. && exit /b
+	if not exist "%~dp0\docs\readme.txt" echo the Bget help doc is missing. Run bget -upgrade -usebits -force to get it. && exit /b
 )
 
 ::is printed if help switch, no switch or an incorrect switch is supplied.
@@ -584,8 +584,9 @@ if /i "!new_upgrade_hash!"=="!current_upgrade_hash!" echo You already have the l
 if exist "%~dp0\upgrade.bat" del /f /q "%~dp0\upgrade.bat"
 call :download -!upgrade_method! "!upgrade_script_location!#%~dp0\upgrade.bat"
 if not exist "%~dp0\upgrade.bat" echo Failed to get the Bget upgrade script. && exit /b
+::pass the upgrade method as an ADS to the upgrade script
 echo !upgrade_method!>"%~dp0\upgrade.bat:upgrade_method"
-::pass the force switch as an ADS to the upgrade switch
+::pass the force switch as an ADS to the upgrade script
 if /i "%~2"=="-force" echo yes>"%~dp0\upgrade.bat:force_bool"
 start /b /d "%~dp0" upgrade.bat
 exit /b

@@ -64,11 +64,11 @@ BGET -get -usejs -all
 [B] -Pastebin:
 This fetches a pastebin raw and saves it as a .bat script.
 Usage:
-BGET -pastebin -usemethod PASTECODE
+BGET -pastebin -usemethod PASTECODE LOCAL_FILENAME
 Supported methods: JS, VBS, PS, CURL.
 BITSADMIN (BITS method) is not compatible with the -pastebin switch.
 Example:
-BGET -pastebin -usecurl 1wsBxRs4
+BGET -pastebin -usecurl 1wsBxRs4 script.bat
 The paste code is the unique element of a Pastebin URL.
 i.e., A Pastebin script located at https://pastebin.com/YkEtQYFR would have YkEtQYFR as its paste code. If you get the paste code wrong, you'll get a Pastebin error webpage as the output file instead of your intended script. Also, the Pastebin scripts have not been vetted by us so be sure to inspect all scripts fetched from Pastebin.
 
