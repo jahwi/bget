@@ -13,7 +13,6 @@ for %%a in (scripts temp bin docs) do (
 )
 
 ::init global vars and settings
-set info_mode=off
 set list_location=https://raw.githubusercontent.com/jahwi/bget-list/master/master.txt
 set auto-delete_logs=yes
 
@@ -163,6 +162,8 @@ set get_bool=
 		call :download -!get_method! "!list_location!#%~dp0\temp\master!sess_rand!.txt"
 		if not exist "%~dp0\temp\master!sess_rand!.txt" echo An error occured getting the script list && exit /b
 		set script_count=
+			
+			
 		%=download all scripts on the server if all switch is triggered=%
 		if /i "%~2"=="-all" (
 			for /f "tokens=1-8 delims=," %%a in ('findstr /b /c:"[#]," "%~dp0\temp\master!sess_rand!.txt"') do (
@@ -195,19 +196,6 @@ set get_bool=
 		
 		
 		for /f "tokens=1-8 delims=," %%a in ('findstr /b /c:"[#],%%~r," "%~dp0\temp\master!sess_rand!.txt"') do (
-		
-			%=From info function.=%
-			if "!info_mode!"=="on" (
-				echo.
-				echo Name: %%~b
-				echo Author:%%~g
-				echo Description: %%~d
-				echo Category: %%~h
-				echo Location: %%~c
-				echo Hash: %%~f
-				set info_mode=off
-				exit /b
-			)
 			
 			
 			if exist "%~dp0\scripts\%%~b\" (
@@ -463,9 +451,49 @@ exit /b
 :info
 ::couldn't make a joke here if i tried.
 ::retrieves relevant information about the script from the bget server
-set info_mode=on
-call :get %*
-set info_mode=off
+::check for user errors
+set get_bool=
+set get_method=
+
+if "%~1"=="" echo Error: No get method supplied. && exit /b
+for %%s in (curl js vbs bits ps) do (
+	if /i "%~1"=="-use%%s" (
+		set get_bool=yes
+		set get_method=%%s
+		if "%~2"=="" echo Error: Invalid argument. && exit /b
+	)
+)
+if not "!get_bool!"=="yes" (
+	set msg=Error: Invalid get method.
+	call :help
+	exit /b
+)
+set get_bool=
+
+
+
+::downloads
+::will attempt to download curl if when using the curl get method, curl isnt found in the curl subdirectory.
+	echo Reading script list...
+	set /a sess_rand=%random%
+	if exist "%~dp0\temp\master!sess_rand!.txt" del /f /q "%~dp0\temp\master!sess_rand!.txt"
+	call :download -!get_method! "!list_location!#%~dp0\temp\master!sess_rand!.txt"
+	if not exist "%~dp0\temp\master!sess_rand!.txt" echo An error occured getting the script list && exit /b
+	set script_count=
+	
+	
+	for /f "tokens=1-8 delims=," %%a in ('findstr /b /c:"[#],%~2," "%~dp0\temp\master!sess_rand!.txt"') do (
+	
+		echo.
+		echo Name: %%~b
+		echo Author:%%~g
+		echo Description: %%~d
+		echo Category: %%~h
+		echo Location: %%~c
+		echo Hash: %%~f
+		exit /b
+	)
+if not defined script_count echo "%~2" does not exist on this server.
 exit /b
 ::--------------------------------------------------------------------
 

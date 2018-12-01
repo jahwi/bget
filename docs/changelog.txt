@@ -27,3 +27,4 @@ v0.1.2 [27-NOV-2018]                 GET and UPDATE functions can now download/u
                                      Upgrade window no longer pops up. Yay.
                                      Fixed an issue where using the CURL GET method broke Bget.
                                      Fixed an issue where the input validation function flagged local file names as invalid.
+                                     Fixed an issue where applying -all to the LIST function would download all scripts.
