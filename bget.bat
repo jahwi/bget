@@ -450,6 +450,7 @@ exit /b
 
 :info
 ::couldn't make a joke here if i tried.
+::Chuck Norris doesn't read books, he simply stares the book down till he gets the information he wants.
 ::retrieves relevant information about the script from the bget server
 ::check for user errors
 set get_bool=
