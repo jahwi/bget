@@ -44,7 +44,7 @@ exit /b
 :main
 ::print the bget intro, followed by the relevant output
 for %%a in ("  ---------------------------------------------------------------------------" 
-"  Bget v0.1.2		Batch Script Manager" 
+"  Bget v0.1.3		Batch Script Manager" 
 "  Made by Jahwi in 2018 | Edits made by Icarus. | Bugs squashed by B00st3d" 
 "  https://github.com/jahwi/bget" 
 "  ---------------------------------------------------------------------------" 
@@ -182,9 +182,12 @@ set get_bool=
 						%=Deal with .cab packages=%
 						if "%%~xe"==".cab" (
 							echo Extracting...
-							expand "%~dp0\scripts\%%~b\%%~e" -F:* "%~dp0\scripts\%%~b" >nul
-							if not exist "%~dp0\scripts\%%~b\package" md "%~dp0\scripts\%%~b\package"
-							move /Y "%~dp0\scripts\%%~b\%%~e" "%~dp0\scripts\%%~b\package"
+							call :cab "%~dp0\scripts\%%~b\%%~e" "%~dp0\scripts\%%~b"
+						)
+						%=Deal with zips=%
+						if "%%~xe"==".zip" (
+							echo Extracting...
+							call :unzip "%~dp0\scripts\%%~b\%%~e" "%~dp0\scripts\%%~b\"
 						)
 						echo Done.
 					)
@@ -214,9 +217,12 @@ set get_bool=
 					echo %%g>"%~dp0\scripts\%%~b\author.txt"
 					if "%%~xe"==".cab" (
 						echo Extracting...
-						expand "%~dp0\scripts\%%~b\%%~e" -F:* "%~dp0\scripts\%%~b" >nul
-						if not exist "%~dp0\scripts\%%~b\package" md "%~dp0\scripts\%%~b\package"
-						move /Y "%~dp0\scripts\%%~b\%%~e" "%~dp0\scripts\%%~b\package"
+						call :cab "%~dp0\scripts\%%~b\%%~e" "%~dp0\scripts\%%~b"
+					)
+					%=Deal with zips=%
+					if "%%~xe"==".zip" (
+						echo Extracting...
+						call :unzip "%~dp0\scripts\%%~b\%%~e" "%~dp0\scripts\%%~b\"
 					)
 					echo Done.
 				)
@@ -386,11 +392,18 @@ for %%r in (%~2) do (
 								echo %%f>"%~dp0\scripts\%%~b\hash.txt"
 								echo %%d>"%~dp0\scripts\%%~b\info.txt"
 								echo %%g>"%~dp0\scripts\%%~b\author.txt"
+								
+								%=Extract archives=%
+							
+								%=deal with cabs=%
 								if "%%~xe"==".cab" (
 									echo Extracting...
-									expand "%~dp0\scripts\%%~b\%%~e" -F:* "%~dp0\scripts\%%~b" >nul
-									if not exist "%~dp0\scripts\%%~b\package" md "%~dp0\scripts\%%~b\package"
-									move /Y "%~dp0\scripts\%%~b\%%~e" "%~dp0\scripts\%%~b\package"
+									call :cab "%~dp0\scripts\%%~b\%%~e" "%~dp0\scripts\%%~b"
+								)
+								%=Deal with zips=%
+								if "%%~xe"==".zip" (
+									echo Extracting...
+									call :unzip "%~dp0\scripts\%%~b\%%~e" "%~dp0\scripts\%%~b\"
 								)
 									echo Done.
 							)
@@ -430,11 +443,18 @@ for %%r in (%~2) do (
 							echo %%f>"%~dp0\scripts\%%~b\hash.txt"
 							echo %%d>"%~dp0\scripts\%%~b\info.txt"
 							echo %%g>"%~dp0\scripts\%%~b\author.txt"
+							
+							%=Extract archives=%
+							
+							%=deal with cabs=%
 							if "%%~xe"==".cab" (
 								echo Extracting...
-								expand "%~dp0\scripts\%%~b\%%~e" -F:* "%~dp0\scripts\%%~b" >nul
-								if not exist "%~dp0\scripts\%%~b\package" md "%~dp0\scripts\%%~b\package"
-								move /Y "%~dp0\scripts\%%~b\%%~e" "%~dp0\scripts\%%~b\package"
+								call :cab "%~dp0\scripts\%%~b\%%~e" "%~dp0\scripts\%%~b"
+							)
+							%=Deal with zips=%
+							if "%%~xe"==".zip" (
+								echo Extracting...
+								call :unzip "%~dp0\scripts\%%~b\%%~e" "%~dp0\scripts\%%~b\"
 							)
 							echo Done.
 						)
@@ -678,7 +698,7 @@ exit /b
 ::powershell download function
 if /i "%~1"=="-ps" (
 	for /f "tokens=1,2 delims=#" %%b in ("%~2") do (
-	Powershell.exe -command "(New-Object System.Net.WebClient).DownloadFile('%%b','%%~sc')"
+	Powershell.exe -command "[System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12;(New-Object System.Net.WebClient).DownloadFile('%%b','%%~sc')"
 	)
 	exit /b
 )
@@ -706,21 +726,61 @@ if /i "%~1"=="-vbs" (
 exit /b
 
 :trash
-set var_to_clean=%*
-for %%t in (!var_to_clean!) do (set %%t=)
-set var_to_clean=
-exit /b
+	set var_to_clean=%*
+	for %%t in (!var_to_clean!) do (set %%t=)
+	set var_to_clean=
+	exit /b
 
 :hash
-::returns the hash of a file
-for /f "skip=1 delims=" %%z in ('certutil -hashfile "%~1" MD5') do (
-	set tmp_hash=%%z"
-	if /i not "!tmp_hash:~0,4!"=="Cert" set "hash=%%z"
-)
-exit /b
+	::returns the hash of a file
+	for /f "skip=1 delims=" %%z in ('certutil -hashfile "%~1" MD5') do (
+		set tmp_hash=%%z"
+		if /i not "!tmp_hash:~0,4!"=="Cert" set "hash=%%z"
+	)
+	exit /b
 
 :powerMode bufWidth  bufHeight
 powershell -command "&{$H=get-host;$W=$H.ui.rawui;$B=$W.buffersize;$S=$W.windowsize;$B.width=if (%1 -gt $S.width) {%1} else {$S.width};$B.height=if (%2 -gt $S.height) {%2} else {$S.height};$W.buffersize=$B;}"
 exit /b
+
+:unzip
+	set zip=%~1
+	set unzip_path=%~2
+	set zip=!zip:\\=\!
+	set /a ziprand=%random%
+	set unzip_path=!unzip_path:\\=\!
+
+
+	echo ZipFile="!zip!">"%~dp0\temp\unzip!ziprand!.vbs"
+	echo ExtractTo="!unzip_path!">>"%~dp0\temp\unzip!ziprand!.vbs"
+	echo set objShell = CreateObject^("Shell.Application"^)>>"%~dp0\temp\unzip!ziprand!.vbs"
+	echo set FilesInZip=objShell.NameSpace(ZipFile).items>>"%~dp0\temp\unzip!ziprand!.vbs"
+	echo objShell.NameSpace^(ExtractTo^).CopyHere^(FilesInZip^)>>"%~dp0\temp\unzip!ziprand!.vbs"
+	echo Set fso = Nothing>>"%~dp0\temp\unzip!ziprand!.vbs"
+	echo Set objShell = Nothing>>"%~dp0\temp\unzip!ziprand!.vbs"
+	cscript //NOLOGO "%~dp0\temp\unzip!ziprand!.vbs"
+	del /f /q "%~dp0\temp\unzip!ziprand!.vbs"
+	
+	if not exist "!unzip_path!\package" md "!unzip_path!\package"
+	move /Y "!zip!" "!unzip_path!\package"	
+	
+	set ziprand=
+	set zip=
+	set unzip_path=
+	exit /b
+
+:cab
+	set cab=%~1
+	set cab_path=%~2
+	set cab=!cab:\\=\!
+	set cab_path=!cab_path:\\=\!
+	
+	expand "!cab!" -F:* "!cab_path!" >nul
+	if not exist "!cab_path!\package" md "!cab_path!\package"
+	move /Y "!cab!" "!cab_path!\package"
+	
+	set cab=
+	set cab_path=
+	exit /b
 
 
