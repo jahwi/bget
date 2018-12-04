@@ -46,7 +46,7 @@ Scenario: You want to fetch a script named test from the server.  The easiest wa
 
 ## Switches
 
-Run `BGET -help -doc` to get the latest list of switches.
+Run `BGET -help -doc` to get a comprehensive list of Bget's switches.
 
 
 ## Methods
