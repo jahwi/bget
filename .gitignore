@@ -5,3 +5,4 @@ temp/
 tests/
 list/
 hashify.bat
+hget.bat

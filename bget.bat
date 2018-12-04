@@ -1,5 +1,6 @@
 @echo off
 setlocal enabledelayedexpansion
+call :macros
 
 
 :: Bget-  Batch script fetcher
@@ -44,7 +45,7 @@ exit /b
 :main
 ::print the bget intro, followed by the relevant output
 for %%a in ("  ---------------------------------------------------------------------------" 
-"  Bget v0.1.3		Batch Script Manager" 
+"  Bget v0.1.3-041218		Batch Script Manager" 
 "  Made by Jahwi in 2018 | Edits made by Icarus. | Bugs squashed by B00st3d" 
 "  https://github.com/jahwi/bget" 
 "  ---------------------------------------------------------------------------" 
@@ -568,12 +569,33 @@ if /i "%~1"=="-server" (
 	echo Reading script list...
 	echo.
 	set script_count=
-	echo No, Name, Category, Description, Author
+	echo No	Name		Category	Description		Author
 	for /f "tokens=1-8 delims=," %%a in ('findstr /b /c:"[#]," "%~dp0\temp\master!sess_rand!.txt"') do (
 		set /a script_count+=1
-		echo !script_count!. %%~b^| %%~h^| %%~d^| %%g
+		
+		
+		rem ADDED BY ICKY
+		REM code for padding
+		set "tmpH=%%~h"
+		set "tmpD=%%~d"
+		set "tmpD=!tmpD:.=!"
+		set "tmpH=!tmpH:	=!"
+		%pad% "!script_count!".4.pad1
+		%pad% "%%~b".16.pad2
+		%pad% "!tmpH!".10.pad3
+		%pad% "!tmpD:~0,20!".21.pad4
+		
+		rem display everything
+		echo !pad1!!script_count!. %%~b!pad2!^|!pad3!!tmpH!^| !tmpD:~0,20!...!pad4!^| %%g
+		rem END ADDED BY ICKY
+		
+		
 	)
 	if not defined script_count echo Could not get the script list. && exit /b
+	
+	rem reset window size, but do that AFTER the user presses a key
+	rem stating they are finshed viewing. - ADDED BY ICKY
+
 	exit /b
 )
 exit /b
@@ -724,6 +746,79 @@ if /i "%~1"=="-vbs" (
 	)
 )
 exit /b
+
+
+
+
+
+
+
+rem ADDED BY ICKY. Padding function. Fuck batbox
+
+:getDemention
+	( set "c=0" & for /f "skip=3 tokens=*" %%a in ('mode con:') do (
+		set /a "c+=1" & if !c! leq 2 set "m[!c!]=%%a"
+	)) & set /a "hei=!m[1]:Lines:=!", "wid=!m[2]:Columns:=!"
+goto :eof
+
+:sort
+	pushd %temp%
+		( for %%a in (%~1) do echo=%%~a>>tmpSort.txt)
+		(for /f "tokens=*" %%a in ('sort tmpSort.txt') do ( set /a "s+=1" & set "sorted[!s!]=%%a"))
+		( del /f /q tmpSort.txt ) & set "s="
+	popd
+goto :eof
+
+:bubble
+	( set "c=0" & for %%a in (x %~1) do ( set /a "c+=1", "n[!c!]=%%a" )) & set /a "cm=c - 1"
+	( for /l %%l in (0,1,!cm!) do for /l %%c in (1,1,!cm!) do ( set /a "x=%%c + 1"
+		for %%x in (!x!) do if !n[%%c]! gtr !n[%%x]! set /a "save=n[%%c]", "n[%%c]=n[%%x]", "n[%%x]=save"
+	)) & ( for /l %%y in (2,1,!c!) do ( <nul set /p "=!n[%%y]! ")) & echo.
+goto :eof
+
+:pad
+	set "str=X%~1"
+	set length=0
+	for /L %%a in (8,-1,0) do (
+		set /a "length|=1<<%%a"
+		for %%b in (!length!) do if "!str:~%%b,1!" equ "" set /a "length&=~1<<%%a"
+	)
+    set /a "spacing=%~2 - length"
+	for /l %%a in (1,1,%spacing%) do set "sp=!sp! "
+	if "%~3" neq "" ( set "%~3=!sp!") else ( echo missing OUTvar argument %%~3 )
+	set "sp="
+goto :eof
+
+:macros
+
+set ^"LF=^
+
+^" Above empty line is required - do not remove
+set ^"\n=^^^%LF%%LF%^%LF%%LF%^^"
+
+set pad=for %%# in (1 2) do if %%#==2 ( for /f "tokens=1-3 delims=." %%1 in ("^!args^!") do (%\n%
+	set "str=X%%~1"%\n%
+	set length=0%\n%
+	for /L %%a in (8,-1,0) do (%\n%
+		set /a "length|=1<<%%a"%\n%
+		for /f "tokens=1" %%b in ("^!length^!") do if "^!str:~%%b,1^!" equ "" set /a "length&=~1<<%%a"%\n%
+	)%\n%
+    set /a "spacing=%%~2 - length + 3"%\n%
+	for /f "tokens=1" %%s in ("^!spacing^!") do for /l %%a in (1,1,%%s) do set "sp=^!sp^! "%\n%
+	for /f "tokens=1 delims=" %%s in ("^!sp^!") do set "%%~3=%%~s"%\n%
+	set "sp="%\n%
+)) else set args=
+
+goto :eof
+
+rem END OF ICKY FUNCTIONS
+
+
+
+
+
+
+
 
 :trash
 	set var_to_clean=%*
