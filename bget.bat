@@ -682,7 +682,7 @@ echo !upgrade_method!>"%~dp0\upgrade.bat:upgrade_method"
 ::pass the force switch as an ADS to the upgrade script
 if /i "%~2"=="-force" echo yes>"%~dp0\upgrade.bat:force_bool"
 start /b /d "%~dp0" upgrade.bat
-exit /b
+exit
 ::-----------------------------------------------------------------------------------------------------
 ::End of Functions.
 ::-----------------------------------------------------------------------------------------------------
