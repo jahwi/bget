@@ -11,6 +11,7 @@ Table of Contents
 	f.	LIST
 	g.	UPGRADE
 	h.	HELP
+	i. OPENSCRIPTS
 5.	Methods
 	a.	Jscript -JS
 	b.	Visual Basic Script -VBS
@@ -138,6 +139,10 @@ BGET -upgrade -usecurl -force
 [H] -Help:
 Prints the help text.
 -help -doc opens this readme.
+
+[I] -OPENSCRIPTS
+Opens the scripts folder.
+
 
 Methods
 Bget's 'methods' are the various ways through which Bget interacts with servers. There are currently 5 methods:

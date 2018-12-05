@@ -45,7 +45,7 @@ exit /b
 :main
 ::print the bget intro, followed by the relevant output
 for %%a in ("  ---------------------------------------------------------------------------" 
-"  Bget v0.1.3-041218		Batch Script Manager" 
+"  Bget v0.1.3-051218		Batch Script Manager" 
 "  Made by Jahwi in 2018 | Edits made by Icarus. | Bugs squashed by B00st3d" 
 "  https://github.com/jahwi/bget" 
 "  ---------------------------------------------------------------------------" 
@@ -69,7 +69,7 @@ if not "!input_string!"=="" (
 
 if "%~1"=="" set msg=Error: No switch supplied. && call :help && exit /b
 set valid_bool=
-for %%x in (get remove update info list upgrade help pastebin) do (
+for %%x in (get remove update info list upgrade help pastebin openscripts) do (
 	if /i "-%%x"=="%~1" set valid_bool=yes
 )
 if not "!valid_bool!"=="yes" set msg=Error: Invalid switch && call :help && exit /b
@@ -115,6 +115,7 @@ for %%a in (
 	"  [-list -local]                        Lists local scripts."
 	"  [-upgrade {-usemethod} ]              Updates Bget."
 	"  [-upgrade {-usemethod} -force ]       Updates Bget, regardless of version."
+	"  -openscripts                          Opens the scripts folder."
 	"  -help                                 Prints this help screen."
 	"  -help -doc                            Opens the full help text."
 	""
@@ -211,7 +212,10 @@ set get_bool=
 				echo Fetching %%~b...
 				if not exist "%~dp0\scripts\%%~b" md "%~dp0\scripts\%%~b"
 				call :download -!get_method! "%%~c#%~dp0\scripts\%%~b\%%~e"
-				if not exist "%~dp0\scripts\%%~b\%%~e" echo An error occured while fetching "%%~nb".
+				if not exist "%~dp0\scripts\%%~b\%%~e" (
+					echo An error occured while fetching "%%~nb".
+					if exist "%~dp0\scripts\%%~b" rd /s /q "%~dp0\scripts\%%~b"
+				)
 				if exist "%~dp0\scripts\%%~b\%%~e" (
 					echo %%f>"%~dp0\scripts\%%~b\hash.txt"
 					echo %%d>"%~dp0\scripts\%%~b\info.txt"
@@ -270,7 +274,11 @@ if exist "%~dp0\scripts\pastebin\%~2\%~3" echo Error: The file name already exis
 if not exist "%~dp0\scripts\pastebin\%~2" md "%~dp0\scripts\pastebin\%~2"
 echo Fetching "%~2" into "%~3"...
 call :download -!paste_method! "https://pastebin.com/raw/%~2#%~dp0\scripts\pastebin\%~2\%~3"
-if not exist "%~dp0\scripts\pastebin\%~2\%~3" echo An error occured fetching the pastebin script. && exit /b
+if not exist "%~dp0\scripts\pastebin\%~2\%~3" (
+	echo An error occured fetching the pastebin script.
+	if exist "%~dp0\scripts\pastebin\%~2" rd /s /q "%~dp0\scripts\pastebin\%~2"
+	exit /b
+)
 if exist "%~dp0\scripts\pastebin\%~2\%~3" echo Done. && exit /b
 ::paranoia
 exit /b
@@ -516,6 +524,20 @@ set get_bool=
 		exit /b
 	)
 if not defined script_count echo "%~2" does not exist on this server.
+exit /b
+::--------------------------------------------------------------------
+
+:openscripts
+
+::input validation
+if not "%~1"=="" (
+	echo Invalid number of arguments.
+exit /b
+)
+
+echo opening scripts folder...
+explorer "%~dp0scripts"
+
 exit /b
 ::--------------------------------------------------------------------
 

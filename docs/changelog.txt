@@ -31,3 +31,4 @@ v0.1.2 [27-NOV-2018]                 GET and UPDATE functions can now download/u
 v0.1.3 [02-DEC-2018]                 Bget can now get files from other repositories.
        [04-DEC-2018]                 The LIST server function now lists in a tabular format.
                                      Bget now displays version number and date pushed.
+       [05-DEC-2018]                 Bget can now open the scripts folder with the -OPENSCRIPTS function.
