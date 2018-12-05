@@ -62,10 +62,11 @@ move /Y "%~dp0\temp\readme.txt" "%~dp0\docs\readme.txt"
 start /max /d "%~dp0" notepad "docs\changelog.txt"
 
 ::delete self
+break
 echo Cleaning up...
-echo timeout /t 2>"%temp%\cleanup.bat"
 echo del /f /q "%~dpnx0">>"%temp%\cleanup.bat"
 start /min /d "%temp%" cleanup.bat
+break
 ::del /f /q "%~dpnx0"
 exit /b
 
