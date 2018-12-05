@@ -1,5 +1,4 @@
 @echo off
-title Bget Updater
 setlocal enabledelayedexpansion
 
 
