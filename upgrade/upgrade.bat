@@ -63,7 +63,8 @@ start /max /d "%~dp0" notepad "docs\changelog.txt"
 
 ::delete self
 echo Cleaning up...
-echo del /f /q "%~dpnx0">"%temp%\cleanup.bat"
+echo timeout /t 2>"%temp%\cleanup.bat"
+echo del /f /q "%~dpnx0">>"%temp%\cleanup.bat"
 start /min /d "%temp%" cleanup.bat
 ::del /f /q "%~dpnx0"
 exit /b
