@@ -175,7 +175,10 @@ set get_bool=
 					echo Fetching "%%~b"...
 					if not exist "%~dp0\scripts\%%~b" md "%~dp0\scripts\%%~b"
 					call :download -!get_method! "%%~c#%~dp0\scripts\%%~b\%%~e"
-					if not exist "%~dp0\scripts\%%~b\%%~e" echo Failed to get "%%~b"
+					if not exist "%~dp0\scripts\%%~b\%%~e" (
+						echo Failed to get "%%~b"
+						rd /s /q "%~dp0\scripts\%%~b"
+					)
 					%=Export the current hash, description and author=%
 					if exist "%~dp0\scripts\%%~b\%%~e" (
 						echo %%f>"%~dp0\scripts\%%~b\hash.txt"
