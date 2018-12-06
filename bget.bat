@@ -571,8 +571,10 @@ if /i "%~1"=="-local" (
 	if not "%~2"=="" echo Invalid number of arguments. && exit /b
 	set script_count=
 	for /d %%a in ("%~dp0\scripts\*") do (
-		set /a script_count+=1
-		if exist "%%a\hash.txt" echo !script_count!. %%~na
+		if exist "%%a\hash.txt" (
+			set /a script_count+=1
+			echo !script_count!. %%~na
+		)	
 	)
 	if not defined script_count echo You have no scripts. && exit /b
 	exit /b
