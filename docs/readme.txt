@@ -105,6 +105,12 @@ Usage:
 BGET -update -usemethod -all
 Example:
 BGET -update -usejs -all
+You can force an upgrade as well.
+Usage:
+BGET -update [-all/SCRIPTNAME] -force
+Example:
+BGET -update -all -force
+BGET -update test -force
 
 [E] -Info:
 Retrieves basic info about a script.

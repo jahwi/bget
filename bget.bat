@@ -45,7 +45,7 @@ exit /b
 :main
 ::print the bget intro, followed by the relevant output
 for %%a in ("  ---------------------------------------------------------------------------" 
-"  Bget v0.1.3-051218		Batch Script Manager" 
+"  Bget v0.1.3-061218		Batch Script Manager" 
 "  Made by Jahwi in 2018 | Edits made by Icarus. | Bugs squashed by B00st3d" 
 "  https://github.com/jahwi/bget" 
 "  ---------------------------------------------------------------------------" 
@@ -56,11 +56,12 @@ for %%a in ("  -----------------------------------------------------------------
 
 ::input validation
 set input_string=%*
-if defined input_string for %%a in (a b c d e f g h i j k l m n o p q r s t u v w x y z - . _ , 1 2 3 4 5 6 7 8 9 0 [ ] { }) do (
+if defined input_string for %%a in (a b c d e f g h i j k l m n o p q r s t u v w x y z - . _ 1 2 3 4 5 6 7 8 9 0 [ ] { }) do (
 	if defined input_string set input_string=!input_string:%%a=!
 	if defined input_string set input_string=!input_string: =!
 	if defined input_string set input_string=!input_string:"=!
 )
+
 if not "!input_string!"=="" ( 
 	set msg=Invalid input.
 	call :help
@@ -304,9 +305,11 @@ if /i "%~1"=="-all" (
 	if "!errorlevel!"=="1" (
 		set script_count=
 		for /d %%a in ("%~dp0\scripts\*") do (
+			set /a script_count+=1
 			echo Removing "%%~na"... && rd /s /q "%%~a"
 			if exist "%%a" echo Failed to remove %%~na.
 		)
+		if not defined script_count echo You have no scripts.
 		exit /b
 	)
 	
@@ -359,6 +362,7 @@ if not "!update_bool!"=="yes" (
 	call :help
 	exit /b
 )
+if not "%~4"=="" echo Invalid number of arguments. && exit /b
 set update_bool=
 
 
@@ -386,6 +390,7 @@ for %%r in (%~2) do (
 						if not exist "%~dp0\scripts\%%~b\hash.txt" echo hash file for %%~b is missing. Updating anyway.
 						if exist "%~dp0\scripts\%%~b\hash.txt" (
 							set/p hash=<"%~dp0\scripts\%%~b\hash.txt"
+							if /i "%~3"=="-force" echo Forcing update... && set hash=%random%%random%%random%%random%
 							if /i "!hash!"=="%%~f" echo "%%~b" is up-to-date. Skipping.
 						)
 						
@@ -437,6 +442,7 @@ for %%r in (%~2) do (
 				if not exist "%~dp0\scripts\%%~b\hash.txt" echo hash file for %%~b is missing. Updating anyway.
 				if exist "%~dp0\scripts\%%~b\hash.txt" (
 					set/p hash=<"%~dp0\scripts\%%~b\hash.txt"
+					if /i "%~3"=="-force" echo Forcing update... && set hash=%random%%random%%random%%random%
 					if /i "!hash!"=="%%~f" echo "%%~b" is up-to-date. Skipping.
 				)
 				if /i not "!hash!"=="%%~f" (
@@ -502,6 +508,7 @@ if not "!get_bool!"=="yes" (
 	exit /b
 )
 set get_bool=
+if not "%~3"=="" echo Invalid number of arguments. && exit /b
 
 
 
@@ -533,10 +540,7 @@ exit /b
 :openscripts
 
 ::input validation
-if not "%~1"=="" (
-	echo Invalid number of arguments.
-exit /b
-)
+if not "%~1"=="" echo Invalid number of arguments. && exit /b
 
 echo opening scripts folder...
 explorer "%~dp0scripts"
@@ -568,7 +572,7 @@ if /i "%~1"=="-local" (
 	set script_count=
 	for /d %%a in ("%~dp0\scripts\*") do (
 		set /a script_count+=1
-		echo !script_count!. %%~na
+		if exist "%%a\hash.txt" echo !script_count!. %%~na
 	)
 	if not defined script_count echo You have no scripts. && exit /b
 	exit /b
