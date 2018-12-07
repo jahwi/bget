@@ -612,22 +612,21 @@ if /i "%~1"=="-server" (
 	for /f "tokens=1-8 delims=," %%a in ('findstr /b /c:"[#]," "%~dp0\temp\master!sess_rand!.txt"') do (
 		set /a script_count+=1
 		
-		
-		rem ADDED BY ICKY
-		REM code for padding
-		set "tmpH=%%~h"
-		set "tmpD=%%~d"
-		set "tmpD=!tmpD:.=!"
-		set "tmpH=!tmpH:	=!"
-		%pad% "!script_count!".4.pad1
-		%pad% "%%~b".16.pad2
-		%pad% "!tmpH!".10.pad3
-		%pad% "!tmpD:~0,20!".21.pad4
-		
-		rem display everything
 		if /i not "%~3"=="-full" (
+			rem ADDED BY ICKY
+			REM code for padding
+			set "tmpH=%%~h"
+			set "tmpD=%%~d"
+			set "tmpD=!tmpD:.=!"
+			set "tmpH=!tmpH:	=!"
+			%pad% "!script_count!".4.pad1
+			%pad% "%%~b".16.pad2
+			%pad% "!tmpH!".10.pad3
+			%pad% "!tmpD:~0,20!".21.pad4
+			
+			rem display everything
 			echo !pad1!!script_count!. %%~b!pad2!^|!pad3!!tmpH!^| !tmpD:~0,20!...!pad4!^| %%g
-		)
+		)	
 		
 		if /i "%~3"=="-full" (
 			echo !script_count!. %%~b ^| %%~h ^| %%~d ^| %%~g
