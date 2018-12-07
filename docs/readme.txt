@@ -18,8 +18,9 @@ Table of Contents
 	c.	Powershell -PS
 	d.	BITSAdmin -BITS
 	e.	CURL
-6.  Contact
-7.  Thanks
+6.	Troubleshooting
+7.  Contact
+8.  Thanks
 
 INTRODUCTION
 Bget is a batch-file command-line tool for handling Windows scripts. It is built to be a companion to those who write, use and maintain Windows scripts. It helps those who use scripts easily download, update and remove scripts. It's built for scripters, by scripters.
@@ -174,6 +175,10 @@ BGET -pastebin -useps 1wsBxRs4
 BGET -list -server -usebits
 BGET -upgrade -usecurl
 BGET -info -usejs test
+
+TROUBLESHOOTING
+[1] If the download methods fail and you're sure there's an internet connection, it is possible your Antivirus software
+is blocking it. This can be solved bt whitelisting Bget's path.
 
 Contact
 If you're having an issue with bget, would like to submit a script or just want to chat (jk, we're boring people), contact us at batchget [at] gmail [dot com]
