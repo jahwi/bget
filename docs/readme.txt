@@ -131,7 +131,7 @@ BGET -list -server -usemethod
 Example:
 BGET -list -server -usejs
 Supported methods: JS, VBS, PS, CURL, BITS
-You can also view the list with minimal formatting, so you can se the full descriptions.
+You can also view the list with less formatting, so you can se the full descriptions.
 Usage:
 BGET -list -server -usemethod -full
 Example:

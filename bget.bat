@@ -629,7 +629,12 @@ if /i "%~1"=="-server" (
 		)	
 		
 		if /i "%~3"=="-full" (
-			echo !script_count!. %%~b ^| %%~h ^| %%~d ^| %%~g
+			set "tmpH=%%~h"
+			set "tmpH=!tmpH:	=!"
+			%pad% "!script_count!".4.pad1
+			%pad% "!tmpH!".10.pad3
+			%pad% "%%~b".16.pad2
+			echo !pad1!!script_count!. %%~b!pad2!^|!pad3!!tmpH!^| %%~d ^| %%~g
 		)
 		
 		rem END ADDED BY ICKY
