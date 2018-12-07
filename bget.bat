@@ -45,7 +45,7 @@ exit /b
 :main
 ::print the bget intro, followed by the relevant output
 for %%a in ("  ---------------------------------------------------------------------------" 
-"  Bget v0.1.3-061218		Batch Script Manager" 
+"  Bget v0.1.3-071218		Batch Script Manager" 
 "  Made by Jahwi in 2018 | Edits made by Icarus. | Bugs squashed by B00st3d" 
 "  https://github.com/jahwi/bget" 
 "  ---------------------------------------------------------------------------" 
@@ -562,7 +562,10 @@ for %%a in (server local) do (
 	)
 )
 if not defined list_bool echo Invalid list switch. && exit /b
-if not "%~3"=="" echo Invalid number of arguments.
+if /i not "%~3"=="" (
+	if /i not "%~3"=="-full" echo Invalid argument. && exit /b
+)
+if not "%~4"=="" echo Invalid number of arguments. && exit /b
 
 
 ::lists scripts on the local computer
@@ -584,8 +587,12 @@ if /i "%~1"=="-local" (
 ::lists scripts on the server
 set list_bool=
 if /i "%~1"=="-server" (
+	if /i not "%~3"=="" (
+		if /i not "%~3"=="-full" echo Invalid argument. && exit /b
+	)
+	if not "%~4"=="" echo Invalid number of arguments. && exit /b
 	if "%~2"=="" echo No get method supplied. && exit /b
-	if not "%~3"=="" echo Invalid number of arguments. && exit /b
+
 	for %%a in (curl js ps vbs bits) do (
 		if /i "-use%%~a"=="%~2" (
 			set list_bool=yes
@@ -617,7 +624,14 @@ if /i "%~1"=="-server" (
 		%pad% "!tmpD:~0,20!".21.pad4
 		
 		rem display everything
-		echo !pad1!!script_count!. %%~b!pad2!^|!pad3!!tmpH!^| !tmpD:~0,20!...!pad4!^| %%g
+		if /i not "%~3"=="-full" (
+			echo !pad1!!script_count!. %%~b!pad2!^|!pad3!!tmpH!^| !tmpD:~0,20!...!pad4!^| %%g
+		)
+		
+		if /i "%~3"=="-full" (
+			echo !script_count!. %%~b ^| %%~h ^| %%~d ^| %%~g
+		)
+		
 		rem END ADDED BY ICKY
 		
 		
