@@ -113,6 +113,7 @@ for %%a in (
 	"  [-update {-usemethod} "SCRIPTs" ]     Updates the script/scripts"
 	"  [-info {-usemethod} SCRIPT ]          Gets info on the specified script."
 	"  [-list -server {-usemethod} ]         Lists scripts on Bget's server."
+	"  [-list -server {-usemethod} -full ]   Lists scripts with minimal formatting."
 	"  [-list -local]                        Lists local scripts."
 	"  [-upgrade {-usemethod} ]              Updates Bget."
 	"  [-upgrade {-usemethod} -force ]       Updates Bget, regardless of version."
