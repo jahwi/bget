@@ -1,7 +1,10 @@
 # Bget
 
-
+## Batch:
 ![Bget screenshot](https://ibin.co/w800/4P8vQ9sHDyOR.png)
+
+## Powershell:
+![Bget powershell screenshit](https://ibin.co/w800/4PEwTGrnF93U.png)
 
 
 ## Table of Contents
