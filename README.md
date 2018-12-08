@@ -1,6 +1,6 @@
 # Bget
 
-## Batch:
+## CMD:
 ![Bget screenshot](https://ibin.co/w800/4P8vQ9sHDyOR.png)
 
 ## Powershell:
