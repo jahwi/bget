@@ -70,6 +70,6 @@ Examples:
 6. `BGET -info -usejs test`
 
 ## Contact
-If you're having an issue with bget, would like to submit a script or just want to chat, contact us at batchget [at] gmail [dot com]
+If you're having an issue with bget, would like to submit a script, contact us at batchget [at] gmail [dot com]
 
 
