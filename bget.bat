@@ -45,7 +45,7 @@ exit /b
 :main
 ::print the bget intro, followed by the relevant output
 for %%a in ("  ---------------------------------------------------------------------------" 
-"  Bget v0.1.3-071218		Batch Script Manager" 
+"  Bget v0.1.4-141218		Batch Script Manager" 
 "  Made by Jahwi in 2018 | Edits made by Icarus. | Bugs squashed by B00st3d" 
 "  https://github.com/jahwi/bget" 
 "  ---------------------------------------------------------------------------" 
@@ -70,7 +70,7 @@ if not "!input_string!"=="" (
 
 if "%~1"=="" set msg=Error: No switch supplied. && call :help && exit /b
 set valid_bool=
-for %%x in (get remove update info list upgrade help pastebin openscripts) do (
+for %%x in (get remove update info list upgrade help pastebin openscripts search) do (
 	if /i "-%%x"=="%~1" set valid_bool=yes
 )
 if not "!valid_bool!"=="yes" set msg=Error: Invalid switch && call :help && exit /b
@@ -115,6 +115,7 @@ for %%a in (
 	"  [-list -server {-usemethod} ]         Lists scripts on Bget's server."
 	"  [-list -server {-usemethod} -full ]   Lists scripts with minimal formatting."
 	"  [-list -local]                        Lists local scripts."
+	"  [-search {usemethod} "STRING" ]       Search scripts on the server."
 	"  [-upgrade {-usemethod} ]              Updates Bget."
 	"  [-upgrade {-usemethod} -force ]       Updates Bget, regardless of version."
 	"  -openscripts                          Opens the scripts folder."
@@ -159,14 +160,17 @@ set get_bool=
 
 ::downloads
 ::will attempt to download curl if when using the curl get method, curl isnt found in the curl subdirectory.
+
+::gets the script list
 	echo Reading script list...
+	set /a sess_rand=%random%
+	if exist "%~dp0\temp\master!sess_rand!.txt" del /f /q "%~dp0\temp\master!sess_rand!.txt"
+	call :download -!get_method! "!list_location!#%~dp0\temp\master!sess_rand!.txt"
+	if not exist "%~dp0\temp\master!sess_rand!.txt" echo An error occured getting the script list && exit /b
+		
+		
 	for %%r in (%~2) do (
-		set /a sess_rand=%random%
-		if exist "%~dp0\temp\master!sess_rand!.txt" del /f /q "%~dp0\temp\master!sess_rand!.txt"
-		call :download -!get_method! "!list_location!#%~dp0\temp\master!sess_rand!.txt"
-		if not exist "%~dp0\temp\master!sess_rand!.txt" echo An error occured getting the script list && exit /b
 		set script_count=
-			
 			
 		%=download all scripts on the server if all switch is triggered=%
 		if /i "%~2"=="-all" (
@@ -370,22 +374,24 @@ set update_bool=
 ::update
 ::will attempt to download curl if when using the curl update method, curl isnt found in the curl subdirectory.
 ::sess rand allows multiple bget instances to be run without running into a "file is in use" issue
-echo Reading script list...
-for %%r in (%~2) do (
-		
-		set /a sess_rand=%random%
-		if exist "%~dp0\temp\master!sess_rand!.txt" del /f /q "%~dp0\temp\master!sess_rand!.txt"
-		call :download -!update_method! "!list_location!#%~dp0\temp\master!sess_rand!.txt"
-		if not exist "%~dp0\temp\master!sess_rand!.txt" echo An error occured getting the script list. && exit /b
-		set script_count=
 
+::gets script list
+echo Reading script list...
+	set /a sess_rand=%random%
+	if exist "%~dp0\temp\master!sess_rand!.txt" del /f /q "%~dp0\temp\master!sess_rand!.txt"
+	call :download -!update_method! "!list_location!#%~dp0\temp\master!sess_rand!.txt"
+	if not exist "%~dp0\temp\master!sess_rand!.txt" echo An error occured getting the script list. && exit /b
+
+	
+for %%r in (%~2) do (
+		set script_count=
 		%= updates all scripts =%
 		if /i "%~2"=="-all" (
 			for /f "tokens=1-8 delims=," %%a in ('findstr /b /c:"[#]," "%~dp0\temp\master!sess_rand!.txt"') do (
 				if exist "%~dp0\scripts\%%~b\" (
 					
 					
-					if exist "%~dp0\scripts\%%~b\%%~e" (
+					if exist "%~dp0\scripts\%%~b\" (
 						set /a script_count+=1
 						set hash=
 						if not exist "%~dp0\scripts\%%~b\hash.txt" echo hash file for %%~b is missing. Updating anyway.
@@ -434,8 +440,8 @@ for %%r in (%~2) do (
 		)		
 		
 		
-		if not exist "%~dp0\scripts\%%~r" echo Error: "%%~r" does not exist on the local machine.
-		if exist "%~dp0\scripts\%%~r" (
+		if not exist "%~dp0\scripts\%%~r\" echo Error: "%%~r" does not exist on the local machine.
+		if exist "%~dp0\scripts\%%~r\" (
 			for /f "tokens=1-8 delims=," %%a in ('findstr /b /c:"[#],%%~r," "%~dp0\temp\master!sess_rand!.txt"') do (
 				set /a script_count+=1
 				echo Updating %%~b...
@@ -648,6 +654,48 @@ if /i "%~1"=="-server" (
 
 	exit /b
 )
+exit /b
+::--------------------------------------------------------------------
+
+:search
+
+::search scripts on the server.
+
+::check for user errors
+if "%~1"=="" echo No method supplied. && exit /b
+if "%~2"=="" echo No search string supplied. && exit /b
+for %%a in (curl js ps vbs bits) do (
+	if /i "-use%%~a"=="%~1" (
+		set search_bool=yes
+		set search_method=%%~a
+	)
+)
+if not defined search_bool echo Invalid method. && exit /b
+if not "%~3"=="" echo Invalid number of arguments. && exit /b
+set search_bool=
+
+::gets script list
+echo Reading script list...
+	set /a sess_rand=%random%
+	if exist "%~dp0\temp\master!sess_rand!.txt" del /f /q "%~dp0\temp\master!sess_rand!.txt"
+	call :download -!search_method! "!list_location!#%~dp0\temp\master!sess_rand!.txt"
+	if not exist "%~dp0\temp\master!sess_rand!.txt" echo An error occured getting the script list. && exit /b
+	
+::search
+set match_count=
+echo.
+echo Searching...
+echo.
+for /f "tokens=1-8 delims=," %%a in ('findstr /c:"%~2" "%~dp0\temp\master!sess_rand!.txt"') do (
+	if /i "%%~a"=="[#]" (
+		for /f %%r in ('echo %%b,%%d,%%g ^| findstr /c:"%~2"') do (
+			set /a match_count+=1
+			if "!match_count!"=="1" echo No, Name, Description, Author
+			echo !match_count!. %%b ^|%%d ^|%%g
+		)
+	)
+)
+if not defined match_count echo Your string did not match any scripts on the server. && exit /b
 exit /b
 ::--------------------------------------------------------------------
 
