@@ -691,7 +691,7 @@ for /f "tokens=1-8 delims=," %%a in ('findstr /c:"%~2" "%~dp0\temp\master!sess_r
 		for /f %%r in ('echo %%b,%%d,%%g ^| findstr /c:"%~2"') do (
 			set /a match_count+=1
 			if "!match_count!"=="1" echo No, Name, Description, Author
-			echo !match_count!. %%b ^|%%d ^|%%g
+			echo !match_count!. %%b ^|%%d ^| %%g
 		)
 	)
 )
