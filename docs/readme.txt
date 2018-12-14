@@ -157,6 +157,12 @@ Prints the help text.
 [I] -OPENSCRIPTS
 Opens the scripts folder.
 
+[J] -SEARCH
+Search for scripts on the Bget server.
+Usage:
+BGET -search -usemethod "string"
+Example:
+BGET -search -usejs "Jahwi"
 
 Methods
 Bget's 'methods' are the various ways through which Bget interacts with servers. There are currently 5 methods:
