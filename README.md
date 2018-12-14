@@ -24,7 +24,7 @@
 Bget is a batch-file command-line tool for handling Windows scripts. It is built to be a companion to those who write, use and maintain Windows scripts. It helps those who use scripts easily download, update and remove scripts. It’s built for scripters, by scripters.
 
 ## Features
-1. Download scripts from the Bget server: These scripts are vetted and sorted by us. We’ve gone about curating some of the most interesting scripts we could find that we think would be interesting and useful to you as well.
+1. Download scripts from the Bget server: These scripts are vetted and sorted by us. We’ve gone about curating some of the most interesting scripts we could find that we think would be interesting and useful to you as well. Choose from over 100 scripts currently indexed by Bget.
 2. Download scripts from Pastebin: Pastebin has long been the coder’s friend, and so we added the ability to fetch scripts from Pastebin. These scripts are not pre-vetted however, but they offer the ability for fast code downloading without waiting for us to vet them.
 3. Update scripts: Rather than manually re-download the latest version of every script, Bget handles that for you, getting the latest version of any script you’ve downloaded.
 4. Easily remove scripts: Don’t like a script you downloaded? Easily remove it with Bget. One command and it’s buh-bye script.
