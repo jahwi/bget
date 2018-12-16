@@ -11,7 +11,8 @@ Table of Contents
 	f.	LIST
 	g.	UPGRADE
 	h.	HELP
-	i. OPENSCRIPTS
+	i. 	OPENSCRIPTS
+	j. 	SEARCH
 5.	Methods
 	a.	Jscript -JS
 	b.	Visual Basic Script -VBS
@@ -176,7 +177,8 @@ Usage:
 
 BGET [-switch] [-method] [-script]
 
-Where the methods are: -usejs, -usevbs, -useps, -usebits, -usecurl.
+Where the methods are: -usejs, -usevbs, -useps, -usebits, -usecurl. It should be noted that the BITS method does not work
+with scripts located on external repositories.
 
 Examples:
 
@@ -189,7 +191,7 @@ BGET -info -usejs test
 
 TROUBLESHOOTING
 [1] If the download methods fail and you're sure there's an internet connection, it is possible your Antivirus software
-is blocking it. This can be solved bt whitelisting Bget's path.
+is blocking them. This can be solved bt whitelisting Bget's path.
 
 Contact
 If you're having an issue with bget, would like to submit a script or just want to chat (jk, we're boring people), contact us at batchget [at] gmail [dot com]

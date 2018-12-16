@@ -45,7 +45,7 @@ exit /b
 :main
 ::print the bget intro, followed by the relevant output
 for %%a in ("  ---------------------------------------------------------------------------" 
-"  Bget v0.1.4-141218		Batch Script Manager" 
+"  Bget v0.1.4-161218		Batch Script Manager" 
 "  Made by Jahwi in 2018 | Edits made by Icarus. | Bugs squashed by B00st3d" 
 "  https://github.com/jahwi/bget" 
 "  ---------------------------------------------------------------------------" 
@@ -124,7 +124,7 @@ for %%a in (
 	""
 	"  Supported methods: -useJS -useVBS -usePS -useBITS -useCURL"
 	"  Example: bget -get -useVBS test"
-	"  Some Antiviruses flag the JS and VBS download functions as viruses."
+	"  Some Antiviruses flag the JS and VBS download functions."
 	"  Either witelist them or use the BITS method."
 	"  Type BGET -help -doc for the full help text
 	"  ---------------------------------------------------------------------------"
@@ -784,6 +784,7 @@ if /i "%~1"=="-bits" (
 	set bits_string=
 	exit /b
 )
+
 ::Jscript download function.
 ::Download.js was made by jsjoberg @ https://gist.github.com/jsjoberg/8203376
 if /i "%~1"=="-js" (
@@ -804,6 +805,7 @@ if /i "%~1"=="-js" (
 	)
 	exit /b
 )
+
 ::Curl download function
 if /i "%~1"=="-curl" (
 	call :checkcurl
