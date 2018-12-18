@@ -9,8 +9,8 @@ set upgrade_script_location=https://raw.githubusercontent.com/jahwi/bget/master/
 set bget_location=https://raw.githubusercontent.com/jahwi/bget/master/bget.bat
 set changelog_location=https://raw.githubusercontent.com/jahwi/bget/master/docs/changelog.txt
 set readme_location=https://raw.githubusercontent.com/jahwi/bget/master/docs/readme.txt
->nul set /p upgrade_method=<"%~dp0\%~nx0:upgrade_method"
->nul set /p force_bool=<"%~dp0\%~nx0:force_bool"
+>nul 2>&1 set /p upgrade_method=<"%~dp0\%~nx0:upgrade_method"
+>nul 2>&1 set /p force_bool=<"%~dp0\%~nx0:force_bool"
 if not defined upgrade_method set upgrade_method=bits
 echo Updating...
 
