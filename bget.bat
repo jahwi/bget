@@ -45,7 +45,7 @@ exit /b
 :main
 ::print the bget intro, followed by the relevant output
 for %%a in ("  ---------------------------------------------------------------------------" 
-"  Bget v0.1.4-161218		Batch Script Manager" 
+"  Bget v0.1.4-181218		Batch Script Manager" 
 "  Made by Jahwi in 2018 | Edits made by Icarus. | Bugs squashed by B00st3d" 
 "  https://github.com/jahwi/bget" 
 "  ---------------------------------------------------------------------------" 
@@ -663,7 +663,6 @@ exit /b
 
 ::check for user errors
 if "%~1"=="" echo No method supplied. && exit /b
-if "%~2"=="" echo No search string supplied. && exit /b
 for %%a in (curl js ps vbs bits) do (
 	if /i "-use%%~a"=="%~1" (
 		set search_bool=yes
@@ -671,6 +670,7 @@ for %%a in (curl js ps vbs bits) do (
 	)
 )
 if not defined search_bool echo Invalid method. && exit /b
+if "%~2"=="" echo No search string supplied. && exit /b
 if not "%~3"=="" echo Invalid number of arguments. && exit /b
 set search_bool=
 
