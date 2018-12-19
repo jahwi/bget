@@ -584,11 +584,12 @@ if /i "%~1"=="-server" (
 		)
 	)
 	if not defined list_bool echo Invalid method. && exit /b
+	
 	set /a sess_rand=%random%
+	echo Reading script list...
 	if exist "%~dp0\temp\master!sess_rand!.txt" del /f /q "%~dp0\emp\master!sess_rand!.txt"
 	call :download -!list_method! "!list_location! %~dp0\temp\master!sess_rand!.txt"
 	if not exist "%~dp0\temp\master!sess_rand!.txt" echo An error occured while fetching the script list. && exit /b
-	echo Reading script list...
 	echo.
 	set script_count=
 	echo No	Name		Category	Description		Author
