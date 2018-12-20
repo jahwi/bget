@@ -140,10 +140,8 @@ set get_bool=
 
 ::gets the script list
 	echo Reading script list...
-	set /a sess_rand=%random%
-	if exist "%~dp0\temp\master!sess_rand!.txt" del /f /q "%~dp0\temp\master!sess_rand!.txt"
-	call :download -!get_method! "!list_location!" "%~dp0\temp\master!sess_rand!.txt"
-	if not exist "%~dp0\temp\master!sess_rand!.txt" echo An error occured getting the script list && exit /b
+	call :getlist !get_method!
+	if not exist "%~dp0\temp\master!sess_rand!.txt" exit /b
 		
 		
 	for %%r in (%~2) do (
@@ -296,6 +294,7 @@ if /i "%~1"=="-all" (
 	)
 	
 )
+
 ::check if the script exists
 
 for %%r in (%~1) do (
@@ -354,10 +353,8 @@ set update_bool=
 
 ::gets script list
 echo Reading script list...
-	set /a sess_rand=%random%
-	if exist "%~dp0\temp\master!sess_rand!.txt" del /f /q "%~dp0\temp\master!sess_rand!.txt"
-	call :download -!update_method! "!list_location!" "%~dp0\temp\master!sess_rand!.txt"
-	if not exist "%~dp0\temp\master!sess_rand!.txt" echo An error occured getting the script list. && exit /b
+call :getlist !update_method!
+if not exist "%~dp0\temp\master!sess_rand!.txt" exit /b
 
 	
 for %%r in (%~2) do (
@@ -499,10 +496,8 @@ if not "%~3"=="" echo Invalid number of arguments. && exit /b
 ::downloads
 ::will attempt to download curl if when using the curl get method, curl isnt found in the curl subdirectory.
 	echo Reading script list...
-	set /a sess_rand=%random%
-	if exist "%~dp0\temp\master!sess_rand!.txt" del /f /q "%~dp0\temp\master!sess_rand!.txt"
-	call :download -!get_method! "!list_location!" "%~dp0\temp\master!sess_rand!.txt"
-	if not exist "%~dp0\temp\master!sess_rand!.txt" echo An error occured getting the script list && exit /b
+	call :getlist !get_method!
+	if not exist "%~dp0\temp\master!sess_rand!.txt" exit /b
 	set script_count=
 	
 	
@@ -540,6 +535,7 @@ exit /b
 
 ::checks if switch is correct
 set list_bool=
+set list_method=
 for %%a in (server local) do (
 	if /i "-%%~a"=="%~1" (
 		set list_bool=yes
@@ -585,11 +581,9 @@ if /i "%~1"=="-server" (
 	)
 	if not defined list_bool echo Invalid method. && exit /b
 	
-	set /a sess_rand=%random%
 	echo Reading script list...
-	if exist "%~dp0\temp\master!sess_rand!.txt" del /f /q "%~dp0\emp\master!sess_rand!.txt"
-	call :download -!list_method! "!list_location!" "%~dp0\temp\master!sess_rand!.txt"
-	if not exist "%~dp0\temp\master!sess_rand!.txt" echo An error occured while fetching the script list. && exit /b
+	call :getlist !list_method!
+	if not exist "%~dp0\temp\master!sess_rand!.txt" exit /b
 	echo.
 	set script_count=
 	echo No	Name		Category	Description		Author
@@ -640,6 +634,8 @@ exit /b
 ::search scripts on the server.
 
 ::check for user errors
+set search_bool=
+set search_method=
 if "%~1"=="" echo No method supplied. && exit /b
 for %%a in (curl js ps vbs bits) do (
 	if /i "-use%%~a"=="%~1" (
@@ -654,9 +650,8 @@ set search_bool=
 
 ::gets script list
 echo Reading script list...
-	if exist "%~dp0\temp\master!sess_rand!.txt" del /f /q "%~dp0\emp\master!sess_rand!.txt"
-	call :download -!search_method! "!list_location!" "%~dp0\temp\master!sess_rand!.txt"
-	if not exist "%~dp0\temp\master!sess_rand!.txt" echo An error occured while fetching the script list. && exit /b
+call :getlist !search_method!
+if not exist "%~dp0\temp\master!sess_rand!.txt" exit /b
 	
 ::search
 set match_count=
@@ -741,6 +736,12 @@ exit
 ::End of Functions.
 ::-----------------------------------------------------------------------------------------------------
 
+:getlist
+	set /a sess_rand=%random%
+	if exist "%~dp0\temp\master!sess_rand!.txt" del /f /q "%~dp0\temp\master!sess_rand!.txt"
+	call :download -%~1 "!list_location!" "%~dp0\temp\master!sess_rand!.txt"
+	if not exist "%~dp0\temp\master!sess_rand!.txt" echo An error occured while getting the script list. && exit /b
+	exit /b
 
 ::downloads the files as specified
 ::usage: call :download -method "URL" "local_destination"
