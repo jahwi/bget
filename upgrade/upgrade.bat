@@ -16,7 +16,7 @@ echo Updating...
 
 ::get bget's file hash
 set /a sess_rand=%random%
-call :download -!upgrade_method! "!upgrade_hash_location! %~dp0\temp\hash!sess_rand!.txt"
+call :download -!upgrade_method! "!upgrade_hash_location!" "%~dp0\temp\hash!sess_rand!.txt"
 if not exist "%~dp0\temp\hash!sess_rand!.txt" echo Failed to get the upgrade hash. && exit /b
 >nul 2>&1 set/p new_upgrade_hash=<"%~dp0\temp\hash!sess_rand!.txt"
 
@@ -43,10 +43,10 @@ if not exist docs md docs
 if exist "%~dp0\temp\changelog.txt" del /f /q "%~dp0\changelog.txt"
 if exist "%~dp0\temp\bget.bat" del /f /q "%~dp0\temp\bget.bat"
 if exist "%~dp0\temp\hash.txt" del /f /q "%~dp0\temp\hash.txt"
-call :download -!upgrade_method! "!bget_location! %~dp0\temp\bget.bat"
-call :download -!upgrade_method! "!upgrade_hash_location! %~dp0\temp\hash.txt"
-call :download -!upgrade_method! "!changelog_location! %~dp0\temp\changelog.txt"
-call :download -!upgrade_method! "!readme_location! %~dp0\temp\readme.txt"
+call :download -!upgrade_method! "!bget_location!" "%~dp0\temp\bget.bat"
+call :download -!upgrade_method! "!upgrade_hash_location!" "%~dp0\temp\hash.txt"
+call :download -!upgrade_method! "!changelog_location!" "%~dp0\temp\changelog.txt"
+call :download -!upgrade_method! "!readme_location!" "%~dp0\temp\readme.txt"
 if not exist "%~dp0\temp\hash.txt" echo Failed to get the Bget hash. && exit /b
 if not exist "%~dp0\temp\changelog.txt" echo Failed to get the changelog. && exit /b
 if not exist "%~dp0\temp\bget.bat" echo Failed to get Bget's latest version. && exit /b
@@ -75,9 +75,7 @@ exit /b
 ::BITSADMIN download function
 if /i "%~1"=="-bits" (
 	set /a rnd=%random%
-	for /f "tokens=1,2 delims= " %%w in ("%~2") do (
-		bitsadmin /transfer Bget!rnd! /download /priority HIGH "%%w" "%%x" >nul
-	)
+	bitsadmin /transfer Bget!rnd! /download /priority HIGH "%~2" "%~3" >nul
 	set rnd=
 	set bits_string=
 	exit /b
@@ -91,15 +89,13 @@ if /i "%~1"=="-js" (
 		if "!errorlevel!"=="2" exit /b
 		if "!errorlevel!"=="1" (
 		if not exist "%~dp0\bin" md "%~dp0\bin"
-			call :download -bits "https://raw.githubusercontent.com/jahwi/bget/master/bin/download.js %~dp0\bin\download.js"
+			call :download -bits "https://raw.githubusercontent.com/jahwi/bget/master/bin/download.js" "%~dp0\bin\download.js"
 			if not exist "%~dp0\bin\download.js" echo An error occured when downloading the JS function. && exit /b
 		)
 
 	)
 	if exist "%~dp0\bin\download.js" (
-		for /f "tokens=1,2 delims= " %%e in ("%~2") do (
-			cscript //NoLogo //e:Jscript "%~dp0\bin\download.js" "%%e" "%%f"
-		)
+		cscript //NoLogo //e:Jscript "%~dp0\bin\download.js" "%~2" "%~3"
 	)
 	exit /b
 )
@@ -108,18 +104,14 @@ if /i "%~1"=="-js" (
 if /i "%~1"=="-curl" (
 	call :checkcurl
 	if "!missing_curl!"=="yes" exit /b
-	for /f "tokens=1,2 delims= " %%b in ("%~2") do (
-		"%~dp0\curl\curl.exe" -s "%%b" -o "%%c"
-	)
+	"%~dp0\curl\curl.exe" -s "%~2" -o "%~3"
 exit /b
 )
 
 ::powershell -Command wget "%%b" -OutFile "%%~sc"
 ::powershell download function
 if /i "%~1"=="-ps" (
-	for /f "tokens=1,2 delims= " %%b in ("%~2") do (
-	Powershell.exe -command "[System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12;(New-Object System.Net.WebClient).DownloadFile('%%b','%%~sc')"
-	)
+	Powershell.exe -command "[System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12;(New-Object System.Net.WebClient).DownloadFile('%~2','%~3')"
 	exit /b
 )
 
@@ -131,15 +123,13 @@ if /i "%~1"=="-vbs" (
 		if "!errorlevel!"=="2" exit /b
 		if "!errorlevel!"=="1" (
 		if not exist "%~dp0\bin" md "%~dp0\bin"
-		call :download -bits "https://raw.githubusercontent.com/jahwi/bget/master/bin/download.vbs %~dp0\bin\download.vbs"
+		call :download -bits "https://raw.githubusercontent.com/jahwi/bget/master/bin/download.vbs" "%~dp0\bin\download.vbs"
 		if not exist "%~dp0\bin\download.vbs" echo An error occured when downloading the VBS function. && exit /b
 		)
 
 	)
 	if exist "%~dp0\bin\download.vbs" (
-		for /f "tokens=1,2 delims= " %%e in ("%~2") do (
-			cscript //NoLogo //e:VBScript "%~dp0\bin\download.vbs" "%%e" "%%f"
-		)
+		cscript //NoLogo //e:VBScript "%~dp0\bin\download.vbs" "%~2" "%~3"
 		exit /b
 	)
 )
@@ -156,9 +146,9 @@ if "!missing_curl!"=="yes" (
 	if "!errorlevel!"=="2" exit /b
 	if "!errorlevel!"=="1" (
 		if not exist "%~dp0\curl" md "%~dp0\curl"
-		call :download -bits "https://github.com/jahwi/bget/raw/master/curl/curl.exe %~dp0\curl\curl.exe"
-		call :download -bits "https://raw.githubusercontent.com/jahwi/bget/master/curl/curl-ca-bundle.crt %~dp0\curl\curl-ca-bundle.crt"
-		call :download -bits "https://github.com/jahwi/bget/raw/master/curl/libcurl.dll %~dp0\curl\libcurl.dll"
+		call :download -bits "https://github.com/jahwi/bget/raw/master/curl/curl.exe" "%~dp0\curl\curl.exe"
+		call :download -bits "https://raw.githubusercontent.com/jahwi/bget/master/curl/curl-ca-bundle.crt" "%~dp0\curl\curl-ca-bundle.crt"
+		call :download -bits "https://github.com/jahwi/bget/raw/master/curl/libcurl.dll" "%~dp0\curl\libcurl.dll"
 		set missing_curl_download=
 		for %%a in ("curl\curl.exe" "curl\curl-ca-bundle.crt" "curl\libcurl.dll" ) do ( if not exist "%~dp0\%%~a" set missing_curl_download=yes )
 		if "!missing_curl_download!"=="yes" echo An error occured when downloading curl. && exit /b
