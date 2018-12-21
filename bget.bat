@@ -21,7 +21,7 @@ set auto-delete_logs=yes
 :main
 ::print the bget intro, followed by the relevant output
 for %%a in ("  ---------------------------------------------------------------------------" 
-"  Bget v0.1.5-201218		Batch Script Manager" 
+"  Bget v0.1.6-211218		Batch Script Manager" 
 "  Made by Jahwi in 2018 | Edits made by Icarus. | Bugs squashed by B00st3d" 
 "  https://github.com/jahwi/bget" 
 "  ---------------------------------------------------------------------------" 
@@ -99,11 +99,13 @@ for %%a in (
 	"  -help                                 Prints this help screen."
 	"  -help -doc                            Opens the full help text."
 	""
-	"  Supported methods: -useJS -useVBS -usePS -useBITS -useCURL"
-	"  Example: bget -get -useVBS test"
-	"  Some Antiviruses flag the JS and VBS download functions."
-	"  Either witelist them or use the BITS method."
-	"  Type BGET -help -doc for the full help text
+	"  [#]Supported methods: -useJS -useVBS -usePS -useBITS -useCURL"
+	"   Example: bget -get -useVBS test"
+	"  [#]Some Antiviruses flag the JS and VBS download functions."
+	"   Either witelist them or use the BITS method."
+	"  [#]If you downloaded Bget from anywhere other than Github, be sure to"
+	"   upgrade it."
+	"  [#]Type BGET -help -doc for the full help text
 	"  ---------------------------------------------------------------------------"
 ) do echo=%%~a
 if defined msg echo !msg!
@@ -658,9 +660,9 @@ set match_count=
 echo.
 echo Searching...
 echo.
-for /f "tokens=1-8 delims=," %%a in ('findstr /c:"%~2" "%~dp0\temp\master!sess_rand!.txt"') do (
+for /f "tokens=1-8 delims=," %%a in ('findstr /i /c:"%~2" "%~dp0\temp\master!sess_rand!.txt"') do (
 	if /i "%%~a"=="[#]" (
-		for /f %%r in ('echo %%b,%%d,%%g ^| findstr /c:"%~2"') do (
+		for /f %%r in ('echo %%b,%%d,%%g ^| findstr /i /c:"%~2"') do (
 			set /a match_count+=1
 			if "!match_count!"=="1" echo No, Name, Description, Author
 			echo !match_count!. %%b ^|%%d ^| %%g
