@@ -202,3 +202,5 @@ b00st3d
 Icarus Lives
 Freebooter
 Setlucas
+
+I'd also like to credit the creators of cURL.
