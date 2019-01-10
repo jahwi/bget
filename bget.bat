@@ -7,23 +7,65 @@ call :macros
 ::Made by Jahwi, Icarus and Ben
 :: Conceived, coded and died in 2016, resurrected and recoded in 2018. Enjoy! \o/
 
+::------------------------------------------------------------------------------------------------
+::<SETTINGS>
+::------------------------------------------------------------------------------------------------
 
 ::init directories
 for %%a in (scripts temp bin docs) do (
 	if not exist "%~dp0\%%~a" md "%~dp0\%%~a"
 )
 
-::init global vars, settings, and macros.
+
+::make and append to config file if non-existent.
+if not exist "%~dp0\bin\config.bget" (
+	echo [DO NOT DELETE] >"%~dp0\bin\config.bget"
+	echo js>"%~dp0\bin\config.bget":defmethod
+	echo yes>"%~dp0\bin\config.bget":adl
+)
+
+
+::init global vars.
 set list_location=https://raw.githubusercontent.com/jahwi/bget-list/master/master.txt
-set auto-delete_logs=yes
+::set auto-delete_logs=yes
+set valid_defmethod=
+set auto-delete_logs=
+set valid_adl_bool=
+>nul 2>&1 set/p defmethod=<"%~dp0\bin\config.bget":defmethod
+>nul 2>&1 set/p auto-delete_logs=<"%~dp0\bin\config.bget":adl
+
+	::validate the dafault download method, fix if errors are found.
+	for %%s in (curl js vbs bits ps) do (
+		if /i "!defmethod!"=="%%s" (
+			set valid_defmethod=yes
+		)
+	)
+	if not "!valid_defmethod!"=="yes" (
+		echo js>"%~dp0\bin\config.bget":defmethod
+		set defmethod=js
+	)
+	
+	::validate the auto-delete_logs bool.
+	for %%s in (yes no) do (
+		if /i "!auto-delete_logs!"=="%%s" set "valid_adl_bool=yes"
+	)
+	if not "!valid_adl_bool!"=="yes" (
+		echo yes>"%~dp0\bin\config.bget":adl
+	)
+	
+::------------------------------------------------------------------------------------------------
+::</SETTINGS>
+::------------------------------------------------------------------------------------------------
+
 
 
 :main
 ::print the bget intro, followed by the relevant output
 for %%a in ("  ---------------------------------------------------------------------------" 
-"  Bget v0.1.6-211218		Batch Script Manager" 
-"  Made by Jahwi in 2018 | Edits made by Icarus. | Bugs squashed by B00st3d" 
-"  https://github.com/jahwi/bget" 
+"  Bget v0.2.0-100119		Batch Script Manager" 
+"  Made by Jahwi in 2018 | Edits made by Icarus | Bugs squashed by B00st3d" 
+"  https://github.com/jahwi/bget"
+"  Type %~n0 -help to get the list of commands."
 "  ---------------------------------------------------------------------------" 
 ""
 ) do echo=%%~a
@@ -32,25 +74,40 @@ for %%a in ("  -----------------------------------------------------------------
 
 ::input validation
 set input_string=%*
-if defined input_string for %%a in (a b c d e f g h i j k l m n o p q r s t u v w x y z - . _ 1 2 3 4 5 6 7 8 9 0 [ ] { }) do (
+if defined input_string for %%a in (a b c d e f g h i j k l m n o p q r s t u v w x y z - . _ 1 2 3 4 5 6 7 8 9 0 [ ] { } ) do (
 	if defined input_string set input_string=!input_string:%%a=!
 	if defined input_string set input_string=!input_string: =!
 	if defined input_string set input_string=!input_string:"=!
 )
 
-if not "!input_string!"=="" ( 
-	set msg=Invalid input.
+::if no switch is supplied.
+if not "!input_string!"=="" (
+	%=if /? is triggered.=%
+    if "!input_string!"=="/?" (
+		call :help
+		exit /b
+	)
+    echo Error: Invalid input.
+    echo Type "%~n0 -help" for more information.
+    exit /b
+)
+
+if "%~1"=="" (
+	set msg=Error: No switch supplied.
 	call :help
 	exit /b
 )
-
-if "%~1"=="" set msg=Error: No switch supplied. && call :help && exit /b
 set valid_bool=
+
 ::loop through valid switches
-for %%x in (get remove update info list upgrade help pastebin openscripts search) do (
+for %%x in (get remove update info list upgrade help pastebin openscripts search newscripts set) do (
 	if /i "-%%x"=="%~1" set valid_bool=yes
 )
-if not "!valid_bool!"=="yes" set msg=Error: Invalid switch && call :help && exit /b
+if not "!valid_bool!"=="yes" (
+	echo Error: Invalid switch
+	echo Type "%~n0 -help" for more information.
+	exit /b
+)
 if "!valid_bool!"=="yes" ( 
 	set switch_string=%*
 	call :!switch_string:~1!
@@ -62,7 +119,7 @@ if "!valid_bool!"=="yes" (
 )
 
 
-set valid_bool=
+
 
 ::--------------------------------------------------------------------
 ::Beginning of Functions.
@@ -71,7 +128,7 @@ set valid_bool=
 
 ::opens helpdoc
 if /i "!switch_string:~0,10!"=="-help -doc" (
-	if not "%~3"=="" echo Invalid number of arguments. && exit /b
+	if not "%~3"=="" echo Error[h3]: Invalid number of arguments. && exit /b
 	if /i not "!switch_string!"=="-help -doc" echo Invalid help switch. && exit /b
 	if exist "%~dp0\docs\readme.txt" (
 		type "%~dp0\docs\readme.txt"
@@ -95,6 +152,8 @@ for %%a in (
 	"  [-search {usemethod} "STRING" ]       Search scripts on the server."
 	"  [-upgrade {-usemethod} ]              Updates Bget."
 	"  [-upgrade {-usemethod} -force ]       Updates Bget, regardless of version."
+	"  [-newscripts {-usemethod} ]           Lists new scripts released."
+	"  [-set -ddm {method}]                  Changes the default download method. "
 	"  -openscripts                          Opens the scripts folder."
 	"  -help                                 Prints this help screen."
 	"  -help -doc                            Opens the full help text."
@@ -102,7 +161,7 @@ for %%a in (
 	"  [#]Supported methods: -useJS -useVBS -usePS -useBITS -useCURL"
 	"   Example: bget -get -useVBS test"
 	"  [#]Some Antiviruses flag the JS and VBS download functions."
-	"   Either witelist them or use the BITS method."
+	"   Either witelist them or use the BITS/PS methods."
 	"  [#]If you downloaded Bget from anywhere other than Github, be sure to"
 	"   upgrade it."
 	"  [#]Type BGET -help -doc for the full help text
@@ -120,21 +179,27 @@ exit /b
 set get_bool=
 set get_method=
 
-if "%~1"=="" echo Error: No get method supplied. && exit /b
+if "%~1"=="" echo Error[g1]: Incorrect syntax. && exit /b
 for %%s in (curl js vbs bits ps) do (
 	if /i "%~1"=="-use%%s" (
 		set get_bool=yes
 		set get_method=%%s
-		if "%~2"=="" echo Error: Invalid argument. && exit /b
+		if "%~2"=="" echo Error[g2]: Incorrect syntax. && exit /b
 	)
 )
 if not "!get_bool!"=="yes" (
-	set msg=Error: Invalid get method.
-	call :help
+	REM echo Error: Invalid get method.
+	REM echo Type "%~n0 -help" for more information.
+	echo No method supplied. Defaulting to !defmethod! download method...
+	call :get -use!defmethod! "%~1"
 	exit /b
 )
 set get_bool=
-
+if not "%~3"=="" (
+	echo Error[g3]: Invalid number of arguments.
+	echo Type "%~n0 -help" for more information.
+	exit /b
+)
 
 
 ::downloads
@@ -144,62 +209,48 @@ set get_bool=
 	echo Reading script list...
 	call :getlist !get_method!
 	if not exist "%~dp0\temp\master!sess_rand!.txt" exit /b
-		
-		
-	for %%r in (%~2) do (
-		set script_count=
-			
-		%=download all scripts on the server if all switch is triggered=%
-		if /i "%~2"=="-all" (
-			for /f "tokens=1-8 delims=," %%a in ('findstr /b /c:"[#]," "%~dp0\temp\master!sess_rand!.txt"') do (
-				set /a script_count+=1
-				if exist "%~dp0\scripts\%%~b\" echo "%%~b" already exists. Skipping.
-				if not exist "%~dp0\scripts\%%~b\" (
-					echo Fetching "%%~b"...
-					if not exist "%~dp0\scripts\%%~b" md "%~dp0\scripts\%%~b"
-					call :download -!get_method! "%%~c" "%~dp0\scripts\%%~b\%%~e"
-					if not exist "%~dp0\scripts\%%~b\%%~e" (
-						echo Failed to get "%%~b"
-						rd /s /q "%~dp0\scripts\%%~b"
-					)
-					%=Export the current hash, description and author=%
-					if exist "%~dp0\scripts\%%~b\%%~e" (
-						echo %%f>"%~dp0\scripts\%%~b\hash.txt"
-						echo %%d>"%~dp0\scripts\%%~b\info.txt"
-						echo %%g>"%~dp0\scripts\%%~b\author.txt"
-						%=Deal with .cab packages=%
-						if "%%~xe"==".cab" (
-							echo Extracting...
-							call :cab "%~dp0\scripts\%%~b\%%~e" "%~dp0\scripts\%%~b"
-						)
-						%=Deal with zips=%
-						if "%%~xe"==".zip" (
-							echo Extracting...
-							call :unzip "%~dp0\scripts\%%~b\%%~e" "%~dp0\scripts\%%~b\"
-						)
-						echo Done.
-					)
-				)
-			)
-			if not defined script_count echo Could not read entries from the server list.
-			exit /b
+
+::if "-all" switch is used
+	if /i "%~2"=="-all" (
+		for /f "tokens=1-8 delims=," %%r in ('findstr /b /c:"[#]," "%~dp0\temp\master!sess_rand!.txt"') do (
+			call :get_recurse "%%~s"
 		)
-		
-		
-		for /f "tokens=1-8 delims=," %%a in ('findstr /b /c:"[#],%%~r," "%~dp0\temp\master!sess_rand!.txt"') do (
+		exit /b
+	)
+
+::single scripts and args that aren't "-all"
+	for %%r in (%~2) do (
+		call :get_recurse "%%~r"
+	)
+exit /b
 			
+
 			
+:get_recurse
+::calls itself to download the specified scripts		
+set script_count=
+		for /f "tokens=1-8 delims=," %%a in ('findstr /b /c:"[#],%~1," "%~dp0\temp\master!sess_rand!.txt"') do (
+		
+			set /a script_count+=1
 			if exist "%~dp0\scripts\%%~b\" (
-				echo The script "%%~b" already exists in this directory.
+				echo The script "%%~b" already exists in this directory. Skipping...
 				set /a script_count+=1
 			)	
 			if not exist "%~dp0\scripts\%%~b\" (
 				set /a script_count+=1
 				echo Fetching %%~b...
+				
+				REM add warning because BITS cant download from external repositories.
+				if /i "!get_method!"=="bits" (
+					if /i "%%f"=="External-File-No-Hash-Available" (
+						echo Warning: BITS download method cannot download scripts from an external repo.
+					)
+				)
+				
 				if not exist "%~dp0\scripts\%%~b" md "%~dp0\scripts\%%~b"
 				call :download -!get_method! "%%~c" "%~dp0\scripts\%%~b\%%~e"
 				if not exist "%~dp0\scripts\%%~b\%%~e" (
-					echo An error occured while fetching "%%~nb".
+					echo Error[g4]: An error occured while fetching "%%~nb".
 					if exist "%~dp0\scripts\%%~b" rd /s /q "%~dp0\scripts\%%~b"
 				)
 				if exist "%~dp0\scripts\%%~b\%%~e" (
@@ -219,8 +270,7 @@ set get_bool=
 				)
 			)
 		)
-		if not defined script_count echo The script "%%~r" does not exist on the server.
-	)
+		if not defined script_count echo The script "%~1" does not exist on the server.
 exit /b
 ::--------------------------------------------------------------------
 
@@ -234,11 +284,11 @@ echo If you get the paste code wrong, you'll get a pastebin error as the output 
 echo.
 echo.
 
-
+:pastebin_recurse
 ::check for user errors
 set paste_bool=
 set paste_method=
-if "%~1"=="" echo Error: No Pastebin get method supplied. && exit /b
+::if "%~1"=="" echo Error[p1]: No Pastebin get method supplied. && exit /b
 if "%~1"=="-usebits" echo Error: BITSadmin does not work with the pastebin function as of yet. && exit /b
 for %%s in (curl js vbs ps) do (
 	if /i "%~1"=="-use%%s" (
@@ -247,25 +297,28 @@ for %%s in (curl js vbs ps) do (
 	)
 )
 if not "!paste_bool!"=="yes" (
-	set msg=Error: Invalid paste get method.
-	call :help
+	REM echo Error: Invalid get method.
+	REM echo Type "%~n0 -help" for more information.
+	echo No method supplied. Defaulting to !defmethod! download method...
+	call :pastebin_recurse -use!defmethod! "%~1" "%~2"
 	exit /b
 )
-if "%~2"=="" echo Error: No paste code supplied. && exit /b
-if "%~3"=="" echo Error: You must specify a local filename. && exit /b
+if "%~2"=="" echo Error[p2]: No paste code supplied. && exit /b
+if "%~3"=="" echo Error[p4]: You must specify a local filename. && exit /b
+if not "%~4"=="" echo Error[p3]: Invalid number of arguments. && exit /b
 set paste_bool=
 
 ::begin the pastebin fetching
-if exist "%~dp0\scripts\pastebin\%~2\%~3" echo Error: The file name already exists && exit /b
+if exist "%~dp0\scripts\pastebin\%~2\%~nx3" echo Error[p5]: The file name already exists && exit /b
 if not exist "%~dp0\scripts\pastebin\%~2" md "%~dp0\scripts\pastebin\%~2"
-echo Fetching "%~2" into "%~3"...
-call :download -!paste_method! "https://pastebin.com/raw/%~2" "%~dp0\scripts\pastebin\%~2\%~3"
-if not exist "%~dp0\scripts\pastebin\%~2\%~3" (
-	echo An error occured fetching the pastebin script.
+echo Fetching "%~2" into "%~nx3"...
+call :download -!paste_method! "https://pastebin.com/raw/%~2" "%~dp0\scripts\pastebin\%~2\%~nx3"
+if not exist "%~dp0\scripts\pastebin\%~2\%~nx3" (
+	echo Error[p4]: An error occured fetching the pastebin script.
 	if exist "%~dp0\scripts\pastebin\%~2" rd /s /q "%~dp0\scripts\pastebin\%~2"
 	exit /b
 )
-if exist "%~dp0\scripts\pastebin\%~2\%~3" echo Done. && exit /b
+if exist "%~dp0\scripts\pastebin\%~2\%~nx3" echo Done. && exit /b
 ::paranoia
 exit /b
 ::--------------------------------------------------------------------
@@ -276,11 +329,12 @@ exit /b
 
 ::check for errors
 if "%~1"=="" (
-	set msg=Error: No script supplied.
-	call :help
+	echo Error: No script supplied.
+	echo Type "%~n0 -help" for more information.
 	exit /b
 )
 
+::TODO: ADD Y SWITCH TO BYPASS PROMPT
 if /i "%~1"=="-all" (
 	choice /c yn /n /m "Delete all scripts? [y/n]
 	if "!errorlevel!"=="2" exit /b
@@ -289,7 +343,8 @@ if /i "%~1"=="-all" (
 		for /d %%a in ("%~dp0\scripts\*") do (
 			set /a script_count+=1
 			echo Removing "%%~na"... && rd /s /q "%%~a"
-			if exist "%%a" echo Failed to remove %%~na.
+			if exist "%%~a" rd /s /q "%%~a"
+			if exist "%%a" echo Error[p6]: Failed to remove %%~na.
 		)
 		if not defined script_count echo You have no scripts.
 		exit /b
@@ -297,26 +352,26 @@ if /i "%~1"=="-all" (
 	
 )
 
-::check if the script exists
+::deletes pastebin scripts.
+if /i "%~1"=="-pastebin" (
+	choice /c yn /n /m "Clear ALL your pastebin scripts? This can't be undone. [(Y)es/(N)o]"
+	if "!errorlevel!"=="2" exit /b
+	if "!errorlevel!"=="1" (
+		rd /s /q "%~dp0\scripts\pastebin"
+		if not exist "%~dp0\scripts\pastebin" echo Pastebin scripts removed.
+		if exist "%~dp0\scripts\pastebin" echo Error[p7]: An error occured while deleting the pastebin folder.
+		exit /b
+	)
+)
 
+::deletes individual/multiple scrips.
 for %%r in (%~1) do (
 	if not exist "%~dp0\scripts\%%~r" echo The script "%%~r" does not exist.
 	if exist "%~dp0\scripts\%%~r" (
-		if /i "%%~r"=="pastebin" (
-			choice /c yn /n /m "Clear ALL your pastebin scripts? This can't be undone. [(Y)es/(N)o]"
-			if "!errorlevel!"=="2" exit /b
-			if "!errorlevel!"=="1" (
-				rd /s /q "%~dp0\scripts\pastebin"
-				if exist "%~dp0\scripts\pastebin" echo An error occured while deleting the pastebin folder.
-				if not exist "%~dp0\scripts\pastebin" echo Pastebin scripts removed.
-				exit /b
-			)	
-		)
-
-
 		rd /s /q "%~dp0\scripts\%%~r"
-		if exist "%~dp0\scripts\%%~r" echo Bget could not delete "%%~r".
-		if not exist "%~dp0\scripts\%%~r" echo Removed %%r.
+		if exist "%~dp0\scripts\%%~r" rd /s /q "%~dp0\scripts\%%~r"
+		if exist "%~dp0\scripts\%%~r" echo Error[p7]: Bget could not delete "%%~r".
+		if not exist "%~dp0\scripts\%%~r" echo Removed %%r.	
 	)
 )
 exit /b
@@ -332,20 +387,32 @@ exit /b
 ::check for user errors
 set update_bool=
 set update_method=
-if "%~1"=="" echo Error: No update method supplied. && exit /b
+
+::display syntax if no first argument is supplied.
+if "%~1"=="" (
+	echo Syntax:
+	echo -update "scripts"                 Updates the specified script/scripts
+	echo -update "scripts" -force          Updates the specified scripts, regardless of version.
+	exit /b
+)
 for %%s in (curl js vbs bits ps) do (
 	if /i "%~1"=="-use%%s" (
 		set update_bool=yes
 		set update_method=%%s
-		if "%~2"=="" echo Error: Invalid argument. && exit /b
+		if "%~2"=="" echo Error[u2] Incorrect Syntax. && exit /b
 	)
 )
 if not "!update_bool!"=="yes" (
-	set msg=Error: Invalid update method.
-	call :help
+	REM echo Error: Invalid get method.
+	REM echo Type "%~n0 -help" for more information.
+	echo No method supplied. Defaulting to !defmethod! download method...
+	call :update -use!defmethod! "%~1" "%~2"
 	exit /b
 )
-if not "%~4"=="" echo Invalid number of arguments. && exit /b
+if not "%~3"=="" (
+	if /i not "%~3"=="-force" echo Error[u3]: Invalid number of arguments. && exit /b
+)
+if not "%~4"=="" echo Error[u3]: Invalid number of arguments. && exit /b
 set update_bool=
 
 
@@ -358,77 +425,44 @@ echo Reading script list...
 call :getlist !update_method!
 if not exist "%~dp0\temp\master!sess_rand!.txt" exit /b
 
-	
-for %%r in (%~2) do (
+::if "-all" switch is used
+	if /i "%~2"=="-all" (
+		for /f "tokens=1-8 delims=," %%r in ('findstr /b /c:"[#]," "%~dp0\temp\master!sess_rand!.txt"') do (
+			if exist "%~dp0\scripts\%%~s\" call :update_recurse "%%~s" %~3
+		)
+		exit /b
+	)
+
+::single scripts and args that aren't "-all"
+	for %%r in (%~2) do (
+		call :update_recurse "%%~r" %~3
+	)
+exit /b
+
+:update_recurse
+
 		set script_count=
-		%= updates all scripts =%
-		if /i "%~2"=="-all" (
-			for /f "tokens=1-8 delims=," %%a in ('findstr /b /c:"[#]," "%~dp0\temp\master!sess_rand!.txt"') do (
-				if exist "%~dp0\scripts\%%~b\" (
-					
-					
-					if exist "%~dp0\scripts\%%~b\" (
-						set /a script_count+=1
-						set hash=
-						if not exist "%~dp0\scripts\%%~b\hash.txt" echo hash file for %%~b is missing. Updating anyway.
-						if exist "%~dp0\scripts\%%~b\hash.txt" (
-							set/p hash=<"%~dp0\scripts\%%~b\hash.txt"
-							if /i "%~3"=="-force" echo Forcing update... && set hash=%random%%random%%random%%random%
-							if /i "!hash!"=="%%~f" echo "%%~b" is up-to-date. Skipping.
-						)
-						
-						if /i not "!hash!"=="%%~f" (
-							if not exist "%~dp0\temp\%%~b" md "%~dp0\temp\%%~b"
-							echo Updating "%%~b"...
-							call :download -!update_method! "%%~c" "%~dp0\temp\%%~b\%%~e"
-							if not exist "%~dp0\temp\%%~b\%%~e" echo Could not update "%%~b".
-							if exist "%~dp0\temp\%%~b\%%~e" (
-								if not defined hash set /a hash=%random%
-								if not exist "%~dp0\scripts\%%~b\old-!hash!" md "%~dp0\scripts\%%~b\old-!hash!"
-								echo Cleaning up old version...
-								move /Y "%~dp0\scripts\%%~b\%%~e" "%~dp0\scripts\%%~b\old-!hash!"
-								move /Y "%~dp0\temp\%%~b\%%~e" "%~dp0\scripts\%%~b\"
-								rd /s /q "%~dp0\temp\%%~b"
-								echo %%f>"%~dp0\scripts\%%~b\hash.txt"
-								echo %%d>"%~dp0\scripts\%%~b\info.txt"
-								echo %%g>"%~dp0\scripts\%%~b\author.txt"
-								
-								%=Extract archives=%
-							
-								%=deal with cabs=%
-								if "%%~xe"==".cab" (
-									echo Extracting...
-									call :cab "%~dp0\scripts\%%~b\%%~e" "%~dp0\scripts\%%~b"
-								)
-								%=Deal with zips=%
-								if "%%~xe"==".zip" (
-									echo Extracting...
-									call :unzip "%~dp0\scripts\%%~b\%%~e" "%~dp0\scripts\%%~b\"
-								)
-									echo Done.
-							)
-						)
-					)
-				)
-			)
-			if not defined script_count echo You have no scripts.
-			exit /b
-		)		
-		
-		
-		if not exist "%~dp0\scripts\%%~r\" echo Error: "%%~r" does not exist on the local machine.
-		if exist "%~dp0\scripts\%%~r\" (
-			for /f "tokens=1-8 delims=," %%a in ('findstr /b /c:"[#],%%~r," "%~dp0\temp\master!sess_rand!.txt"') do (
+		if not exist "%~dp0\scripts\%~1\" echo Error: "%~1" does not exist on the local machine.
+		if exist "%~dp0\scripts\%~1\" (
+			for /f "tokens=1-8 delims=," %%a in ('findstr /b /c:"[#],%~1," "%~dp0\temp\master!sess_rand!.txt"') do (
 				set /a script_count+=1
 				echo Updating %%~b...
 				set hash=
 				if not exist "%~dp0\scripts\%%~b\hash.txt" echo hash file for %%~b is missing. Updating anyway.
 				if exist "%~dp0\scripts\%%~b\hash.txt" (
 					set/p hash=<"%~dp0\scripts\%%~b\hash.txt"
-					if /i "%~3"=="-force" echo Forcing update... && set hash=%random%%random%%random%%random%
+					if /i "%~2"=="-force" echo Forcing update... && set hash=%random%%random%%random%%random%
 					if /i "!hash!"=="%%~f" echo "%%~b" is up-to-date. Skipping.
 				)
 				if /i not "!hash!"=="%%~f" (
+				
+					REM add warning because BITS cant download from external repositories.
+					if /i "!update_method!"=="bits" (
+						if /i "%%f"=="External-File-No-Hash-Available" (
+							echo Warning: BITS download method cannot download scripts from an external repo.
+						)
+					)				
+
 					if not exist "%~dp0\temp\%%~b" md "%~dp0\temp\%%~b"
 					call :download -!update_method! "%%~c" "%~dp0\temp\%%~b\%%~e"
 					if not exist "%~dp0\temp\%%~b\%%~e" echo Could not update "%%~b".
@@ -436,7 +470,8 @@ for %%r in (%~2) do (
 						if not defined hash set /a hash=%random%
 						if not exist "%~dp0\scripts\%%~b\old-!hash!" md "%~dp0\scripts\%%~b\old-!hash!"
 						echo Cleaning up old version...
-						move /Y "%~dp0\scripts\%%~b\%%~e" "%~dp0\scripts\%%~b\old-!hash!"
+						if exist "%~dp0\scripts\%%~b\%%~e" move /Y "%~dp0\scripts\%%~b\%%~e" "%~dp0\scripts\%%~b\old-!hash!"
+						if exist "%~dp0\scripts\%%~b\package\%%~e" move /Y "%~dp0\scripts\%%~b\package\%%~e" "%~dp0\scripts\%%~b\old-!hash!"
 						move /Y "%~dp0\temp\%%~b\%%~e" "%~dp0\scripts\%%~b\"
 						rd /s /q "%~dp0\temp\%%~b"
 						if not exist "%~dp0\scripts\%%~b\%%~e" echo An error occured while updating the script.
@@ -465,7 +500,6 @@ for %%r in (%~2) do (
 			if not defined script_count echo The script does not exist on the server.
 		)
 
-)
 exit /b
 ::--------------------------------------------------------------------
 
@@ -473,25 +507,28 @@ exit /b
 ::couldn't make a joke here if i tried.
 ::Chuck Norris doesn't read books, he simply stares the book down till he gets the information he wants.
 ::retrieves relevant information about the script from the bget server
+
 ::check for user errors
 set get_bool=
 set get_method=
 
-if "%~1"=="" echo Error: No get method supplied. && exit /b
+if "%~1"=="" echo Error[i1]: Incorrect Syntax. && exit /b
 for %%s in (curl js vbs bits ps) do (
 	if /i "%~1"=="-use%%s" (
 		set get_bool=yes
 		set get_method=%%s
-		if "%~2"=="" echo Error: Invalid argument. && exit /b
+		if "%~2"=="" echo Error[i2]: Incorrect Syntax. && exit /b
 	)
 )
 if not "!get_bool!"=="yes" (
-	set msg=Error: Invalid get method.
-	call :help
+	REM echo Error: Invalid get method.
+	REM echo Type "%~n0 -help" for more information.
+	echo No method supplied. Defaulting to !defmethod! download method...
+	call :info -use!defmethod! "%~1" "%~2"
 	exit /b
 )
 set get_bool=
-if not "%~3"=="" echo Invalid number of arguments. && exit /b
+if not "%~3"=="" echo Error[i3]: Invalid number of arguments. && exit /b
 
 
 
@@ -538,6 +575,15 @@ exit /b
 ::checks if switch is correct
 set list_bool=
 set list_method=
+
+::display syntax if no first argument is supplied.
+if /i "%~1"=="" (
+	echo Syntax:
+	echo -list -server                 Lists scripts indexed by Bget.
+	echo -list -server -full           Displays the indexed scripts list with less formatting.
+	echo -list -local                  Lists downloaded scripts.
+	exit /b
+)
 for %%a in (server local) do (
 	if /i "-%%~a"=="%~1" (
 		set list_bool=yes
@@ -553,15 +599,32 @@ if not "%~4"=="" echo Invalid number of arguments. && exit /b
 ::lists scripts on the local computer
 ::not compatible with any use method
 if /i "%~1"=="-local" (
-	if not "%~2"=="" echo Invalid number of arguments. && exit /b
+	if not "%~2"=="" echo Error[l3]: Invalid number of arguments. && exit /b
 	set script_count=
 	for /d %%a in ("%~dp0\scripts\*") do (
 		if exist "%%a\hash.txt" (
 			set /a script_count+=1
 			echo !script_count!. %%~na
-		)	
+		)
 	)
-	if not defined script_count echo You have no scripts. && exit /b
+
+	set p_script_count=
+	REM lists pastebin scripts.
+	if exist "%~dp0\scripts\pastebin" (
+		echo ---------Pastebin Downloads---------------------
+		for /d %%a in ("%~dp0scripts\pastebin\*") do (
+			for %%b in ("%%~a\*") do (
+				set /a p_script_count+=1
+				echo !p_script_count!. %%~na\%%~nxb
+			)
+		)
+	)
+	
+	if not defined script_count (
+		if not defined p_script_count (
+			echo You have no scripts. && exit /b
+		)
+	)
 	exit /b
 )
 
@@ -569,11 +632,8 @@ if /i "%~1"=="-local" (
 ::lists scripts on the server
 set list_bool=
 if /i "%~1"=="-server" (
-	if /i not "%~3"=="" (
-		if /i not "%~3"=="-full" echo Invalid argument. && exit /b
-	)
-	if not "%~4"=="" echo Invalid number of arguments. && exit /b
-	if "%~2"=="" echo No get method supplied. && exit /b
+
+	REM if "%~2"=="" echo No get method supplied. && exit /b
 
 	for %%a in (curl js ps vbs bits) do (
 		if /i "-use%%~a"=="%~2" (
@@ -581,8 +641,20 @@ if /i "%~1"=="-server" (
 			set list_method=%%~a
 		)
 	)
-	if not defined list_bool echo Invalid method. && exit /b
+	if not defined list_bool (
+		REM echo Error: Invalid get method.
+		REM echo Type "%~n0 -help" for more information.
+		echo No method supplied. Defaulting to !defmethod! download method...
+		call :list -server -use!defmethod! "%~2"
+		exit /b
+	)
 	
+	if /i not "%~3"=="" (
+		if /i not "%~3"=="-full" echo Invalid argument. && exit /b
+	)
+	if not "%~4"=="" echo Error[l3]: Invalid number of arguments. && exit /b
+	
+	::fetch and parse the script list.
 	echo Reading script list...
 	call :getlist !list_method!
 	if not exist "%~dp0\temp\master!sess_rand!.txt" exit /b
@@ -638,14 +710,20 @@ exit /b
 ::check for user errors
 set search_bool=
 set search_method=
-if "%~1"=="" echo No method supplied. && exit /b
+if "%~1"=="" echo Error[s1]: Incorrect Syntax. && exit /b
 for %%a in (curl js ps vbs bits) do (
 	if /i "-use%%~a"=="%~1" (
 		set search_bool=yes
 		set search_method=%%~a
 	)
 )
-if not defined search_bool echo Invalid method. && exit /b
+if not defined search_bool (
+	REM echo Error: Invalid get method.
+	REM echo Type "%~n0 -help" for more information.
+	echo No method supplied. Defaulting to !defmethod! download method...
+	call :search -use!defmethod! "%~1" "%~2"
+	exit /b
+)
 if "%~2"=="" echo No search string supplied. && exit /b
 if not "%~3"=="" echo Invalid number of arguments. && exit /b
 set search_bool=
@@ -659,6 +737,7 @@ if not exist "%~dp0\temp\master!sess_rand!.txt" exit /b
 set match_count=
 echo.
 echo Searching...
+echo Search String: [%~2]
 echo.
 for /f "tokens=1-8 delims=," %%a in ('findstr /i /c:"%~2" "%~dp0\temp\master!sess_rand!.txt"') do (
 	if /i "%%~a"=="[#]" (
@@ -673,6 +752,111 @@ if not defined match_count echo Your string did not match any scripts on the ser
 exit /b
 ::--------------------------------------------------------------------
 
+
+:newscripts
+::list new scripts. It works by comparing a local script list with the current one on the server.
+
+::check for user errors
+set ns_bool=
+set ns_method=
+REM if "%~1"=="" echo No method supplied. && exit /b
+for %%a in (curl js ps vbs bits) do (
+	if /i "-use%%~a"=="%~1" (
+		set ns_bool=yes
+		set ns_method=%%~a
+	)
+)
+if not defined ns_bool (
+	REM echo Error: Invalid get method.
+	REM echo Type "%~n0 -help" for more information.
+	echo No method supplied. Defaulting to !defmethod! download method...
+	call :newscripts -use!defmethod! "%~1" "%~2"
+	exit /b
+)
+
+if not "%~2"=="" echo Error[n3]: Invalid number of arguments. && exit /b
+if not defined sess_rand set sess_rand=%random%
+call :download -!ns_method! "https://raw.githubusercontent.com/jahwi/bget-list/master/newscripts.bget" "%~dp0\temp\newscripts!sess_rand!.bget"
+if not exist "%~dp0\temp\newscripts!sess_rand!.bget" echo Failed to get the new scripts list. && exit /b
+echo New scripts:
+echo Name, Description, Date Added
+findstr /n /r . "%~dp0\temp\newscripts!sess_rand!.bget"
+del /f /q "%~dp0\temp\newscripts!sess_rand!.bget" >nul 2>&1
+
+exit /b
+::--------------------------------------------------------------------
+
+:set
+::allows users set some of the global vars.
+::to set, or not to set. That is the question.
+
+::display syntax if no first argument is supplied.
+if /i "%~1"=="" (
+	echo Syntax:
+	echo -set -ddm method                 Changes default get method.
+	echo -set -adl yes/no                 Toggles auto-deletion of temp files on/off.
+	exit /b
+)
+set set_bool=
+for %%a in (-ddm -adl) do (
+	if /i "%%~a"=="%~1" set set_bool=yes
+)
+if /i not "!set_bool!"=="yes" echo Error: Invalid set argument. && exit /b
+if "%~2"=="" echo Error: Incorrect syntax. && exit /b
+if "%~1"=="" echo Error: Incorrect syntax. && exit /b
+if not "%~3"=="" echo Error: Invalid number of arguments. && exit /b
+
+::sets the default download method
+set set_bool=
+set temp_defmethod=
+set recheck_defmethod=
+if /i "%~1"=="-ddm" (
+	REM check for user errors
+	for %%a in (js vbs curl ps bits) do (
+		if /i "%~2"=="%%a" (
+			set "set_bool=yes"
+			set "temp_defmethod=%%a"
+		)
+	)
+	REM a bit redundant but whatever:
+	if not defined temp_defmethod echo Error: Invalid download method. Supported methods are js, vbs, curl, ps and bits. & exit /b
+	if not defined set_bool echo Error: Invalid download method. Supported methods are js, vbs, curl, ps and bits. & exit /b
+	
+	REM changes the default get method var and appends it.
+	set defmethod=!temp_defmethod!
+	echo !defmethod!>"%~dp0\bin\config.bget":defmethod
+	
+	>nul 2>&1 set/p recheck_defmethod=<"%~dp0\bin\config.bget":defmethod
+	if /i "!recheck_defmethod!"=="!defmethod!" echo Default download method changed to !defmethod!. && exit /b
+	if /i not "!recheck_defmethod!"=="!defmethod!" echo Failed to change the default download method. && exit /b
+)
+
+::sets the auto-delete_logs var.
+set adl_bool=
+set temp_adl_bool=
+set recheck_adl=
+if /i "%~1"=="-adl" (
+	REM check for user errors
+	for %%a in (yes no) do (
+		if "%~2"=="%%~a" (
+			set "adl_bool=yes"
+			set "temp_adl_bool=%%~a"
+		)
+	)
+	if not "!adl_bool!"=="yes" echo Error: Invalid syntax. Valid options are: yes and no. && exit /b
+	
+	REM set the auto-delete_logs var and append to config file.
+	echo !temp_adl_bool!>"%~dp0\bin\config.bget":adl
+	set /p recheck_adl=<"%~dp0\bin\config.bget":adl
+	set auto-delete_logs=!temp_adl_bool!
+	if "!recheck_adl!"=="!temp_adl_bool!" echo Changed "Auto-delete logs" variable to "!temp_adl_bool!". && exit /b
+	if not "!recheck_adl!"=="!temp_adl_bool!" echo Failed to change the "Auto-delete logs" variable. && exit /b
+
+)
+
+
+exit /b
+::--------------------------------------------------------------------
 :upgrade
 ::What d'you call asking your teacher for an A instead of a B? An upgrade.
 ::gets the latest version of bget.
@@ -682,7 +866,7 @@ set upgrade_bool=
 set upgrade_method=
 set upgrade_script_location=https://raw.githubusercontent.com/jahwi/bget/master/upgrade/upgrade.bat
 set upgrade_hash_location=https://raw.githubusercontent.com/jahwi/bget/master/bin/hash.txt
-if "%~1"=="" echo Error: No update method supplied. && exit /b
+::if "%~1"=="" echo Error: No update method supplied. && exit /b
 if /i not "%~2"=="" (
 	if not "%~2"=="-force" echo Error: Invalid number of arguments. && exit /b
 )
@@ -693,8 +877,10 @@ for %%s in (curl js vbs bits ps) do (
 	)
 )
 if not "!upgrade_bool!"=="yes" (
-	set msg=Error: Invalid get method.
-	call :help
+	REM echo Error: Invalid get method.
+	REM echo Type "%~n0 -help" for more information.
+	echo No method supplied. Defaulting to !defmethod! download method...
+	call :upgrade -use!defmethod! "%~1"
 	exit /b
 )
 set upgrade_bool=
@@ -714,14 +900,17 @@ if not exist "%~dp0\bin\hash.txt" (
 )
 if exist "%~dp0\temp\hash!sess_rand!.txt" del /f /q "%~dp0\temp\hash!sess_rand!.txt" >nul 2>&1
 
+
+
+::put hash in var
+set/p current_upgrade_hash=<"%~dp0\bin\hash.txt"
+
 ::force upgrade
 if /i "%~2"=="-force" (
-	echo Forcing upgrade...
-	echo %random%%random%%random%>"%~dp0\bin\hash.txt"
+	set current_upgrade_hash=%random%%random%%random%
 )
 
-::compare old and new hashes
-set/p current_upgrade_hash=<"%~dp0\bin\hash.txt"
+::compare hashes
 if /i "!new_upgrade_hash!"=="!current_upgrade_hash!" echo You already have the latest version. && exit /b
 
 ::get the upgrade script and run it
@@ -737,6 +926,14 @@ exit
 ::-----------------------------------------------------------------------------------------------------
 ::End of Functions.
 ::-----------------------------------------------------------------------------------------------------
+
+
+
+
+::-----------------------------------------------------------------------------------------------------
+::Beginning of helper functions.
+::-----------------------------------------------------------------------------------------------------
+
 
 :getlist
 	set /a sess_rand=%random%
@@ -805,9 +1002,9 @@ if /i "%~1"=="-vbs" (
 		choice /c yn /n /m  "Bget's VBS download function could not be found. Download? [(Y)es/(N)o]"
 		if "!errorlevel!"=="2" exit /b
 		if "!errorlevel!"=="1" (
-		if not exist "%~dp0\bin" md "%~dp0\bin"
-		call :download -bits "https://raw.githubusercontent.com/jahwi/bget/master/bin/download.vbs" "%~dp0\bin\download.vbs"
-		if not exist "%~dp0\bin\download.vbs" echo An error occured when downloading the VBS function. && exit /b
+			if not exist "%~dp0\bin" md "%~dp0\bin"
+			call :download -bits "https://raw.githubusercontent.com/jahwi/bget/master/bin/download.vbs" "%~dp0\bin\download.vbs"
+			if not exist "%~dp0\bin\download.vbs" echo An error occured when downloading the VBS function. && exit /b
 		)
 
 	)
@@ -825,7 +1022,6 @@ exit /b
 
 
 rem ADDED BY ICKY. Padding function. Fuck batbox
-
 :getDemention
 	( set "c=0" & for /f "skip=3 tokens=*" %%a in ('mode con:') do (
 		set /a "c+=1" & if !c! leq 2 set "m[!c!]=%%a"
@@ -971,4 +1167,6 @@ if "!missing_curl!"=="yes" (
 	)
 )
 exit /b
-
+::-----------------------------------------------------------------------------------------------------
+::End of helper functions.
+::-----------------------------------------------------------------------------------------------------

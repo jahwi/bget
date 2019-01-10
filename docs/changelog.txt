@@ -40,3 +40,12 @@ v0.1.4 [14-DEC-2018]                 Added -SEARCH function. Use it to search sc
 v0.1.5 [18-DEC-2018]                 Fixed an issue where the # delimiter broke Bget.
        [20-DEC-2018]                 Fixed an issue where paths with spaces broke Bget.
 v0.1.6 [21-DEC-2018]                 The SEARCH function is no longer case-sensitive.
+v0.2.0 [10-JAN-2019]                 Added NEWSCRIPTS function. Use it to see what scripts we've added.
+                                     Invalid input no longer prints the help screen. Type bget -help for that.
+                                     Bget no longer requires a -usemethod argument. Bget will now default to a default download
+                                     method in the absence of a usemethod argument.
+                                     Added SET function. Use it to set global variables such as the default download method.
+                                     The LOCAL function of the LIST switch now enumerates downloaded pastebin scripts.
+                                     Changed function to remove psstebin scripts from "-remove pastebin" to "-remove -pastebin"
+                                     Calling the SET and LIST functions with no arguments now display the syntax, as opposed to throwing an error.
+                                     Using the BITS method to download scripts from an external repo now shows a warning.

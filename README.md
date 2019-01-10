@@ -35,13 +35,15 @@ Bget is a batch-file command-line tool for handling Windows scripts. It is built
 
 ## Running Bget
 Captain Obvious: Bget is a command-line tool, so it needs to be run from the command line. A typical Bget command looks like this:
-`Bget [-switch] [-method] SCRIPT`
+`Bget [-switch] [-method] [ARGUMENT]
 
 Here’s an example:
 
 Scenario: You want to fetch a script named test from the server.  The easiest way to do this would be:
 
 `BGET -get -usecurl test`
+
+You should open a Command Prompt window in Bget's path before running any of the commands. Optionally, you could also add Bget's path as an environment variable.
 
 ## Switches
 

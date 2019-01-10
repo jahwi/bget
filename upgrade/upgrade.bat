@@ -1,6 +1,7 @@
 @echo off
 setlocal enabledelayedexpansion
-::19-12-2018 [7:45pm GMT+1]
+::Bget upgrade script
+::v0.2.0-10012019
 
 
 ::init global vars
@@ -28,18 +29,20 @@ if not exist "%~dp0\bin\hash.txt" (
 ::compare old and new hashes
 
 ::force if switch is applied
-if /i "!force_bool!"=="yes" (
-	echo Forcing upgrade...
-	echo %random%%random%%random%>"%~dp0\bin\hash.txt"
-)
+
 
 >nul 2>&1 set/p current_upgrade_hash=<"%~dp0\bin\hash.txt"
+if /i "!force_bool!"=="yes" (
+	echo Forcing upgrade...
+	set current_upgrade_hash=%random%%random%%random%
+)
 if /i "!new_upgrade_hash!"=="!current_upgrade_hash!" echo You already have the latest version. && exit /b
 
 ::the actual upgrade
 
 ::make dirs
 if not exist docs md docs
+if not exist temp md temp
 if exist "%~dp0\temp\changelog.txt" del /f /q "%~dp0\changelog.txt"
 if exist "%~dp0\temp\bget.bat" del /f /q "%~dp0\temp\bget.bat"
 if exist "%~dp0\temp\hash.txt" del /f /q "%~dp0\temp\hash.txt"
@@ -63,8 +66,8 @@ start /max /d "%~dp0" notepad "docs\changelog.txt"
 ::delete self
 break
 echo Cleaning up...
-echo del /f /q "%~dpnx0">>"%temp%\cleanup.bat"
-start /min /d "%temp%" cleanup.bat
+echo del /f /q "%~dpnx0">>"%~dp0\temp\cleanup.bat"
+start /min /d "%~dp0temp" cleanup.bat
 break
 ::del /f /q "%~dpnx0"
 exit /b

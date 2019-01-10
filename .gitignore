@@ -6,3 +6,5 @@ tests/
 list/
 hashify.bat
 hget.bat
+bin/locallist.bget
+bin/config.bget

@@ -5,7 +5,6 @@ var url = WScript.Arguments(0),
 if (fso.FileExists(filename)) {
   WScript.Echo('Already got ' + filename);
 } else {
-  WScript.Echo('Downloading ' + url);
   request = WScript.CreateObject('MSXML2.ServerXMLHTTP');
   request.open('GET', url, false); // not async
   request.send();

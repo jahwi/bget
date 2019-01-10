@@ -13,6 +13,8 @@ Table of Contents
 	h.	HELP
 	i. 	OPENSCRIPTS
 	j. 	SEARCH
+	k.	NEWSCRIPTS
+	l.	SET
 5.	Methods
 	a.	Jscript -JS
 	b.	Visual Basic Script -VBS
@@ -40,7 +42,7 @@ Features
 
 Running Bget
 Captain Obvious: Bget is a command-line tool, so it needs to be run from the command line. A typical Bget command looks like this: 
-Bget [-switch] [-method] SCRIPT
+Bget [-switch] [-method] [ARGUMENT]
 
 Here's an example:
 Scenario: You want to fetch a script named test from the server. The easiest way to do this would be:
@@ -83,13 +85,14 @@ Usage:
 BGET -remove script
 Example:
 BGET -remove test
-If "script" is "Pastebin", it deletes all downloaded Pastebin scripts.
 To remove more than one script at once, 
 Example:
 BGET -remove "test tetris bigtext"
 You can also remove all scripts at once.
 Example:
 BGET -remove -all
+To remove all pastebin scripts:
+BGET -remove -pastebin
 
 [D] -Update:
 Updates the specified script.
@@ -165,6 +168,24 @@ BGET -search -usemethod "string"
 Example:
 BGET -search -usejs "Jahwi"
 
+[K] -NEWSCRIPTS
+Shows you new scripts we've added.
+Usage:
+BGET -newscripts -usemethod
+Example:
+BGET -newscripts -usejs
+
+[L] SET
+Changes global variables such as the default downlaod method.
+Usage scenario [1]: changing the default download method.
+BGET -set -ddm {method}
+Example:
+BGET -set -ddm vbs
+Usage scenario [2]: toggle auto-delete logs (toddles deletion of temp files)
+BGET -set -adl {option}
+Example:
+BGET -set -adl yes
+
 Methods
 Bget's 'methods' are the various ways through which Bget interacts with servers. There are currently 5 methods:
 
@@ -190,8 +211,12 @@ BGET -upgrade -usecurl
 BGET -info -usejs test
 
 TROUBLESHOOTING
-[1] If the download methods fail and you're sure there's an internet connection, it is possible your Antivirus software
-is blocking them. This can be solved bt whitelisting Bget's path.
+[1] VBS/JS download methods fail: This is typically caused by antivirus software.
+	Remedies:	[a] Whitelist the Bget path or
+				[b] Use the BITS/PS methods
+[2] BITS download method fails: BITS method is slow and does not download scripts from external repositories.
+	Remedies:	[a] Use other methods.
+				
 
 Contact
 If you're having an issue with bget, would like to submit a script or just want to chat (jk, we're boring people), contact us at batchget [at] gmail [dot com]
