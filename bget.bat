@@ -26,6 +26,7 @@ if not exist "%~dp0\bin\config.bget" (
 
 
 ::init global vars.
+set "version=0.2.0-100119	"
 set list_location=https://raw.githubusercontent.com/jahwi/bget-list/master/master.txt
 ::set auto-delete_logs=yes
 set valid_defmethod=
@@ -62,7 +63,7 @@ set valid_adl_bool=
 :main
 ::print the bget intro, followed by the relevant output
 for %%a in ("  ---------------------------------------------------------------------------" 
-"  Bget v0.2.0-100119		Batch Script Manager" 
+"  Bget v!version!	Batch Script Manager" 
 "  Made by Jahwi in 2018 | Edits made by Icarus | Bugs squashed by B00st3d" 
 "  https://github.com/jahwi/bget"
 "  Type %~n0 -help to get the list of commands."
