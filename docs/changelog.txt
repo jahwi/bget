@@ -49,3 +49,4 @@ v0.2.0 [10-JAN-2019]                 Added NEWSCRIPTS function. Use it to see wh
                                      Changed function to remove psstebin scripts from "-remove pastebin" to "-remove -pastebin"
                                      Calling the SET and LIST functions with no arguments now display the syntax, as opposed to throwing an error.
                                      Using the BITS method to download scripts from an external repo now shows a warning.
+v0.2.1 [14-JAN-2019]                 Upgrade script now displays version number when upgrading.

@@ -2,6 +2,7 @@
 setlocal enabledelayedexpansion
 ::Bget upgrade script
 ::v0.2.0-10012019
+::v0.3.0-14012019 added support for fetching Bget's version info.
 
 
 ::init global vars
@@ -10,6 +11,7 @@ set upgrade_script_location=https://raw.githubusercontent.com/jahwi/bget/master/
 set bget_location=https://raw.githubusercontent.com/jahwi/bget/master/bget.bat
 set changelog_location=https://raw.githubusercontent.com/jahwi/bget/master/docs/changelog.txt
 set readme_location=https://raw.githubusercontent.com/jahwi/bget/master/docs/readme.txt
+set version_location=https://raw.githubusercontent.com/jahwi/bget/master/bin/version.txt
 >nul 2>&1 set /p upgrade_method=<"%~dp0\%~nx0:upgrade_method"
 >nul 2>&1 set /p force_bool=<"%~dp0\%~nx0:force_bool"
 if not defined upgrade_method set upgrade_method=bits
@@ -18,8 +20,12 @@ echo Updating...
 ::get bget's file hash
 set /a sess_rand=%random%
 call :download -!upgrade_method! "!upgrade_hash_location!" "%~dp0\temp\hash!sess_rand!.txt"
+call :download -!upgrade_method! "!version_location!" "%~dp0\temp\version!sess_rand!.txt"
 if not exist "%~dp0\temp\hash!sess_rand!.txt" echo Failed to get the upgrade hash. && exit /b
+if not exist "%~dp0\temp\version!sess_rand!.txt" echo Failed to get the version info. && exit /b
 >nul 2>&1 set/p new_upgrade_hash=<"%~dp0\temp\hash!sess_rand!.txt"
+>nul 2>&1 set/p version=<"%~dp0\temp\version!sess_rand!.txt"
+set version=!version: =!
 
 if not exist "%~dp0\bin\hash.txt" (
 	echo No local hash found. Will upgrade anyway.
@@ -39,7 +45,7 @@ if /i "!force_bool!"=="yes" (
 if /i "!new_upgrade_hash!"=="!current_upgrade_hash!" echo You already have the latest version. && exit /b
 
 ::the actual upgrade
-
+if defined version echo Fetching version !version!.
 ::make dirs
 if not exist docs md docs
 if not exist temp md temp
@@ -59,6 +65,7 @@ move /Y "%~dp0\temp\bget.bat"
 move /Y "%~dp0\temp\hash.txt" "%~dp0\bin\hash.txt"
 move /Y "%~dp0\temp\changelog.txt" "%~dp0\docs\changelog.txt"
 move /Y "%~dp0\temp\readme.txt" "%~dp0\docs\readme.txt"
+move /Y "%~dp0\temp\version!sess_rand!.txt" "%~dp0\bin\version.txt"
 
 ::start changelog
 start /max /d "%~dp0" notepad "docs\changelog.txt"

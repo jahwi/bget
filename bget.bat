@@ -26,7 +26,7 @@ if not exist "%~dp0\bin\config.bget" (
 
 
 ::init global vars.
-set "version=0.2.0-100119	"
+set "version=0.2.0-140119	"
 set list_location=https://raw.githubusercontent.com/jahwi/bget-list/master/master.txt
 ::set auto-delete_logs=yes
 set valid_defmethod=
