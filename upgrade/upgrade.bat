@@ -3,6 +3,7 @@ setlocal enabledelayedexpansion
 ::Bget upgrade script
 ::v0.2.0-10012019
 ::v0.3.0-14012019 added support for fetching Bget's version info.
+::v0.3.1-15012019 fixed the unnecessary "could not find the file specified" ADS prompts
 
 
 ::init global vars
@@ -49,7 +50,7 @@ if defined version echo Fetching version !version!.
 ::make dirs
 if not exist docs md docs
 if not exist temp md temp
-if exist "%~dp0\temp\changelog.txt" del /f /q "%~dp0\changelog.txt"
+if exist "%~dp0\temp\changelog.txt" del /f /q "%~dp0\temp\changelog.txt"
 if exist "%~dp0\temp\bget.bat" del /f /q "%~dp0\temp\bget.bat"
 if exist "%~dp0\temp\hash.txt" del /f /q "%~dp0\temp\hash.txt"
 call :download -!upgrade_method! "!bget_location!" "%~dp0\temp\bget.bat"

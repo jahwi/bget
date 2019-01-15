@@ -26,7 +26,7 @@ if not exist "%~dp0\bin\config.bget" (
 
 
 ::init global vars.
-set "version=0.2.0-140119	"
+set "version=0.2.2-150119	"
 set list_location=https://raw.githubusercontent.com/jahwi/bget-list/master/master.txt
 ::set auto-delete_logs=yes
 set valid_defmethod=
@@ -919,9 +919,11 @@ if exist "%~dp0\upgrade.bat" del /f /q "%~dp0\upgrade.bat"
 call :download -!upgrade_method! "!upgrade_script_location!" "%~dp0\upgrade.bat"
 if not exist "%~dp0\upgrade.bat" echo Failed to get the Bget upgrade script. && exit /b
 ::pass the upgrade method as an ADS to the upgrade script
+if not defined upgrade_method echo Undefined upgrade method.
 echo !upgrade_method!>"%~dp0\upgrade.bat:upgrade_method"
 ::pass the force switch as an ADS to the upgrade script
 if /i "%~2"=="-force" echo yes>"%~dp0\upgrade.bat:force_bool"
+if /i not "%~2"=="-force" echo no>"%~dp0\upgrade.bat:force_bool"
 start /b /d "%~dp0" upgrade.bat
 exit
 ::-----------------------------------------------------------------------------------------------------
