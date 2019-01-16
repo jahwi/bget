@@ -4,7 +4,7 @@ setlocal enabledelayedexpansion
 ::v0.2.0-10012019
 ::v0.3.0-14012019 added support for fetching Bget's version info.
 ::v0.3.1-15012019 fixed the unnecessary "could not find the file specified" prompts.
-::v0.3.2-16012019 fix for "cleanup.bat not found" on some systems - solution by Lowsun.
+::v0.3.2-16012019 fix for "cleanup.bat not found" on some systems - solution by SetLucas.
 
 
 ::init global vars
