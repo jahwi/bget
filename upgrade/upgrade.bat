@@ -3,7 +3,8 @@ setlocal enabledelayedexpansion
 ::Bget upgrade script
 ::v0.2.0-10012019
 ::v0.3.0-14012019 added support for fetching Bget's version info.
-::v0.3.1-15012019 fixed the unnecessary "could not find the file specified" ADS prompts
+::v0.3.1-15012019 fixed the unnecessary "could not find the file specified" prompts.
+::v0.3.2-16012019 fix for "cleanup.bat not found" on some systems - solution by Lowsun.
 
 
 ::init global vars
@@ -74,8 +75,10 @@ start /max /d "%~dp0" notepad "docs\changelog.txt"
 ::delete self
 break
 echo Cleaning up...
+echo @echo off>"%~dp0\temp\cleanup.bat"
 echo del /f /q "%~dpnx0">>"%~dp0\temp\cleanup.bat"
-start /min /d "%~dp0temp" cleanup.bat
+start /b "" "%~dp0temp\cleanup.bat"
+exit
 break
 ::del /f /q "%~dpnx0"
 exit /b
