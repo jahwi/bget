@@ -15,25 +15,32 @@ call :macros
 for %%a in (scripts temp bin docs) do (
 	if not exist "%~dp0\%%~a" md "%~dp0\%%~a"
 )
+if not exist "%appdata%\Bget\scripts" md "%appdata%\Bget\scripts"
 
 
-::make and append to config file if non-existent.
+::make and append configurable global vars to config file if non-existent.
 if not exist "%~dp0\bin\config.bget" (
 	echo [DO NOT DELETE] >"%~dp0\bin\config.bget"
 	echo js>"%~dp0\bin\config.bget":defmethod
 	echo yes>"%~dp0\bin\config.bget":adl
+	echo %appdata%\Bget\scripts>"%~dp0\bin\config.bget":scl
 )
 
 
 ::init global vars.
-set "version=0.2.2-150119	"
+set "version=0.3.0-260119	"
+set global_vars_list=defmethod auto-delete_logs script_location
+set global_vars_full="defmethod#The default download method."  "auto-delete_logs#Toggles deletion of temp files on/off." "script_location#The default script download folder."
+::set "script_location=%appdata%\Bget\scripts"
 set list_location=https://raw.githubusercontent.com/jahwi/bget-list/master/master.txt
 ::set auto-delete_logs=yes
 set valid_defmethod=
 set auto-delete_logs=
 set valid_adl_bool=
+::load the configurable global vars from the config file
 >nul 2>&1 set/p defmethod=<"%~dp0\bin\config.bget":defmethod
 >nul 2>&1 set/p auto-delete_logs=<"%~dp0\bin\config.bget":adl
+>nul 2>&1 set/p script_location=<"%~dp0\bin\config.bget":scl
 
 	::validate the dafault download method, fix if errors are found.
 	for %%s in (curl js vbs bits ps) do (
@@ -54,6 +61,12 @@ set valid_adl_bool=
 		echo yes>"%~dp0\bin\config.bget":adl
 	)
 	
+	::validate the script location path
+	if not exist "!script_location!\" (
+		set "script_location=%appdata%\Bget\scripts"
+		echo !script_location!>"%~dp0\bin\config.bget":scl
+	)
+	
 ::------------------------------------------------------------------------------------------------
 ::</SETTINGS>
 ::------------------------------------------------------------------------------------------------
@@ -63,7 +76,7 @@ set valid_adl_bool=
 :main
 ::print the bget intro, followed by the relevant output
 for %%a in ("  ---------------------------------------------------------------------------" 
-"  Bget v!version!	Batch Script Manager" 
+"  Bget v!version!	Package Manager for Windows Scripts." 
 "  Made by Jahwi in 2018 | Edits made by Icarus | Bugs squashed by B00st3d" 
 "  https://github.com/jahwi/bget"
 "  Type %~n0 -help to get the list of commands."
@@ -75,7 +88,7 @@ for %%a in ("  -----------------------------------------------------------------
 
 ::input validation
 set input_string=%*
-if defined input_string for %%a in (a b c d e f g h i j k l m n o p q r s t u v w x y z - . _ 1 2 3 4 5 6 7 8 9 0 [ ] { } ) do (
+if defined input_string for %%a in (a b c d e f g h i j k l m n o p q r s t u v w x y z - . _ 1 2 3 4 5 6 7 8 9 0 [ ] { } \ : ) do (
 	if defined input_string set input_string=!input_string:%%a=!
 	if defined input_string set input_string=!input_string: =!
 	if defined input_string set input_string=!input_string:"=!
@@ -101,7 +114,7 @@ if "%~1"=="" (
 set valid_bool=
 
 ::loop through valid switches
-for %%x in (get remove update info list upgrade help pastebin openscripts search newscripts set) do (
+for %%x in (get remove update info list upgrade help pastebin openscripts search newscripts set query ) do (
 	if /i "-%%x"=="%~1" set valid_bool=yes
 )
 if not "!valid_bool!"=="yes" (
@@ -233,11 +246,11 @@ set script_count=
 		for /f "tokens=1-8 delims=," %%a in ('findstr /b /c:"[#],%~1," "%~dp0\temp\master!sess_rand!.txt"') do (
 		
 			set /a script_count+=1
-			if exist "%~dp0\scripts\%%~b\" (
+			if exist "!script_location!\%%~b\" (
 				echo The script "%%~b" already exists in this directory. Skipping...
 				set /a script_count+=1
 			)	
-			if not exist "%~dp0\scripts\%%~b\" (
+			if not exist "!script_location!\%%~b\" (
 				set /a script_count+=1
 				echo Fetching %%~b...
 				
@@ -248,24 +261,24 @@ set script_count=
 					)
 				)
 				
-				if not exist "%~dp0\scripts\%%~b" md "%~dp0\scripts\%%~b"
-				call :download -!get_method! "%%~c" "%~dp0\scripts\%%~b\%%~e"
-				if not exist "%~dp0\scripts\%%~b\%%~e" (
+				if not exist "!script_location!\%%~b" md "!script_location!\%%~b"
+				call :download -!get_method! "%%~c" "!script_location!\%%~b\%%~e"
+				if not exist "!script_location!\%%~b\%%~e" (
 					echo Error[g4]: An error occured while fetching "%%~nb".
-					if exist "%~dp0\scripts\%%~b" rd /s /q "%~dp0\scripts\%%~b"
+					if exist "!script_location!\%%~b" rd /s /q "!script_location!\%%~b"
 				)
-				if exist "%~dp0\scripts\%%~b\%%~e" (
-					echo %%f>"%~dp0\scripts\%%~b\hash.txt"
-					echo %%d>"%~dp0\scripts\%%~b\info.txt"
-					echo %%g>"%~dp0\scripts\%%~b\author.txt"
+				if exist "!script_location!\%%~b\%%~e" (
+					echo %%f>"!script_location!\%%~b\hash.txt"
+					echo %%d>"!script_location!\%%~b\info.txt"
+					echo %%g>"!script_location!\%%~b\author.txt"
 					if "%%~xe"==".cab" (
 						echo Extracting...
-						call :cab "%~dp0\scripts\%%~b\%%~e" "%~dp0\scripts\%%~b"
+						call :cab "!script_location!\%%~b\%%~e" "!script_location!\%%~b"
 					)
 					%=Deal with zips=%
 					if "%%~xe"==".zip" (
 						echo Extracting...
-						call :unzip "%~dp0\scripts\%%~b\%%~e" "%~dp0\scripts\%%~b\"
+						call :unzip "!script_location!\%%~b\%%~e" "!script_location!\%%~b\"
 					)
 					echo Done.
 				)
@@ -310,16 +323,16 @@ if not "%~4"=="" echo Error[p3]: Invalid number of arguments. && exit /b
 set paste_bool=
 
 ::begin the pastebin fetching
-if exist "%~dp0\scripts\pastebin\%~2\%~nx3" echo Error[p5]: The file name already exists && exit /b
-if not exist "%~dp0\scripts\pastebin\%~2" md "%~dp0\scripts\pastebin\%~2"
+if exist "!script_location!\pastebin\%~2\%~nx3" echo Error[p5]: The file name already exists && exit /b
+if not exist "!script_location!\pastebin\%~2" md "!script_location!\pastebin\%~2"
 echo Fetching "%~2" into "%~nx3"...
-call :download -!paste_method! "https://pastebin.com/raw/%~2" "%~dp0\scripts\pastebin\%~2\%~nx3"
-if not exist "%~dp0\scripts\pastebin\%~2\%~nx3" (
+call :download -!paste_method! "https://pastebin.com/raw/%~2" "!script_location!\pastebin\%~2\%~nx3"
+if not exist "!script_location!\pastebin\%~2\%~nx3" (
 	echo Error[p4]: An error occured fetching the pastebin script.
-	if exist "%~dp0\scripts\pastebin\%~2" rd /s /q "%~dp0\scripts\pastebin\%~2"
+	if exist "!script_location!\pastebin\%~2" rd /s /q "!script_location!\pastebin\%~2"
 	exit /b
 )
-if exist "%~dp0\scripts\pastebin\%~2\%~nx3" echo Done. && exit /b
+if exist "!script_location!\pastebin\%~2\%~nx3" echo Done. && exit /b
 ::paranoia
 exit /b
 ::--------------------------------------------------------------------
@@ -341,7 +354,7 @@ if /i "%~1"=="-all" (
 	if "!errorlevel!"=="2" exit /b
 	if "!errorlevel!"=="1" (
 		set script_count=
-		for /d %%a in ("%~dp0\scripts\*") do (
+		for /d %%a in ("!script_location!\*") do (
 			set /a script_count+=1
 			echo Removing "%%~na"... && rd /s /q "%%~a"
 			if exist "%%~a" rd /s /q "%%~a"
@@ -358,21 +371,21 @@ if /i "%~1"=="-pastebin" (
 	choice /c yn /n /m "Clear ALL your pastebin scripts? This can't be undone. [(Y)es/(N)o]"
 	if "!errorlevel!"=="2" exit /b
 	if "!errorlevel!"=="1" (
-		rd /s /q "%~dp0\scripts\pastebin"
-		if not exist "%~dp0\scripts\pastebin" echo Pastebin scripts removed.
-		if exist "%~dp0\scripts\pastebin" echo Error[p7]: An error occured while deleting the pastebin folder.
+		rd /s /q "!script_location!\pastebin"
+		if not exist "!script_location!\pastebin" echo Pastebin scripts removed.
+		if exist "!script_location!\pastebin" echo Error[p7]: An error occured while deleting the pastebin folder.
 		exit /b
 	)
 )
 
 ::deletes individual/multiple scrips.
 for %%r in (%~1) do (
-	if not exist "%~dp0\scripts\%%~r" echo The script "%%~r" does not exist.
-	if exist "%~dp0\scripts\%%~r" (
-		rd /s /q "%~dp0\scripts\%%~r"
-		if exist "%~dp0\scripts\%%~r" rd /s /q "%~dp0\scripts\%%~r"
-		if exist "%~dp0\scripts\%%~r" echo Error[p7]: Bget could not delete "%%~r".
-		if not exist "%~dp0\scripts\%%~r" echo Removed %%r.	
+	if not exist "!script_location!\%%~r" echo The script "%%~r" does not exist.
+	if exist "!script_location!\%%~r" (
+		rd /s /q "!script_location!\%%~r"
+		if exist "!script_location!\%%~r" rd /s /q "!script_location!\%%~r"
+		if exist "!script_location!\%%~r" echo Error[p7]: Bget could not delete "%%~r".
+		if not exist "!script_location!\%%~r" echo Removed %%r.	
 	)
 )
 exit /b
@@ -429,7 +442,7 @@ if not exist "%~dp0\temp\master!sess_rand!.txt" exit /b
 ::if "-all" switch is used
 	if /i "%~2"=="-all" (
 		for /f "tokens=1-8 delims=," %%r in ('findstr /b /c:"[#]," "%~dp0\temp\master!sess_rand!.txt"') do (
-			if exist "%~dp0\scripts\%%~s\" call :update_recurse "%%~s" %~3
+			if exist "!script_location!\%%~s\" call :update_recurse "%%~s" %~3
 		)
 		exit /b
 	)
@@ -443,15 +456,15 @@ exit /b
 :update_recurse
 
 		set script_count=
-		if not exist "%~dp0\scripts\%~1\" echo Error: "%~1" does not exist on the local machine.
-		if exist "%~dp0\scripts\%~1\" (
+		if not exist "!script_location!\%~1\" echo Error: "%~1" does not exist on the local machine.
+		if exist "!script_location!\%~1\" (
 			for /f "tokens=1-8 delims=," %%a in ('findstr /b /c:"[#],%~1," "%~dp0\temp\master!sess_rand!.txt"') do (
 				set /a script_count+=1
 				echo Updating %%~b...
 				set hash=
-				if not exist "%~dp0\scripts\%%~b\hash.txt" echo hash file for %%~b is missing. Updating anyway.
-				if exist "%~dp0\scripts\%%~b\hash.txt" (
-					set/p hash=<"%~dp0\scripts\%%~b\hash.txt"
+				if not exist "!script_location!\%%~b\hash.txt" echo hash file for %%~b is missing. Updating anyway.
+				if exist "!script_location!\%%~b\hash.txt" (
+					set/p hash=<"!script_location!\%%~b\hash.txt"
 					if /i "%~2"=="-force" echo Forcing update... && set hash=%random%%random%%random%%random%
 					if /i "!hash!"=="%%~f" echo "%%~b" is up-to-date. Skipping.
 				)
@@ -469,29 +482,29 @@ exit /b
 					if not exist "%~dp0\temp\%%~b\%%~e" echo Could not update "%%~b".
 					if exist "%~dp0\temp\%%~b\%%~e" (
 						if not defined hash set /a hash=%random%
-						if not exist "%~dp0\scripts\%%~b\old-!hash!" md "%~dp0\scripts\%%~b\old-!hash!"
+						if not exist "!script_location!\%%~b\old-!hash!" md "!script_location!\%%~b\old-!hash!"
 						echo Cleaning up old version...
-						if exist "%~dp0\scripts\%%~b\%%~e" move /Y "%~dp0\scripts\%%~b\%%~e" "%~dp0\scripts\%%~b\old-!hash!"
-						if exist "%~dp0\scripts\%%~b\package\%%~e" move /Y "%~dp0\scripts\%%~b\package\%%~e" "%~dp0\scripts\%%~b\old-!hash!"
-						move /Y "%~dp0\temp\%%~b\%%~e" "%~dp0\scripts\%%~b\"
+						if exist "!script_location!\%%~b\%%~e" move /Y "!script_location!\%%~b\%%~e" "!script_location!\%%~b\old-!hash!"
+						if exist "!script_location!\%%~b\package\%%~e" move /Y "!script_location!\%%~b\package\%%~e" "!script_location!\%%~b\old-!hash!"
+						move /Y "%~dp0\temp\%%~b\%%~e" "!script_location!\%%~b\"
 						rd /s /q "%~dp0\temp\%%~b"
-						if not exist "%~dp0\scripts\%%~b\%%~e" echo An error occured while updating the script.
-						if exist "%~dp0\scripts\%%~b\%%~e" (
-							echo %%f>"%~dp0\scripts\%%~b\hash.txt"
-							echo %%d>"%~dp0\scripts\%%~b\info.txt"
-							echo %%g>"%~dp0\scripts\%%~b\author.txt"
+						if not exist "!script_location!\%%~b\%%~e" echo An error occured while updating the script.
+						if exist "!script_location!\%%~b\%%~e" (
+							echo %%f>"!script_location!\%%~b\hash.txt"
+							echo %%d>"!script_location!\%%~b\info.txt"
+							echo %%g>"!script_location!\%%~b\author.txt"
 							
 							%=Extract archives=%
 							
 							%=deal with cabs=%
 							if "%%~xe"==".cab" (
 								echo Extracting...
-								call :cab "%~dp0\scripts\%%~b\%%~e" "%~dp0\scripts\%%~b"
+								call :cab "!script_location!\%%~b\%%~e" "!script_location!\%%~b"
 							)
 							%=Deal with zips=%
 							if "%%~xe"==".zip" (
 								echo Extracting...
-								call :unzip "%~dp0\scripts\%%~b\%%~e" "%~dp0\scripts\%%~b\"
+								call :unzip "!script_location!\%%~b\%%~e" "!script_location!\%%~b\"
 							)
 							echo Done.
 						)
@@ -541,15 +554,17 @@ if not "%~3"=="" echo Error[i3]: Invalid number of arguments. && exit /b
 	set script_count=
 	
 	
-	for /f "tokens=1-8 delims=," %%a in ('findstr /b /c:"[#],%~2," "%~dp0\temp\master!sess_rand!.txt"') do (
+	for /f "tokens=1-10 delims=," %%a in ('findstr /b /c:"[#],%~2," "%~dp0\temp\master!sess_rand!.txt"') do (
 	
 		echo.
 		echo Name: %%~b
-		echo Author:%%~g
+		echo Author: %%~g
 		echo Description: %%~d
 		echo Category: %%~h
 		echo Location: %%~c
 		echo Hash: %%~f
+		echo Last Modified: %%i
+		echo Tags: %%~j
 		exit /b
 	)
 if not defined script_count echo "%~2" does not exist on this server.
@@ -562,7 +577,7 @@ exit /b
 if not "%~1"=="" echo Invalid number of arguments. && exit /b
 
 echo opening scripts folder...
-explorer "%~dp0scripts"
+explorer "!script_location!"
 
 exit /b
 ::--------------------------------------------------------------------
@@ -571,9 +586,7 @@ exit /b
 ::not last and not least, the list function.
 ::lists scripts on your pc or on the server
 
-::checks for user errors
 
-::checks if switch is correct
 set list_bool=
 set list_method=
 
@@ -585,6 +598,10 @@ if /i "%~1"=="" (
 	echo -list -local                  Lists downloaded scripts.
 	exit /b
 )
+
+::checks for user errors
+
+::checks if switch is correct
 for %%a in (server local) do (
 	if /i "-%%~a"=="%~1" (
 		set list_bool=yes
@@ -602,7 +619,7 @@ if not "%~4"=="" echo Invalid number of arguments. && exit /b
 if /i "%~1"=="-local" (
 	if not "%~2"=="" echo Error[l3]: Invalid number of arguments. && exit /b
 	set script_count=
-	for /d %%a in ("%~dp0\scripts\*") do (
+	for /d %%a in ("!script_location!\*") do (
 		if exist "%%a\hash.txt" (
 			set /a script_count+=1
 			echo !script_count!. %%~na
@@ -611,7 +628,7 @@ if /i "%~1"=="-local" (
 
 	set p_script_count=
 	REM lists pastebin scripts.
-	if exist "%~dp0\scripts\pastebin" (
+	if exist "!script_location!\pastebin" (
 		echo ---------Pastebin Downloads---------------------
 		for /d %%a in ("%~dp0scripts\pastebin\*") do (
 			for %%b in ("%%~a\*") do (
@@ -661,8 +678,8 @@ if /i "%~1"=="-server" (
 	if not exist "%~dp0\temp\master!sess_rand!.txt" exit /b
 	echo.
 	set script_count=
-	echo No	Name		Category	Description		Author
-	for /f "tokens=1-8 delims=," %%a in ('findstr /b /c:"[#]," "%~dp0\temp\master!sess_rand!.txt"') do (
+	echo No	Name		Category	Description		Author			Last Modified
+	for /f "tokens=1-9 delims=," %%a in ('findstr /b /c:"[#]," "%~dp0\temp\master!sess_rand!.txt"') do (
 		set /a script_count+=1
 		
 		if /i not "%~3"=="-full" (
@@ -676,9 +693,11 @@ if /i "%~1"=="-server" (
 			%pad% "%%~b".16.pad2
 			%pad% "!tmpH!".10.pad3
 			%pad% "!tmpD:~0,20!".21.pad4
+			%pad% "%%~g".20.pad5
+			%pad% "%%~i".20.pad6
 			
 			rem display everything
-			echo !pad1!!script_count!. %%~b!pad2!^|!pad3!!tmpH!^| !tmpD:~0,20!...!pad4!^| %%g
+			echo !pad1!!script_count!. %%~b!pad2!^|!pad3!!tmpH!^| !tmpD:~0,20!...!pad4!^| %%g !pad5!^| %%i
 		)	
 		
 		if /i "%~3"=="-full" (
@@ -687,7 +706,7 @@ if /i "%~1"=="-server" (
 			%pad% "!script_count!".4.pad1
 			%pad% "!tmpH!".10.pad3
 			%pad% "%%~b".16.pad2
-			echo !pad1!!script_count!. %%~b!pad2!^|!pad3!!tmpH!^| %%~d ^| %%~g
+			echo !pad1!!script_count!. %%~b!pad2!^|!pad3!!tmpH!^| %%~d ^| %%~g ^| %%i
 		)
 		
 		rem END ADDED BY ICKY
@@ -740,12 +759,14 @@ echo.
 echo Searching...
 echo Search String: [%~2]
 echo.
-for /f "tokens=1-8 delims=," %%a in ('findstr /i /c:"%~2" "%~dp0\temp\master!sess_rand!.txt"') do (
+for /f "tokens=1-10 delims=," %%a in ('findstr /i /c:"%~2" "%~dp0\temp\master!sess_rand!.txt"') do (
+	set done_with_line=
+	set taglist=
 	if /i "%%~a"=="[#]" (
-		for /f %%r in ('echo %%b,%%d,%%g ^| findstr /i /c:"%~2"') do (
+		for /f %%r in ('echo %%b,%%d,%%g,%%j ^| findstr /i /c:"%~2"') do (
 			set /a match_count+=1
 			if "!match_count!"=="1" echo No, Name, Description, Author
-			echo !match_count!. %%b ^|%%d ^| %%g
+			echo !match_count!. %%b ^| %%d ^| %%g
 		)
 	)
 )
@@ -796,10 +817,11 @@ if /i "%~1"=="" (
 	echo Syntax:
 	echo -set -ddm method                 Changes default get method.
 	echo -set -adl yes/no                 Toggles auto-deletion of temp files on/off.
+	echo -set -scl "path"                 Sets the default script download location.
 	exit /b
 )
 set set_bool=
-for %%a in (-ddm -adl) do (
+for %%a in (-ddm -adl -scl) do (
 	if /i "%%~a"=="%~1" set set_bool=yes
 )
 if /i not "!set_bool!"=="yes" echo Error: Invalid set argument. && exit /b
@@ -855,9 +877,51 @@ if /i "%~1"=="-adl" (
 
 )
 
+::sets the default script location
+set recheck_scl=
+if /i "%~1"=="-scl" (
+	if not exist "%~2\" echo Error: path does not exist && exit /b
+	set "script_location=%~2"
+	echo %~2>"%~dp0\bin\config.bget":scl
+	
+	REM recheck
+	set/p recheck_scl=<"%~dp0\bin\config.bget":scl
+	if not "!script_location!"=="!recheck_scl!" echo Failed to change the default script location. && exit /b
+	if "!script_location!"=="!recheck_scl!" echo Changed the default script location to "!script_location!". && exit /b
+)
+
 
 exit /b
 ::--------------------------------------------------------------------
+
+
+:query
+::displays the content of variables
+set query_bool=
+
+::if no variable supplied
+if "%~1"=="" (
+	echo Valid Global variables:
+	echo -----------------------
+	for %%a in (!global_vars_full!) do (
+		set temp_gv=%%~a
+		echo !temp_gv:#=:	!
+	)
+	exit /b
+)
+
+for %%a in (!global_vars_list!) do (
+	if "%~1"=="%%a" set "query_bool=yes" && echo !%%a!
+	
+	REM echo all the variables if all switch is triggered.
+	if /i "%~1"=="-all" set "query_bool=yes" && echo %%a: !%%a!
+)
+if not "!query_bool!"=="yes" echo Invalid variable. Valid variables are: !global_vars_list: =, !. && exit /b
+
+exit /b
+::--------------------------------------------------------------------
+
+
 :upgrade
 ::What d'you call asking your teacher for an A instead of a B? An upgrade.
 ::gets the latest version of bget.
@@ -907,9 +971,7 @@ if exist "%~dp0\temp\hash!sess_rand!.txt" del /f /q "%~dp0\temp\hash!sess_rand!.
 set/p current_upgrade_hash=<"%~dp0\bin\hash.txt"
 
 ::force upgrade
-if /i "%~2"=="-force" (
-	set current_upgrade_hash=%random%%random%%random%
-)
+if /i "%~2"=="-force" set "current_upgrade_hash=%random%%random%%random%"
 
 ::compare hashes
 if /i "!new_upgrade_hash!"=="!current_upgrade_hash!" echo You already have the latest version. && exit /b
@@ -1124,7 +1186,9 @@ exit /b
 	echo Set fso = Nothing>>"%~dp0\temp\unzip!ziprand!.vbs"
 	echo Set objShell = Nothing>>"%~dp0\temp\unzip!ziprand!.vbs"
 	cscript //NOLOGO "%~dp0\temp\unzip!ziprand!.vbs"
-	del /f /q "%~dp0\temp\unzip!ziprand!.vbs"
+	if exist "%~dp0\temp\unzip!ziprand!.vbs" del /f /q "%~dp0\temp\unzip!ziprand!.vbs"
+	if exist "%~dp0\temp\unzip!ziprand!.vbs" del /f /q "%~dp0\temp\unzip!ziprand!.vbs"
+	if exist "%~dp0\temp\unzip!ziprand!.vbs" del /f /q "%~dp0\temp\unzip!ziprand!.vbs"
 	
 	if not exist "!unzip_path!\package" md "!unzip_path!\package"
 	move /Y "!zip!" "!unzip_path!\package"	

@@ -154,7 +154,7 @@ BGET -upgrade -usemethod -force
 Example:
 BGET -upgrade -usecurl -force
 
-[H] -Help:
+[H] -HELP:
 Prints the help text.
 -help -doc opens this readme.
 
@@ -175,16 +175,29 @@ BGET -newscripts -usemethod
 Example:
 BGET -newscripts -usejs
 
-[L] SET
+[L] -SET
 Changes global variables such as the default downlaod method.
 Usage scenario [1]: changing the default download method.
 BGET -set -ddm {method}
 Example:
 BGET -set -ddm vbs
-Usage scenario [2]: toggle auto-delete logs (toddles deletion of temp files)
+Usage scenario [2]: toggle auto-delete logs (toggles deletion of temp files)
 BGET -set -adl {option}
 Example:
 BGET -set -adl yes
+Usage scenario [3]: Change the default scripts location.
+BGET -set -scl "path"
+Example:
+BGET -set -scl "C:\scripts"
+
+[M] -QUERY
+Displays the values of select global variables.
+Usage:
+BGET -QUERY {variable_name}
+Example:
+BGET -QUERY defmethod
+You can also query all the configurable global variables.
+Example: BGET -QUERY -all
 
 Methods
 Bget's 'methods' are the various ways through which Bget interacts with servers. There are currently 5 methods:
@@ -211,11 +224,16 @@ BGET -upgrade -usecurl
 BGET -info -usejs test
 
 TROUBLESHOOTING
+
 [1] VBS/JS download methods fail: This is typically caused by antivirus software.
 	Remedies:	[a] Whitelist the Bget path or
 				[b] Use the BITS/PS methods
 [2] BITS download method fails: BITS method is slow and does not download scripts from external repositories.
 	Remedies:	[a] Use other methods.
+[3] External-File-No-Hash-Available
+	These occur because the script is located in an external repository. There is no remedy for now.
+[4] Nil in the Last Modified field
+	These occur because the script is located in an external repository. There is no remedy for now.
 				
 
 Contact

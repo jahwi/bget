@@ -72,16 +72,19 @@ move /Y "%~dp0\temp\version!sess_rand!.txt" "%~dp0\bin\version.txt"
 ::start changelog
 start /max /d "%~dp0" notepad "docs\changelog.txt"
 
-::delete self
+
 break
 echo Cleaning up...
+
+::delete self
 echo @echo off>"%~dp0\temp\cleanup.bat"
 echo del /f /q "%~dpnx0">>"%~dp0\temp\cleanup.bat"
+
 start /b "" "%~dp0temp\cleanup.bat"
 exit
 break
 ::del /f /q "%~dpnx0"
-exit /b
+::exit /b
 
 
 :download

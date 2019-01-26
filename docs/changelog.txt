@@ -42,7 +42,7 @@ v0.1.5 [18-DEC-2018]                 Fixed an issue where the # delimiter broke 
 v0.1.6 [21-DEC-2018]                 The SEARCH function is no longer case-sensitive.
 v0.2.0 [10-JAN-2019]                 Added NEWSCRIPTS function. Use it to see what scripts we've added.
                                      Invalid input no longer prints the help screen. Type bget -help for that.
-                                     Bget no longer requires a -usemethod argument. Bget will now default to a default download
+                                     Bget no longer requires a -usemethod argument. Bget will now fall back to a default download
                                      method in the absence of a usemethod argument.
                                      Added SET function. Use it to set global variables such as the default download method.
                                      The LOCAL function of the LIST switch now enumerates downloaded pastebin scripts.
@@ -51,3 +51,9 @@ v0.2.0 [10-JAN-2019]                 Added NEWSCRIPTS function. Use it to see wh
                                      Using the BITS method to download scripts from an external repo now shows a warning.
 v0.2.1 [14-JAN-2019]                 Upgrade script now displays version number when upgrading.
 v0.2.2 [15-JAN-2019]                 Fixed the unnecessary "could not find the file specified" ADS prompts in the upgrade script.
+v0.3.0 [26-JAN-2019]                 Changed default script download folder to "%appdata%\Bget\scripts"
+                                     Added ability to change the default scripts location to the SET switch.
+                                     Added QUERY switch. Use it to query the values of select global variables.
+                                     Began adherence to semantic versioning (at least we're trying to, haha.) https://semver.org/
+                                     The LIST function now displays a script's last-modified time.
+                                     Hidden tags have been added to scripts for better search results.
