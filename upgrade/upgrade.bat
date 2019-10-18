@@ -6,6 +6,7 @@ setlocal enabledelayedexpansion
 ::v0.3.1-15012019 fixed the unnecessary "could not find the file specified" prompts.
 ::v0.3.2-16012019 fix for "cleanup.bat not found" on some systems - solution by SetLucas.
 ::v0.4.0-18102019 Cleaned up code a bit.
+::v0.4.1-19102019 Separated downloading and moving functions, to allow download scripts themselves to be updated.
 
 
 ::init global vars
@@ -16,6 +17,8 @@ set changelog_location=https://raw.githubusercontent.com/jahwi/bget/master/docs/
 set readme_location=https://raw.githubusercontent.com/jahwi/bget/master/docs/readme.txt
 set version_location=https://raw.githubusercontent.com/jahwi/bget/master/bin/version.txt
 set sorter_location=https://raw.githubusercontent.com/jahwi/bget/master/bin/srt.bat
+set jsdown_location=https://raw.githubusercontent.com/jahwi/bget/master/bin/download.js
+set vbsdown_location=https://raw.githubusercontent.com/jahwi/bget/master/bin/download.vbs
 
 ::location and destination of some upgrade files
 set "hash.txt_location=!upgrade_hash_location!"
@@ -29,6 +32,10 @@ set version.txt_location=!version_location!
 set version.txt_destination=bin
 set srt.bat_location=!sorter_location!
 set srt.bat_destination=bin
+set download.js_location=!jsdown_location!
+set download.js_destination=bin
+set download.vbs_location=!vbsdown_location!
+set download.vbs_destination=bin
 
 >nul 2>&1 set /p upgrade_method=<"%~dp0\%~nx0:upgrade_method"
 >nul 2>&1 set /p force_bool=<"%~dp0\%~nx0:force_bool"
@@ -67,13 +74,19 @@ if not exist docs md docs
 if not exist temp md temp
 
 REM cleanup the temp folder, downlaod the new version,a nd check if downloaded.
-for %%# in (changelog.txt bget.bat hash.txt srt.bat readme.txt) do (
+for %%# in (changelog.txt bget.bat hash.txt srt.bat readme.txt download.js download.vbs) do (
 	echo GET %%~#...
 	if exist "%~dp0\temp\%%~#" del /f /q "%%~#" >nul 2>&1
 	call :download -!upgrade_method! "!%%~#_location!" "%~dp0temp\%%~#"
 	if not exist "%~dp0temp\%%~#" echo Failed to get "%%~#" && exit /b
+)
+
+REM moves the new versions
+for %%# in (changelog.txt bget.bat hash.txt srt.bat readme.txt download.js download.vbs) do (
+	echo Moving %%~#...
 	if exist "%~dp0temp\%%~#" move /Y "%~dp0temp\%%~#" "%~dp0\!%%~#_destination!\%%~#"
 )
+
 move /Y "%~dp0\temp\version!sess_rand!.txt" "%~dp0\bin\version.txt"
 
 REM call :download -!upgrade_method! "!bget_location!" "%~dp0\temp\bget.bat"

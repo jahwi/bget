@@ -70,3 +70,4 @@ v0.4.0 [18-OCT-2019]                 Added NOBANNER command. Use it to run bget 
                                      The INFO command now displays the script size for scripts on Bget's repo.
                                      The HELP command now displays command-specific help, e.g. BGET -help -get.
                                      The SET command no longer requires adding a tack to the variables to be configured. E.g. BGET -set -ddm now becomes BGET -set ddm.
+v0.4.1 [19-OCT-2019]                 Fixed an issue where using the QUERY command outputed "the system could not find the file specified."

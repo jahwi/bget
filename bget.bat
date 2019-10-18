@@ -29,7 +29,7 @@ if not exist "%~dp0\bin\config.bget" (
 
 
 ::init global vars.
-set "version=0.4.0-181019	"
+set "version=0.4.1-191019	"
 set global_vars_list=ddm adl scl rsl lf
 set global_vars_full="ddm#[Default Download Method] Sets the default download method."  "adl#[auto-delete_logs] Toggles deletion of temp files on/off." "scl#[Script Location] The default script download folder." "rsl#[Refresh Script List] Toggles refreshing [redownloading] of the script list on every GET operation." "lf#[Last Fetched Script List] Shows the date and time the script list was last refreshed."
 ::set "script_location=%appdata%\Bget\scripts"
@@ -1689,12 +1689,15 @@ exit
 	
 	:get_last_fetched
 	set /p last_fetched_file=<"%~dp0\bin\config.bget":lastfetched
+	if not defined last_fetched_file echo %random%%random%%random%>"%~dp0\bin\config.bget":lastfetched
 	if exist !last_fetched_file! echo. && for /f "delims=" %%# in ('findstr /b /c:"Script List Last Fetched:" !last_fetched_file!') do (set "display_last_fetched=%%#")
 	
 	REM add option to exit without displaying
 	if not "%~1"=="exit" echo !display_last_fetched!
 	exit /b
 
+
+:download
 ::downloads the files as specified
 ::usage: call :download -method "URL" "local_destination"
 ::Download switches:
@@ -1703,7 +1706,7 @@ exit
 ::-vbs uses a Visual Basic Script
 ::-curl uses the Curl client
 ::-ps uses a powershell command.
-:download
+
 
 ::BITSADMIN download function
 if /i "%~1"=="-bits" (
