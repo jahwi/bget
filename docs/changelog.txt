@@ -62,7 +62,7 @@ v0.4.0 [18-OCT-2019]                 Added NOBANNER command. Use it to run bget 
                                      Added task counter to the GET, UPDATE and REMOVE commands.
                                      Bget can now store script lists locally, for faster operations.
                                      Added filter arguments -ONLY and -SORTBY to the LIST command. See readme for more details.
-                                     Added ability to toggle downloading a new script list on every get operation on or off. see SET snd QUERY for more details.
+                                     Added ability to toggle downloading a new script list on every get operation on or off. see SET and QUERY for more details.
                                      Added ability to view when the script list was last refreshed as a global variable. Check readme for more details.
                                      Added -VERSION switch. Use it to view the version number of Bget and its core components.
 									 Added -logs switch to the REMOVE command. use it to clear the contents of Bget's temp folder.
