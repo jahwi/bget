@@ -1,10 +1,10 @@
 # Bget
 
 ## CMD:
-![Bget screenshot](https://github.com/jahwi/bget/blob/master/docs/cmdimg.jpg)
+![Bget screenshot](https://github.com/jahwi/bget-list/blob/master/images/cmdimg.PNG)
 
 ## Powershell:
-![Bget powershell screenshot](https://github.com/jahwi/bget/blob/master/docs/psimg.jpg)
+![Bget powershell screenshot](https://github.com/jahwi/bget-list/blob/master/images/psimg.PNG)
 
 
 ## Table of Contents
