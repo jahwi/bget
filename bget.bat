@@ -4,7 +4,7 @@ call :macros
 
 
 :: Bget-  Batch script fetcher
-::Made by Jahwi, Icarus and Ben
+::Made by Jahwi
 :: Conceived, coded and died in 2016, resurrected and recoded in 2018. Enjoy! \o/
 
 ::------------------------------------------------------------------------------------------------
@@ -24,47 +24,48 @@ if not exist "%~dp0\bin\config.bget" (
 	echo js>"%~dp0\bin\config.bget":defmethod
 	echo yes>"%~dp0\bin\config.bget":adl
 	echo %appdata%\Bget\scripts>"%~dp0\bin\config.bget":scl
+	echo yes>"%~dp0\bin\config.bget":rsl
 )
 
 
 ::init global vars.
-set "version=0.3.0-260119	"
-set global_vars_list=defmethod auto-delete_logs script_location
-set global_vars_full="defmethod#The default download method."  "auto-delete_logs#Toggles deletion of temp files on/off." "script_location#The default script download folder."
+set "version=0.4.0-181019	"
+set global_vars_list=ddm adl scl rsl lf
+set global_vars_full="ddm#[Default Download Method] Sets the default download method."  "adl#[auto-delete_logs] Toggles deletion of temp files on/off." "scl#[Script Location] The default script download folder." "rsl#[Refresh Script List] Toggles refreshing [redownloading] of the script list on every GET operation." "lf#[Last Fetched Script List] Shows the date and time the script list was last refreshed."
 ::set "script_location=%appdata%\Bget\scripts"
 set list_location=https://raw.githubusercontent.com/jahwi/bget-list/master/master.txt
 ::set auto-delete_logs=yes
 set valid_defmethod=
 set auto-delete_logs=
 set valid_adl_bool=
-::load the configurable global vars from the config file
+REM load the configurable global vars from the config file
 >nul 2>&1 set/p defmethod=<"%~dp0\bin\config.bget":defmethod
 >nul 2>&1 set/p auto-delete_logs=<"%~dp0\bin\config.bget":adl
 >nul 2>&1 set/p script_location=<"%~dp0\bin\config.bget":scl
+>nul 2>&1 set/p refresh_script_list=<"%~dp0\bin\config.bget":rsl
 
 	::validate the dafault download method, fix if errors are found.
-	for %%s in (curl js vbs bits ps) do (
-		if /i "!defmethod!"=="%%s" (
-			set valid_defmethod=yes
-		)
-	)
+	for %%s in (curl js vbs bits ps) do ( if /i "!defmethod!"=="%%s" set "valid_defmethod=yes" )
 	if not "!valid_defmethod!"=="yes" (
+		echo Error: Invalid default download method "!defmethod!". Setting to JS.
 		echo js>"%~dp0\bin\config.bget":defmethod
 		set defmethod=js
 	)
 	
 	::validate the auto-delete_logs bool.
-	for %%s in (yes no) do (
-		if /i "!auto-delete_logs!"=="%%s" set "valid_adl_bool=yes"
-	)
-	if not "!valid_adl_bool!"=="yes" (
-		echo yes>"%~dp0\bin\config.bget":adl
+	if /i not "!auto-delete_logs!"=="yes" (
+		if /i not "!auto-delete_logs!"=="no" echo yes>"%~dp0\bin\config.bget":adl
 	)
 	
-	::validate the script location path
+	::validate the script location path.
 	if not exist "!script_location!\" (
 		set "script_location=%appdata%\Bget\scripts"
 		echo !script_location!>"%~dp0\bin\config.bget":scl
+	)
+	
+	REM validate the refresh script list bool.
+	if /i not "!refresh_script_list!"=="yes" (
+		if /i not "!refresh_script_list!"=="no" echo yes>"%~dp0\bin\config.bget":rsl
 	)
 	
 ::------------------------------------------------------------------------------------------------
@@ -74,30 +75,28 @@ set valid_adl_bool=
 
 
 :main
-::print the bget intro, followed by the relevant output
-for %%a in ("  ---------------------------------------------------------------------------" 
-"  Bget v!version!	Package Manager for Windows Scripts." 
-"  Made by Jahwi in 2018 | Edits made by Icarus | Bugs squashed by B00st3d" 
-"  https://github.com/jahwi/bget"
-"  Type %~n0 -help to get the list of commands."
-"  ---------------------------------------------------------------------------" 
-""
-) do echo=%%~a
 
 ::checks for errors in user input, then calls the switch.
 
 ::input validation
 set input_string=%*
-if defined input_string for %%a in (a b c d e f g h i j k l m n o p q r s t u v w x y z - . _ 1 2 3 4 5 6 7 8 9 0 [ ] { } \ : ) do (
+set temp_input_string=%*
+if defined input_string for %%a in (a b c d e f g h i j k l m n o p q r s t u v w x y z - . _ 1 2 3 4 5 6 7 8 9 0 [ ] { } \ :) do (
 	if defined input_string set input_string=!input_string:%%a=!
 	if defined input_string set input_string=!input_string: =!
 	if defined input_string set input_string=!input_string:"=!
 )
 
 ::if no switch is supplied.
+if "%~1"=="" (
+	set msg=Error: No switch supplied.
+	call :help
+	exit /b
+)
+
 if not "!input_string!"=="" (
-	%=if /? is triggered.=%
-    if "!input_string!"=="/?" (
+	REM if '/?' is triggered.
+    if "!input_string!"=="-?" (
 		call :help
 		exit /b
 	)
@@ -106,27 +105,83 @@ if not "!input_string!"=="" (
     exit /b
 )
 
-if "%~1"=="" (
-	set msg=Error: No switch supplied.
-	call :help
-	exit /b
+
+REM ------------------------------------------------------------------------------------------------------------------------
+REM deal with -nobanner and -refresh
+
+for %%# in (-nobanner -refresh) do (
+	set %%#_found=false
+	echo !temp_input_string! | findstr /i /c:"%%#" >nul
+	if "!errorlevel!"=="0" (
+		if defined temp_input_string set temp_input_string=!temp_input_string:%%#=!
+		set %%#_found=true
+	)
 )
-set valid_bool=
+
+		REM remove trailing spaces
+		:trim
+		if defined temp_input_string if "!temp_input_string:~0,1!_"==" _" set temp_input_string=!temp_input_string:~1!
+		if defined temp_input_string if "!temp_input_string:~-1!_"==" _" set temp_input_string=!temp_input_string:~0,-1!
+			
+		if defined temp_input_string if "!temp_input_string:~0,1!_"==" _" goto :trim
+		if defined temp_input_string if "!temp_input_string:~-1!_"==" _" goto :trim
+		
+
+REM echo Nobanner found: !-nobanner_found!
+REM echo Refresh found: !-refresh_found!
+REM echo Edited string: "!temp_input_string!"
+rem exit /b
+
+REM provision for the nobanner switch
+if /i not "!-nobanner_found!"=="true" (
+	for %%a in ("  ---------------------------------------------------------------------------" 
+	"  Bget v!version!	Package Manager for Windows Scripts." 
+	"  Made by Jahwi in 2018 | Edits made by Icarus | Bugs squashed by B00st3d" 
+	"  https://github.com/jahwi/bget"
+	"  Type %~n0 -help to get the list of commands."
+	"  ---------------------------------------------------------------------------" 
+	""
+	) do echo=%%~a
+)
+	
+::REFRESH function
+	if /i "!-refresh_found!"=="true" set refresh_script_list=yes
+	if /i "!-refresh_found!"=="true" echo Refreshing script list... && call :getlist !defmethod! && if "!temp_input_string!"=="" exit /b
+	
+REM ------------------------------------------------------------------------------------------------------------------------
+
+REM print the bget intro, followed by the relevant output
+
 
 ::loop through valid switches
-for %%x in (get remove update info list upgrade help pastebin openscripts search newscripts set query ) do (
-	if /i "-%%x"=="%~1" set valid_bool=yes
+
+set valid_bool=
+
+for /f "tokens=1 delims= " %%a in ("!temp_input_string!") do (
+	for %%# in (get remove update info list upgrade help pastebin openscripts search newscripts set query version) do (
+		if /i "-%%#"=="%%~a" set valid_bool=yes
+	)
 )
 if not "!valid_bool!"=="yes" (
-	echo Error: Invalid switch
+	echo Error: Invalid switch.
 	echo Type "%~n0 -help" for more information.
 	exit /b
 )
-if "!valid_bool!"=="yes" ( 
-	set switch_string=%*
-	call :!switch_string:~1!
+if "!valid_bool!"=="yes" (
+
+
+	REM set switch_string=%*
+	REM cut out the se commands 
+	REM if /i "!switch_string:~0,9!"=="-nobanner" set switch_string=!switch_string:~10!
+	REM if /i "!switch_string:~0,8!"=="-refresh" set switch_string=!switch_string:~9!
+	
+	call :!temp_input_string:~1!
+	
+	REM cleanup logs and temp files
 	if /i "!auto-delete_logs!"=="yes" (
-		if exist "%~dp0\temp\master!sess_rand!.txt" del /f /q "%~dp0\temp\master!sess_rand!.txt" >nul
+		
+		REM deletes the script list if rsl is set to "yes"
+		if "!refresh_script_list!"=="yes" if exist "%~dp0\temp\master!sess_rand!.txt" del /f /q "%~dp0\temp\master!sess_rand!.txt" >nul
 		if exist "%~dp0\temp\hash!sess_rand!.txt" del /f /q "%~dp0\temp\hash!sess_rand!.txt" >nul
 	)
 	exit /b
@@ -136,14 +191,13 @@ if "!valid_bool!"=="yes" (
 
 
 ::--------------------------------------------------------------------
-::Beginning of Functions.
+::Beginning of switch functions.
 ::--------------------------------------------------------------------
 :help
 
 ::opens helpdoc
-if /i "!switch_string:~0,10!"=="-help -doc" (
-	if not "%~3"=="" echo Error[h3]: Invalid number of arguments. && exit /b
-	if /i not "!switch_string!"=="-help -doc" echo Invalid help switch. && exit /b
+if /i "%~1"=="-doc" (
+	if /i not "%*"=="-doc" echo Error[h3]: Invalid number of arguments. && exit /b
 	if exist "%~dp0\docs\readme.txt" (
 		type "%~dp0\docs\readme.txt"
 		exit /b
@@ -151,24 +205,395 @@ if /i "!switch_string:~0,10!"=="-help -doc" (
 	if not exist "%~dp0\docs\readme.txt" echo the Bget help doc is missing. Run bget -upgrade -usebits -force to get it. && exit /b
 )
 
+::check for invalid args
+for %%# in (get remove update info list upgrade help pastebin openscripts search newscripts set query version) do (
+	if /i "%%#"=="%~1" if /i not "%*"=="%~1" echo Error[h3]: Invalid number of arguments. && exit /b
+)
+
+::help for the -get command
+if /i "%~1"=="get" (
+	echo Description: Fetches scripts using script names.
+	
+	echo.
+	echo Usage: %~n0 -get {optional download method} [options] "script names"
+	echo.
+	echo.
+	
+	echo Options
+	echo -use[method]                Fetches the specified scripts using the specfied method.
+	echo -all                        Fetches all the scripts from Bget's repo.
+	
+	
+	echo.
+	echo.
+	echo Example: %~n0 -get -usecurl "test colour brpg"
+	
+	echo.
+	echo Note:
+	echo [1] Valid methods are: -usejs, -usevbs, -useps, -usebits, -usecURL
+	echo [2] If no download method is supplied, Bget will default to the default download method [!defmethod!].
+	echo [3] Scripts located outside Bget's repo cannot be downloaded using the BITS method.
+	echo [4] If the "refresh script list" variable is set to "yes", Bget will ignore the specified download method, and instead read a cached script list. See the readme's QUERY and SET sections for more details.
+	
+	exit /b
+)
+
+::help for the -pastebin command
+if /i "%~1"=="pastebin" (
+	
+	echo Description: Fetches a script hosted on Pastebin, using a paste code.
+	
+	echo.
+	echo Usage: %~n0 -pastebin {optional download method} "Paste Code" "local filename"
+	echo.
+	echo.
+	
+	echo Options
+	echo -use[method]                Fetches the specified scripts using the specfied method.
+	
+	
+	echo.
+	echo.
+	echo Example: %~n0 -pastebin "1wsBxRs4" script.bat
+	
+	echo.
+	echo Note:
+	echo [1] Valid methods are: -usejs, -usevbs, -useps, and -usecURL
+	echo [2] If no download method is supplied, Bget will default to the default download method [!defmethod!].
+	echo [3] Pastebin scripts cannot be downloaded using the BITS download method.
+	echo [4] Pastebin scripts are kept in the scripts folder, at [!script_location!\pastebin\].
+	echo [5] The Paste Code is the unique element of a PASTEBIN url.
+	echo     E.g a pastebin script located at https://pastebin.com/YkEtQYFR would have YkEtQYFR as its paste code.
+	echo     If you get the paste code wrong, you'll probably get a pastebin error as the output file instead of your intended script.
+	
+	exit /b
+)
+
+::help for the -remove command
+if /i "%~1"=="remove" (
+	
+	echo Description: Removes scripts and/or logs.
+	
+	echo.
+	echo Usage: %~n0 -remove [options] [scripts]
+	echo.
+	echo.
+	
+	echo Options
+	echo -all                Removes all scripts.
+	echo -all -y             Removes all scripts, and doesn't ask for confirmation.
+	echo -pastebin           Removes all pastebin scripts.
+	echo -pastebin -y        Removes all pastebin scripts, and doesn't prompt for confirmation.
+	echo -logs               Deletes Bget's temporary files, empties Bget's temp folder.
+	
+	
+	echo.
+	echo.
+	echo Example: %~n0 -remove "scriptA scriptB scriptC"
+	echo Example: %~n0 -remove -all
+	echo Example: %~n0 -remove -pastebin
+	
+	exit /b
+)
+
+::help for the -update command
+if /i "%~1"=="update" (
+	echo Description: Fetches the latest versions of scripts.
+	
+	echo.
+	echo Usage: %~n0 -update {optional download method} [options] "script names"
+	echo.
+	echo.
+	
+	echo Options
+	echo -use[method]                Updates the specified scripts using the specfied method.
+	echo -all                        Updates all the scripts from Bget's repo.
+	echo -force                      Updates all the scripts from Bget's repo, regardless of local version.
+	
+	
+	echo.
+	echo.
+	echo Example: %~n0 -update -usecurl "test colour brpg"
+	echo Example: %~n0 -update -all -force
+	
+	echo.
+	echo Note:
+	echo [1] Valid methods are: -usejs, -usevbs, -useps, -usebits, -usecURL
+	echo [2] If no download method is supplied, Bget will default to the default download method [!defmethod!].
+	echo [3] Scripts located outside Bget's repo cannot be updated using the BITS method.
+	echo [4] If the "refresh script list" variable is set to "yes", Bget will ignore the specified download method, and instead read a cached script list. See the readme's QUERY and SET sections for more details.
+	
+	exit /b
+)
+
+::help for the -info command
+if /i "%~1"=="-info" (
+	echo Description: Displays info about a specified script.
+	
+	echo.
+	echo Usage: %~n0 -info {optional download method} "script name"
+	echo.
+	echo.
+	echo Options
+	echo -use[method]                Fetches script info using the specfied method.
+	echo.
+	echo.
+	echo Example: %~n0 -info -usecurl "test"
+	
+	echo.
+	echo Note:
+	echo [1] Valid methods are: -usejs, -usevbs, -useps, -usebits, -usecURL
+	echo [2] If no download method is supplied, Bget will default to the default download method [!defmethod!].
+	echo [3] Scripts located outside Bget's repo cannot have their hashes and last modified vars displayed by the info command.
+	echo [4] If the "refresh script list" variable is set to "yes", Bget will ignore the specified download method, and instead read a cached script list. See the readme's QUERY and SET sections for more details.
+	
+	exit /b
+)
+
+::help for the -list command
+if /i "%~1"=="list" (
+	echo Description: Lists local and remote scripts.
+	
+	echo.
+	echo Usage: %~n0 -list {optional download method} [options]
+	echo.
+	echo.
+	
+	echo Options
+	echo -local                      List fetched scripts.
+	echo -server -use[method]        Fetches and displays the script list using the specfied method.
+	echo    -full                       Displays the script list with minimal formatting. Can only be used with the
+	echo                             -server switch. Can be used with both the -only and -sortby filters.
+	echo  -only                       Displays only output matching any of the following criteria:
+	echo                              name, author, category, and date. Can only be used with the -server switch.
+	echo    -only name xyz              Displays scripts with names matching the specified search string.
+	echo    -only author xyz            Displays scripts with an author matching the specified search string.
+	echo    -only category xyz          Displays scripts with a category matching the specified search string.
+	echo    -only date xyz              Displays scripts with a last modified date matching the specified search string.
+	echo  -sortby                     Sorts the script list by any of the following criteria:
+	echo                              name, author, category, and date. Can only be used with the -server switch.
+	echo    -sortby name                Sorts the script list alphabetically by script name.
+	echo    -sortby author              Sorts the script list alphabetically by script author.
+	echo    -sortby category            Sorts the script list alphabetically by script category.
+	echo    -sortby date                Sorts the script list by scripts' last modified dates.
+	
+	
+	echo.
+	echo.
+	echo Example: %~n0 -list -local
+	echo Example: %~n0 -list -server -usecurl
+	echo Example: %~n0 -list -server -full
+	echo Example: %~n0 -list -server -only author Jahwi
+	echo Example: %~n0 -list -server -only author Jahwi -full
+	echo Example: %~n0 -list -server -sortby author
+	echo Example: %~n0 -list -server -sortby author -full
+	
+	echo.
+	echo Note:
+	echo [1] Valid methods are: -usejs, -usevbs, -useps, -usebits, -usecURL
+	echo [2] If no download method is supplied, Bget will default to the default download method [!defmethod!].
+	echo [3] Bget can't display the hash or last-modified dates of scripts located outside the repo.
+	echo [4] If the "refresh script list" variable is set to "yes", Bget will ignore the specified download method, and instead read a cached script list. See the readme's QUERY and SET sections for more details.
+	
+	exit /b
+)
+
+::help for the -upgrade command
+if /i "%~1"=="upgrade" (
+	echo Description: Downloads and sets-up the latest version of Bget.
+	
+	echo.
+	echo Usage: %~n0 -upgrade {optional download method} [options]
+	echo.
+	echo.
+	
+	echo Options
+	echo -use[method]                Upgrades Bget using the specfied method.
+	echo -force                      Upgrades Bget, regardless of local version.
+	
+	
+	echo.
+	echo.
+	echo Example: %~n0 -upgrade -usecurl
+	echo Example: %~n0 -upgrade -force
+	
+	echo.
+	echo Note:
+	echo [1] Valid methods are: -usejs, -usevbs, -useps, -usebits, -usecURL
+	echo [2] If no download method is supplied, Bget will default to the default download method [!defmethod!].
+	
+	exit /b
+)
+
+::help for the -help command
+::so meta
+if /i "%~1"=="help" (
+	echo Description: Gives help info about Bget's commands.
+	
+	echo.
+	echo Usage: %~n0 -help [options]
+	echo.
+	echo.
+	
+	echo Options
+	echo -doc                        Displays Bget's readme
+	echo [command]                  Displays help info about a particular command.
+	
+	
+	echo.
+	echo.
+	echo Example: %~n0 -help
+	echo Example: %~n0 -help -doc
+	echo Example: %~n0 -help get
+	
+	echo.
+	
+	exit /b
+)
+
+::help for the -openscripts command
+if /i "%~1"=="openscripts" (
+	echo Description: Opens the directory where scripts are stored at [!script_location!].
+	
+	echo.
+	echo Usage: %~n0 -openscripts
+	echo.
+	echo.
+	echo.
+	echo Example: %~n0 -openscripts
+	
+	echo.
+	
+	exit /b
+)
+
+::help for the -search command
+if /i "%~1"=="search" (
+	echo Description: Searches for scripts from the script list.
+	
+	echo.
+	echo Usage: %~n0 -search {optional download method} [string]
+	echo.
+	echo.
+	echo.
+		
+	echo Options
+	echo -use[method]                Fetches the resource using the specfied method.
+	echo.
+	echo Example: %~n0 -search "test"
+	echo.
+	echo Note:
+	echo [1] Valid methods are: -usejs, -usevbs, -useps, -usebits, -usecURL
+	echo [2] If no download method is supplied, Bget will default to the default download method [!defmethod!].
+	echo [3] If the "refresh script list" variable is set to "yes", Bget will ignore the specified download method, and instead read a cached script list. See the readme's QUERY and SET sections for more details.
+	exit /b
+)
+
+::help for the -newscripts command
+if /i "%~1"=="newscripts" (
+	echo Description: Checks for recently added scripts on Bget's server.
+	
+	echo.
+	echo Usage: %~n0 -newscripts {optional download method}
+	echo.
+	echo.
+	echo.
+	
+	echo Options
+	echo -use[method]                Fetches the resource using the specfied method.
+	echo Example: %~n0 -newscripts
+	echo Example: %~n0 -newscripts -usevbs
+	echo.
+	echo Note:
+	echo [1] Valid methods are: -usejs, -usevbs, -useps, -usebits, -usecURL
+	echo [2] If no download method is supplied, Bget will default to the default download method [!defmethod!].
+	echo [3] If the "refresh script list" variable is set to "yes", Bget will ignore the specified download method, and instead read a cached script list. See the readme's QUERY and SET sections for more details.
+	echo.
+	
+	exit /b
+)
+
+::help for the -set command
+if /i "%~1"=="set" (
+	echo Description: Assigns values to configurable global variables.
+	
+	echo.
+	echo Usage: %~n0 -set [global_variable] [value]
+	echo.
+	echo.
+	call :set
+	echo.
+	echo Example: %~n0 -set rsl yes.
+	
+	echo.
+	
+	exit /b
+)
+
+::help for the -query command
+if /i "%~1"=="query" (
+	echo Description: Displays the values of select global variables.
+	
+	echo.
+	echo Usage: %~n0 -query [global_variable]
+	echo.
+	echo.
+	call :query
+	echo.
+	echo Example: %~n0 -query scl
+	
+	echo.
+	
+	exit /b
+)
+
+::help for the -nobanner command
+if /i "%~1"=="nobanner" (
+	echo Description: Supresses the banner when running commands.
+	
+	echo.
+	echo Usage: %~n0 -nobanner [command]
+	echo.
+	echo Example: %~n0 -nobanner -get "test"
+	echo Example: %~n0 -nobanner -update "test"
+	exit /b
+)
+
+::help for the -refresh command
+if /i "%~1"=="refresh" (
+	echo Description: Downloads a new copy of the script list before running commands.
+	
+	echo.
+	echo Usage: %~n0 -refresh [command]
+	echo.
+	echo Example: %~n0 -refresh -get "test"
+	echo Example: %~n0 -refresh -update "test"
+	exit /b
+)
+
+
+
+
 ::is printed if help switch, no switch or an incorrect switch is supplied.
 for %%a in (
 	"  ---------------------------------------------------------------------------"
-	"  BGET [-switch {subswitches} {ARG} ]"
+	"  Usage: BGET [-switch {ARGs} ]"
 	"  [-get {-usemethod} "SCRIPTs" ]        Fetches a script/scripts."
 	"  [-pastebin {-usemethod} PASTE_CODE local_filename ] Gets a Pastebin script."
 	"  [-remove "SCRIPTs" ]                  Removes a script/scripts"
 	"  [-update {-usemethod} "SCRIPTs" ]     Updates the script/scripts"
 	"  [-info {-usemethod} SCRIPT ]          Gets info on the specified script."
 	"  [-list -server {-usemethod} ]         Lists scripts on Bget's server."
-	"  [-list -server {-usemethod} -full ]   Lists scripts with minimal formatting."
 	"  [-list -local]                        Lists local scripts."
 	"  [-search {usemethod} "STRING" ]       Search scripts on the server."
 	"  [-upgrade {-usemethod} ]              Updates Bget."
-	"  [-upgrade {-usemethod} -force ]       Updates Bget, regardless of version."
 	"  [-newscripts {-usemethod} ]           Lists new scripts released."
-	"  [-set -ddm {method}]                  Changes the default download method. "
+	"  [-set -ddm {method}]                  Changes the default download method."
+	"  [-query {global_variable} ]           Displays the value of select global variables."
+	"  [-search search_string ]              Searches for scripts that match specified criteria."
 	"  -openscripts                          Opens the scripts folder."
+	"  -nobanner                             Skips displaying the intro banner."
+	"  -refresh                              Download the latest version of the script list."
 	"  -help                                 Prints this help screen."
 	"  -help -doc                            Opens the full help text."
 	""
@@ -176,9 +601,10 @@ for %%a in (
 	"   Example: bget -get -useVBS test"
 	"  [#]Some Antiviruses flag the JS and VBS download functions."
 	"   Either witelist them or use the BITS/PS methods."
-	"  [#]If you downloaded Bget from anywhere other than Github, be sure to"
+	"  [#]If you downloaded Bget from anywhere other than GitHub, be sure to"
 	"   upgrade it."
-	"  [#]Type BGET -help -doc for the full help text
+	"  [#]Type BGET -help -doc for the full help text."
+	"  [#]Type BGET -help [command] for command-specific help."
 	"  ---------------------------------------------------------------------------"
 ) do echo=%%~a
 if defined msg echo !msg!
@@ -204,7 +630,7 @@ for %%s in (curl js vbs bits ps) do (
 if not "!get_bool!"=="yes" (
 	REM echo Error: Invalid get method.
 	REM echo Type "%~n0 -help" for more information.
-	echo No method supplied. Defaulting to !defmethod! download method...
+	if "!refresh_script_list!"=="yes" echo No method supplied. Defaulting to !defmethod! download method...
 	call :get -use!defmethod! "%~1"
 	exit /b
 )
@@ -218,6 +644,8 @@ if not "%~3"=="" (
 
 ::downloads
 ::will attempt to download curl if when using the curl get method, curl isnt found in the curl subdirectory.
+set script_fetched_count=0
+set scripts_to_download=
 
 ::gets the script list
 	echo Reading script list...
@@ -227,19 +655,23 @@ if not "%~3"=="" (
 ::if "-all" switch is used
 	if /i "%~2"=="-all" (
 		for /f "tokens=1-8 delims=," %%r in ('findstr /b /c:"[#]," "%~dp0\temp\master!sess_rand!.txt"') do (
+			set /a scripts_to_download+=1
 			call :get_recurse "%%~s"
 		)
+		echo Fetched [!script_fetched_count!/!scripts_to_download!] scripts.
 		exit /b
 	)
 
 ::single scripts and args that aren't "-all"
+	for %%# in (%~2) do ( set /a scripts_to_download+=1 )
 	for %%r in (%~2) do (
 		call :get_recurse "%%~r"
 	)
+	echo Fetched [!script_fetched_count!/!scripts_to_download!] scripts.
 exit /b
-			
 
-			
+
+
 :get_recurse
 ::calls itself to download the specified scripts		
 set script_count=
@@ -268,9 +700,11 @@ set script_count=
 					if exist "!script_location!\%%~b" rd /s /q "!script_location!\%%~b"
 				)
 				if exist "!script_location!\%%~b\%%~e" (
+					set /a script_fetched_count+=1
 					echo %%f>"!script_location!\%%~b\hash.txt"
 					echo %%d>"!script_location!\%%~b\info.txt"
 					echo %%g>"!script_location!\%%~b\author.txt"
+					echo %date% %time% >"!script_location!\%%~b\last_modified.txt"
 					if "%%~xe"==".cab" (
 						echo Extracting...
 						call :cab "!script_location!\%%~b\%%~e" "!script_location!\%%~b"
@@ -280,7 +714,7 @@ set script_count=
 						echo Extracting...
 						call :unzip "!script_location!\%%~b\%%~e" "!script_location!\%%~b\"
 					)
-					echo Done.
+					echo     [+] Done.
 				)
 			)
 		)
@@ -294,7 +728,7 @@ exit /b
 ::be sure to inspect code downloaded from pastebin.
 echo Bget Pastebin tip: PASTE_CODE is the unique element of a PASTEBIN url.
 echo E.g a pastebin script located at https://pastebin.com/YkEtQYFR would have YkEtQYFR as its paste code.
-echo If you get the paste code wrong, you'll get a pastebin error as the output file instead of your intended script.
+echo If you get the paste code wrong, you'll probably get a pastebin error as the output file instead of your intended script.
 echo.
 echo.
 
@@ -303,7 +737,7 @@ echo.
 set paste_bool=
 set paste_method=
 ::if "%~1"=="" echo Error[p1]: No Pastebin get method supplied. && exit /b
-if "%~1"=="-usebits" echo Error: BITSadmin does not work with the pastebin function as of yet. && exit /b
+if "%~1"=="-usebits" echo Error: the pastebin function doesn't support BITSadmin as of yet. && exit /b
 for %%s in (curl js vbs ps) do (
 	if /i "%~1"=="-use%%s" (
 		set paste_bool=yes
@@ -332,7 +766,7 @@ if not exist "!script_location!\pastebin\%~2\%~nx3" (
 	if exist "!script_location!\pastebin\%~2" rd /s /q "!script_location!\pastebin\%~2"
 	exit /b
 )
-if exist "!script_location!\pastebin\%~2\%~nx3" echo Done. && exit /b
+if exist "!script_location!\pastebin\%~2\%~nx3" echo     [+] Done. && exit /b
 ::paranoia
 exit /b
 ::--------------------------------------------------------------------
@@ -340,7 +774,8 @@ exit /b
 :remove
 ::"Mr Stark, I don't feel so good"
 ::removes a script (You guessed it!)
-
+set removed_scripts=0
+set script_count=
 ::check for errors
 if "%~1"=="" (
 	echo Error: No script supplied.
@@ -348,47 +783,67 @@ if "%~1"=="" (
 	exit /b
 )
 
-::TODO: ADD Y SWITCH TO BYPASS PROMPT
+
 if /i "%~1"=="-all" (
-	choice /c yn /n /m "Delete all scripts? [y/n]
-	if "!errorlevel!"=="2" exit /b
-	if "!errorlevel!"=="1" (
+
+	REM the -y switch triggers a bypass.
+	if /i not "%~2"=="-y" choice /c yn /n /m "Delete all scripts? [y/n]
+	if /i not "%~2"=="-y" if "!errorlevel!"=="2" exit /b
+	
 		set script_count=
 		for /d %%a in ("!script_location!\*") do (
-			set /a script_count+=1
-			echo Removing "%%~na"... && rd /s /q "%%~a"
-			if exist "%%~a" rd /s /q "%%~a"
-			if exist "%%a" echo Error[p6]: Failed to remove %%~na.
+			if exist "%%~a\hash.txt" (
+				set /a script_count+=1
+				echo Removing "%%~na"... && rd /s /q "%%~a"
+				if exist "%%~a" rd /s /q "%%~a"
+				if exist "%%a" echo Error[p6]: Failed to remove %%~na.
+				if not exist "%%a" set /a "removed_scripts+=1"
+			)
 		)
+		echo Removed [!removed_scripts!/!script_count!] scripts.
 		if not defined script_count echo You have no scripts.
 		exit /b
-	)
 	
 )
 
 ::deletes pastebin scripts.
 if /i "%~1"=="-pastebin" (
-	choice /c yn /n /m "Clear ALL your pastebin scripts? This can't be undone. [(Y)es/(N)o]"
-	if "!errorlevel!"=="2" exit /b
-	if "!errorlevel!"=="1" (
-		rd /s /q "!script_location!\pastebin"
-		if not exist "!script_location!\pastebin" echo Pastebin scripts removed.
-		if exist "!script_location!\pastebin" echo Error[p7]: An error occured while deleting the pastebin folder.
+
+	if /i not "%~2"=="-y" choice /c yn /n /m "Clear ALL your pastebin scripts? This can't be undone. [(Y)es/(N)o]"
+	if /i not "%~2"=="-y" if "!errorlevel!"=="2" exit /b
+		if exist "!script_location!\pastebin" (
+			rd /s /q "!script_location!\pastebin" >nul
+			if not exist "!script_location!\pastebin" echo Pastebin scripts removed.
+			if exist "!script_location!\pastebin" echo Error[p7]: An error occured while deleting the pastebin folder.
+		) else ( echo Error: You don't have any pastebin scripts in the scripts directory. )
 		exit /b
-	)
+)
+
+::deletes logs
+if /i "%~1"=="-logs" (
+		if exist "%~dp0\temp" (
+			rd /s /q "%~dp0\temp"
+			if not exist "%~dp0\temp" echo [+] Temp files removed.
+			if exist "%~dp0\temp" echo Error[r1]: An error occured while deleting the temp files.
+			if not exist "%~dp0\temp" md "%~dp0\temp"
+		)
+		exit /b
 )
 
 ::deletes individual/multiple scrips.
 for %%r in (%~1) do (
+	set /a script_count+=1
 	if not exist "!script_location!\%%~r" echo The script "%%~r" does not exist.
 	if exist "!script_location!\%%~r" (
 		rd /s /q "!script_location!\%%~r"
 		if exist "!script_location!\%%~r" rd /s /q "!script_location!\%%~r"
 		if exist "!script_location!\%%~r" echo Error[p7]: Bget could not delete "%%~r".
-		if not exist "!script_location!\%%~r" echo Removed %%r.	
+		if not exist "!script_location!\%%~r" set /a "removed_scripts+=1" && echo Removed %%r.
 	)
 )
+echo Removed [!removed_scripts!/!script_count!] scripts.
 exit /b
+
 ::--------------------------------------------------------------------
 
 :update
@@ -419,7 +874,7 @@ for %%s in (curl js vbs bits ps) do (
 if not "!update_bool!"=="yes" (
 	REM echo Error: Invalid get method.
 	REM echo Type "%~n0 -help" for more information.
-	echo No method supplied. Defaulting to !defmethod! download method...
+	if "!refresh_script_list!"=="yes" echo No method supplied. Defaulting to !defmethod! download method...
 	call :update -use!defmethod! "%~1" "%~2"
 	exit /b
 )
@@ -433,6 +888,8 @@ set update_bool=
 ::update
 ::will attempt to download curl if when using the curl update method, curl isnt found in the curl subdirectory.
 ::sess rand allows multiple bget instances to be run without running into a "file is in use" issue
+set scripts_to_update=0
+set script_updated_count=0
 
 ::gets script list
 echo Reading script list...
@@ -442,19 +899,25 @@ if not exist "%~dp0\temp\master!sess_rand!.txt" exit /b
 ::if "-all" switch is used
 	if /i "%~2"=="-all" (
 		for /f "tokens=1-8 delims=," %%r in ('findstr /b /c:"[#]," "%~dp0\temp\master!sess_rand!.txt"') do (
-			if exist "!script_location!\%%~s\" call :update_recurse "%%~s" %~3
-		)
+			if exist "!script_location!\%%~s\" (
+				call :update_recurse "%%~s" %~3
+				set /a scripts_to_update+=1
+			)
+		if "!scripts_to_update!"=="0" echo Error: No local scripts found.
+		echo Updated [!script_updated_count!/!scripts_to_update!] scripts.
 		exit /b
+	)
 	)
 
 ::single scripts and args that aren't "-all"
-	for %%r in (%~2) do (
-		call :update_recurse "%%~r" %~3
+	for %%# in (%~2) do ( set /a scripts_to_update+=1 )
+	for %%_ in (%~2) do (
+		call :update_recurse "%%~_" %~3
 	)
+	echo Updated [!script_updated_count!/!scripts_to_update!] scripts.
 exit /b
 
 :update_recurse
-
 		set script_count=
 		if not exist "!script_location!\%~1\" echo Error: "%~1" does not exist on the local machine.
 		if exist "!script_location!\%~1\" (
@@ -475,7 +938,7 @@ exit /b
 						if /i "%%f"=="External-File-No-Hash-Available" (
 							echo Warning: BITS download method cannot download scripts from an external repo.
 						)
-					)				
+					)
 
 					if not exist "%~dp0\temp\%%~b" md "%~dp0\temp\%%~b"
 					call :download -!update_method! "%%~c" "%~dp0\temp\%%~b\%%~e"
@@ -490,9 +953,11 @@ exit /b
 						rd /s /q "%~dp0\temp\%%~b"
 						if not exist "!script_location!\%%~b\%%~e" echo An error occured while updating the script.
 						if exist "!script_location!\%%~b\%%~e" (
+							set /a script_updated_count+=1
 							echo %%f>"!script_location!\%%~b\hash.txt"
 							echo %%d>"!script_location!\%%~b\info.txt"
 							echo %%g>"!script_location!\%%~b\author.txt"
+							echo %date% %time% >"!script_location!\%%~b\last_modified.txt"
 							
 							%=Extract archives=%
 							
@@ -506,7 +971,7 @@ exit /b
 								echo Extracting...
 								call :unzip "!script_location!\%%~b\%%~e" "!script_location!\%%~b\"
 							)
-							echo Done.
+							echo     [+] Done.
 						)
 					)
 				)
@@ -537,7 +1002,7 @@ for %%s in (curl js vbs bits ps) do (
 if not "!get_bool!"=="yes" (
 	REM echo Error: Invalid get method.
 	REM echo Type "%~n0 -help" for more information.
-	echo No method supplied. Defaulting to !defmethod! download method...
+	if "!refresh_script_list!"=="yes" echo No method supplied. Defaulting to !defmethod! download method...
 	call :info -use!defmethod! "%~1" "%~2"
 	exit /b
 )
@@ -554,15 +1019,17 @@ if not "%~3"=="" echo Error[i3]: Invalid number of arguments. && exit /b
 	set script_count=
 	
 	
-	for /f "tokens=1-10 delims=," %%a in ('findstr /b /c:"[#],%~2," "%~dp0\temp\master!sess_rand!.txt"') do (
+	for /f "tokens=1-11 delims=," %%a in ('findstr /i /b /c:"[#],%~2," "%~dp0\temp\master!sess_rand!.txt"') do (
 	
 		echo.
 		echo Name: %%~b
 		echo Author: %%~g
-		echo Description: %%~d
+		set info_desc=%%~d
+		echo Description: !info_desc:;=,!
 		echo Category: %%~h
 		echo Location: %%~c
-		echo Hash: %%~f
+		echo Size: %%~k bytes.
+		echo Checksum: %%~f
 		echo Last Modified: %%i
 		echo Tags: %%~j
 		exit /b
@@ -576,8 +1043,12 @@ exit /b
 ::input validation
 if not "%~1"=="" echo Invalid number of arguments. && exit /b
 
-echo opening scripts folder...
-explorer "!script_location!"
+echo Opening scripts folder...
+if defined script_location (
+	if exist "!script_location!" if exist "!script_location!\*" explorer "!script_location!"
+
+)
+ 
 
 exit /b
 ::--------------------------------------------------------------------
@@ -608,10 +1079,8 @@ for %%a in (server local) do (
 	)
 )
 if not defined list_bool echo Invalid list switch. && exit /b
-if /i not "%~3"=="" (
-	if /i not "%~3"=="-full" echo Invalid argument. && exit /b
-)
-if not "%~4"=="" echo Invalid number of arguments. && exit /b
+REM if /i not "%~3"=="" ( if /i not "%~3"=="-full" echo Invalid argument. && exit /b )
+REM if not "%~4"=="" echo Invalid number of arguments. && exit /b
 
 
 ::lists scripts on the local computer
@@ -619,10 +1088,25 @@ if not "%~4"=="" echo Invalid number of arguments. && exit /b
 if /i "%~1"=="-local" (
 	if not "%~2"=="" echo Error[l3]: Invalid number of arguments. && exit /b
 	set script_count=
+	echo No  	   Name               Description                    Author          Last Updated
 	for /d %%a in ("!script_location!\*") do (
 		if exist "%%a\hash.txt" (
 			set /a script_count+=1
-			echo !script_count!. %%~na
+			for %%_ in (last_modified author hash info) do (
+				set %%_=Nil
+				if exist "%%a\%%_.txt" set/p %%_=<"%%a\%%_.txt"
+			)
+			set info=!info:.=!
+			set info=!info:;=,!
+			
+			REM format the text
+			%pad% "!script_count!".4.pad1
+			%pad% "%%~na".16.pad2
+			%pad% "!last_modified!".25.pad3
+			%pad% "!author!".20.pad4
+			%pad% "!info:~0,20!".20.pad5
+			
+			echo !pad1!!script_count!. !pad2!%%~na ^| !pad5!!info:~0,20!.... ^| !pad4!!author! ^| !pad3!!last_modified! 
 		)
 	)
 
@@ -647,7 +1131,7 @@ if /i "%~1"=="-local" (
 )
 
 
-::lists scripts on the server
+REM lists scripts on the server
 set list_bool=
 if /i "%~1"=="-server" (
 
@@ -662,58 +1146,141 @@ if /i "%~1"=="-server" (
 	if not defined list_bool (
 		REM echo Error: Invalid get method.
 		REM echo Type "%~n0 -help" for more information.
-		echo No method supplied. Defaulting to !defmethod! download method...
-		call :list -server -use!defmethod! "%~2"
+		if "!refresh_script_list!"=="yes" echo No method supplied. Defaulting to !defmethod! download method...
+		call :list -server -use!defmethod! "%~2" "%~3" "%~4" "%~5" "%~6" "%~7"
 		exit /b
 	)
 	
-	if /i not "%~3"=="" (
-		if /i not "%~3"=="-full" echo Invalid argument. && exit /b
-	)
-	if not "%~4"=="" echo Error[l3]: Invalid number of arguments. && exit /b
+	REM if /i not "%~3"=="" ( if /i not "%~3"=="-full" echo Invalid argument. && exit /b )
+	REM if not "%~7"=="" echo Error[l3]: Invalid number of arguments. && exit /b
 	
-	::fetch and parse the script list.
+	REM fetch and parse the script list.
 	echo Reading script list...
 	call :getlist !list_method!
 	if not exist "%~dp0\temp\master!sess_rand!.txt" exit /b
+	::set sess_rand=1010
 	echo.
+
+	REM check for use of the -full switch
+	set arg=
+	set full_bool=
+	for /l %%a in (3,1,6) do (
+		set temp_arg=%%a
+		call set arg=%%~!temp_arg!
+		if /i "!arg!"=="-full" set "full_bool=yes" && set "arg="
+	)
+	
+	REM LIST BY SPECIFIC PARAMETERS LIKE NAME, CATEGORY OR AUTHOR.
+	
+	REM If third or fourth token is -only/sortby, the next arg must be a valid filter. check for this.
+	for /l %%a in (3,1,4) do (
+	
+		REM Housekeeping
+		set filter_bool=
+		set next_arg=
+		set next_arg_string=
+		set current_arg_string=
+		
+		if "%%~a"=="3" (
+			set filter_type=
+			set filter_content=
+			set filter_param=
+			set int_loop_count=
+		)
+		
+		set /a "int_a=%%a" , "next_arg=%%a+1" , "upper_arg=%%a+2"
+		call set next_arg_string=%%~!next_arg!
+		call set current_arg_string=%%~!int_a!
+		call set upper_arg_string=%%~!upper_arg!
+		for %%b in (-only -sortby) do (
+			set %%b_filter=false
+			if /i "!current_arg_string!"=="%%~b" (
+				set %%b_filter=true
+				for %%# in (name category author date) do (
+					if /i "%%~#"=="!next_arg_string!" (
+						set "filter_bool=yes"
+						set "filter_type=%%~b"
+						set "filter_param=%%#"
+						set "%%b_filter_param=%%#"
+						set "filter_content=!upper_arg_string!"
+						set "%%b_filter_content=!upper_arg_string!"
+						set /a int_loop_count+=1
+					)
+					
+					REM print the filter parameters only once.
+					if "!int_loop_count!"=="1" (
+						if "!filter_type!"=="-only" echo Filter [%%#^=!filter_content!]
+						if "!filter_type!"=="-sortby" echo Filter [Sort by !filter_param!]
+						set int_loop_count=
+					)
+				)
+				if not "!filter_bool!"=="yes" echo Error: Invalid filter. Valid filters are: name, category, author, and date. && exit /b
+			)
+		)
+	)
+	
+	REM use the sorting script
+	if "!filter_type!"=="-sortby" (
+		if "!full_bool!"=="yes" set "full_bool=-full"
+		call "%~dp0bin\srt.bat" "!filter_param!" "%~dp0temp\master!sess_rand!.txt" "!full_bool!"
+		exit /b
+	)
+
 	set script_count=
+	set filtered_count=
+	echo.
 	echo No	Name		Category	Description		Author			Last Modified
 	for /f "tokens=1-9 delims=," %%a in ('findstr /b /c:"[#]," "%~dp0\temp\master!sess_rand!.txt"') do (
 		set /a script_count+=1
 		
-		if /i not "%~3"=="-full" (
-			rem ADDED BY ICKY
-			REM code for padding
+		REM changes the script count to the filtered count if the only switch is used.
+		if "!filter_type!"=="-only" (
+			if "!filtered_count!"=="1" set "filtered_count=2"
+			set "script_count=!filtered_count!"
+			if not defined filtered_count set "script_count=1"
+		)
+		set script_string=
+		
+		REM padding algo added by icky
+		REM temp values for padding purposes
 			set "tmpH=%%~h"
 			set "tmpD=%%~d"
 			set "tmpD=!tmpD:.=!"
+			set "tmpD=!tmpD:;=,!"
 			set "tmpH=!tmpH:	=!"
+
+		
+		REM display formatted list.
+		if /i not "!full_bool!"=="yes" (
 			%pad% "!script_count!".4.pad1
 			%pad% "%%~b".16.pad2
-			%pad% "!tmpH!".10.pad3
+			%pad% "!tmpH!".11.pad3
 			%pad% "!tmpD:~0,20!".21.pad4
 			%pad% "%%~g".20.pad5
 			%pad% "%%~i".20.pad6
 			
-			rem display everything
-			echo !pad1!!script_count!. %%~b!pad2!^|!pad3!!tmpH!^| !tmpD:~0,20!...!pad4!^| %%g !pad5!^| %%i
+			set "script_string=!pad1!!script_count!. %%~b!pad2!^|!pad3!!tmpH!^| !tmpD:~0,20!...!pad4!^| %%g !pad5!^| %%i"
 		)	
 		
-		if /i "%~3"=="-full" (
-			set "tmpH=%%~h"
-			set "tmpH=!tmpH:	=!"
-			%pad% "!script_count!".4.pad1
-			%pad% "!tmpH!".10.pad3
-			%pad% "%%~b".16.pad2
-			echo !pad1!!script_count!. %%~b!pad2!^|!pad3!!tmpH!^| %%~d ^| %%~g ^| %%i
+		REM display slightly unformatted list.
+		if /i "!full_bool!"=="yes" (
+			set "script_string=!pad1!!script_count!. %%~b!pad2!^|!pad3!!tmpH!^| %%~d ^| %%~g ^| %%i"
 		)
-		
-		rem END ADDED BY ICKY
+
+		REM for the -only filter
+		if "!filter_type!"=="-only" (
+			if "!filter_param!"=="author" if /i "!filter_content!"=="%%~g" set /a "filtered_count+=1" && echo !script_string!
+			if "!filter_param!"=="category" if /i "!filter_content!"=="%%~h" set /a "filtered_count+=1" && echo !script_string!
+			if "!filter_param!"=="name" if /i "!filter_content!"=="%%~b" set /a "filtered_count+=1" &&  echo !script_string!
+			if "!filter_param!"=="date" if /i "!filter_content!"=="%%~i" set /a "filtered_count+=1" && echo !script_string!
+		) else ( echo !script_string!  )
 		
 		
 	)
-	if not defined script_count echo Could not get the script list. && exit /b
+	
+	REM print an error if no scripts are found
+	if "!filter_type!"=="-only" if not defined filtered_count echo No scripts found matching the filter. && exit /b
+	if not defined script_count echo No scripts found on the server. && exit /b
 	
 	rem reset window size, but do that AFTER the user presses a key
 	rem stating they are finshed viewing. - ADDED BY ICKY
@@ -740,7 +1307,7 @@ for %%a in (curl js ps vbs bits) do (
 if not defined search_bool (
 	REM echo Error: Invalid get method.
 	REM echo Type "%~n0 -help" for more information.
-	echo No method supplied. Defaulting to !defmethod! download method...
+	if "!refresh_script_list!"=="yes" echo No method supplied. Defaulting to !defmethod! download method...
 	call :search -use!defmethod! "%~1" "%~2"
 	exit /b
 )
@@ -752,6 +1319,15 @@ set search_bool=
 echo Reading script list...
 call :getlist !search_method!
 if not exist "%~dp0\temp\master!sess_rand!.txt" exit /b
+
+::check for -only and -sortby
+for %%# in (-only -sortby) do (
+	set %%#_found=false
+	echo !temp_input_string! | findstr /i /c:"%%#" >nul
+	if "!errorlevel!"=="0" (
+		set %%#_found=true
+	)
+)
 	
 ::search
 set match_count=
@@ -759,18 +1335,28 @@ echo.
 echo Searching...
 echo Search String: [%~2]
 echo.
-for /f "tokens=1-10 delims=," %%a in ('findstr /i /c:"%~2" "%~dp0\temp\master!sess_rand!.txt"') do (
-	set done_with_line=
-	set taglist=
-	if /i "%%~a"=="[#]" (
-		for /f %%r in ('echo %%b,%%d,%%g,%%j ^| findstr /i /c:"%~2"') do (
-			set /a match_count+=1
-			if "!match_count!"=="1" echo No, Name, Description, Author
-			echo !match_count!. %%b ^| %%d ^| %%g
+for /f "delims=" %%? in ('findstr /i /c:"%~2" "%~dp0\temp\master!sess_rand!.txt"') do (
+	for /f "tokens=1-10 delims=," %%a in ("%%?") do (
+		set done_with_line=
+		set taglist=
+		if /i "%%~a"=="[#]" (
+			for /f %%r in ('echo %%b,%%d,%%g,%%j ^| findstr /i /c:"%~2"') do (
+				set /a match_count+=1
+				set search_desc=%%d
+				if "!match_count!"=="1" echo No, Name, Description, Author
+				
+				REM if "!-sortby_found!"=="true" echo %%? >>"%~dp0temp\search_!sess_rand!.txt"
+				echo !match_count!. %%b ^| !search_desc:;=,! ^| %%g
+			)
 		)
 	)
 )
 if not defined match_count echo Your string did not match any scripts on the server. && exit /b
+exit /b
+REM sort if the sortby was triggered.
+echo --------------------------------------------------------------------
+call "%~dp0bin\srt.bat" "!filter_param!" "%~dp0temp\search_!sess_rand!.txt"
+echo Sorting...
 exit /b
 ::--------------------------------------------------------------------
 
@@ -815,13 +1401,14 @@ exit /b
 ::display syntax if no first argument is supplied.
 if /i "%~1"=="" (
 	echo Syntax:
-	echo -set -ddm method                 Changes default get method.
-	echo -set -adl yes/no                 Toggles auto-deletion of temp files on/off.
-	echo -set -scl "path"                 Sets the default script download location.
+	echo -set ddm method                 Changes default get method.
+	echo -set adl yes/no                 Toggles auto-deletion of temp files on/off.
+	echo -set scl "path"                 Sets the default script download location.
+	echo -set rsl yes/no                 Toggles refreshing/redownloading of the script list on every get operation.
 	exit /b
 )
 set set_bool=
-for %%a in (-ddm -adl -scl) do (
+for %%a in (ddm adl scl rsl) do (
 	if /i "%%~a"=="%~1" set set_bool=yes
 )
 if /i not "!set_bool!"=="yes" echo Error: Invalid set argument. && exit /b
@@ -833,7 +1420,7 @@ if not "%~3"=="" echo Error: Invalid number of arguments. && exit /b
 set set_bool=
 set temp_defmethod=
 set recheck_defmethod=
-if /i "%~1"=="-ddm" (
+if /i "%~1"=="ddm" (
 	REM check for user errors
 	for %%a in (js vbs curl ps bits) do (
 		if /i "%~2"=="%%a" (
@@ -852,13 +1439,14 @@ if /i "%~1"=="-ddm" (
 	>nul 2>&1 set/p recheck_defmethod=<"%~dp0\bin\config.bget":defmethod
 	if /i "!recheck_defmethod!"=="!defmethod!" echo Default download method changed to !defmethod!. && exit /b
 	if /i not "!recheck_defmethod!"=="!defmethod!" echo Failed to change the default download method. && exit /b
+	exit /b
 )
 
 ::sets the auto-delete_logs var.
 set adl_bool=
 set temp_adl_bool=
 set recheck_adl=
-if /i "%~1"=="-adl" (
+if /i "%~1"=="adl" (
 	REM check for user errors
 	for %%a in (yes no) do (
 		if "%~2"=="%%~a" (
@@ -874,13 +1462,14 @@ if /i "%~1"=="-adl" (
 	set auto-delete_logs=!temp_adl_bool!
 	if "!recheck_adl!"=="!temp_adl_bool!" echo Changed "Auto-delete logs" variable to "!temp_adl_bool!". && exit /b
 	if not "!recheck_adl!"=="!temp_adl_bool!" echo Failed to change the "Auto-delete logs" variable. && exit /b
+	exit /b
 
 )
 
 ::sets the default script location
 set recheck_scl=
-if /i "%~1"=="-scl" (
-	if not exist "%~2\" echo Error: path does not exist && exit /b
+if /i "%~1"=="scl" (
+	if not exist "%~2\*" echo Error: Path does not exist. && exit /b
 	set "script_location=%~2"
 	echo %~2>"%~dp0\bin\config.bget":scl
 	
@@ -890,6 +1479,24 @@ if /i "%~1"=="-scl" (
 	if "!script_location!"=="!recheck_scl!" echo Changed the default script location to "!script_location!". && exit /b
 )
 
+::sets the refresh script list variable
+set recheck_rsl=
+if /i "%~1"=="rsl" (
+	
+	REM check for errors
+	if /i not "%~2"=="yes" (
+		if not "%~2"=="no" echo Error: Invalid syntax. Valid options are: yes and no. && exit /b
+	)
+	
+	REM set the values and append to config file via ADS
+	echo %~2>"%~dp0\bin\config.bget":rsl
+	
+	REM check if ads has been set
+	set /p recheck_rsl=<"%~dp0\bin\config.bget":rsl
+	if /i not "!recheck_rsl!"=="%~2" echo Failed to change the refresh script variable. && exit /b
+	if /i "!recheck_rsl!"=="%~2" echo Changed the refresh script list variable to "!recheck_rsl!" && exit /b
+	exit /b
+)
 
 exit /b
 ::--------------------------------------------------------------------
@@ -901,7 +1508,7 @@ set query_bool=
 
 ::if no variable supplied
 if "%~1"=="" (
-	echo Valid Global variables:
+	echo    Global variables:
 	echo -----------------------
 	for %%a in (!global_vars_full!) do (
 		set temp_gv=%%~a
@@ -910,13 +1517,62 @@ if "%~1"=="" (
 	exit /b
 )
 
-for %%a in (!global_vars_list!) do (
-	if "%~1"=="%%a" set "query_bool=yes" && echo !%%a!
+REM map the global vars
+	if defined defmethod set "ddm=!defmethod!"
+	if defined auto-delete_logs set "adl=!auto-delete_logs!"
+	if defined script_location set "scl=!script_location!"
+	if defined refresh_script_list set "rsl=!refresh_script_list!"
+
+	REM map last refreshed var
+	set lf=Nil
+	if defined display_last_fetched set lf=!display_last_fetched!
+	if not defined display_last_fetched call :get_last_fetched exit
+	if defined display_last_fetched set lf=!display_last_fetched!
+	set lf=!lf:Script List Last Fetched:=!
+
+
+rem display the global vars
+for %%a in (!global_vars_full!) do (
+	for /f "tokens=1,2 delims=#" %%b in (%%a) do (
 	
-	REM echo all the variables if all switch is triggered.
-	if /i "%~1"=="-all" set "query_bool=yes" && echo %%a: !%%a!
+		if "%~1"=="%%~b" set "query_bool=yes" && echo %%~b: !%%~b!
+		
+		REM echo all the variables if all switch is triggered.
+		if /i "%~1"=="-all" set "query_bool=yes" && echo %%~b: !%%~b!
+	)
 )
 if not "!query_bool!"=="yes" echo Invalid variable. Valid variables are: !global_vars_list: =, !. && exit /b
+
+exit /b
+::--------------------------------------------------------------------
+
+:version
+REM prints the version no of bget and its components
+
+if not "%~1"=="" echo Error. Invalid syntax. && exit /b
+
+echo Bget:	!version!
+
+REM display the cURL version
+if exist "%~dp0\curl\curl.exe" (
+	for /f "usebackq delims=" %%a in (`"%~dp0curl\curl.exe" --version`) do (
+		set curl_ver_string=%%a
+		if /i "!curl_ver_string:~0,4!"=="curl" set "curl_ver_string=!curl_ver_string:~5!" && set "curl_ver_string=Curl:	!curl_ver_string!" && echo !curl_ver_string!
+	)
+)
+
+REM display the sorter version
+ if exist "%~dp0\bin\srt.bat" for /f "tokens=1,2 delims= " %%a in ('findstr /b /c:"::::version" "%~dp0\bin\srt.bat"') do (
+	echo Sorter:	%%~b
+ )
+ 
+REM display version nos of downloader scripts.
+for /f "tokens=1,2 delims= " %%a in ('findstr /b /c:"////BgetVersion" "%~dp0\bin\download.js"  ') do (
+	echo VBS Download script:	%%~b 
+)
+for /f "tokens=1,2 delims= " %%a in ('findstr /b /c:"''''BgetVersion" "%~dp0\bin\download.vbs"  ') do (
+	echo JS Download script:	%%~b 
+)
 
 exit /b
 ::--------------------------------------------------------------------
@@ -980,9 +1636,11 @@ if /i "!new_upgrade_hash!"=="!current_upgrade_hash!" echo You already have the l
 if exist "%~dp0\upgrade.bat" del /f /q "%~dp0\upgrade.bat"
 call :download -!upgrade_method! "!upgrade_script_location!" "%~dp0\upgrade.bat"
 if not exist "%~dp0\upgrade.bat" echo Failed to get the Bget upgrade script. && exit /b
+
 ::pass the upgrade method as an ADS to the upgrade script
 if not defined upgrade_method echo Undefined upgrade method.
 echo !upgrade_method!>"%~dp0\upgrade.bat:upgrade_method"
+
 ::pass the force switch as an ADS to the upgrade script
 if /i "%~2"=="-force" echo yes>"%~dp0\upgrade.bat:force_bool"
 if /i not "%~2"=="-force" echo no>"%~dp0\upgrade.bat:force_bool"
@@ -1001,10 +1659,40 @@ exit
 
 
 :getlist
+
+	REM exception for the -rsl global variable, prevents getlist from downloading script list
+	REM TODO: LAST FETCHED FILE ISNT 0000
+	if /i "!refresh_script_list!"=="no" (
+	
+	REM get the latest script list
+	set /p last_fetched_file=<"%~dp0\bin\config.bget":lastfetched
+	set /p last_fetched_sessno=<"%~dp0\bin\config.bget":lastfetched_sessno
+	if defined last_fetched_sessno set last_fetched_sessno=!last_fetched_sessno: =!
+	
+	if defined last_fetched_sessno set sess_rand=!last_fetched_sessno!
+	if not defined last_fetched_sessno set sess_rand=Default
+	if not exist !last_fetched_file! echo [+] No local script list exists yet. Caching one now. && goto :cachelist
+	echo [+] Using a cached script list...
+	goto :get_last_fetched
+	)
+	
+	REM gets the script list
 	set /a sess_rand=%random%
 	if exist "%~dp0\temp\master!sess_rand!.txt" del /f /q "%~dp0\temp\master!sess_rand!.txt"
+	
+	:cachelist
 	call :download -%~1 "!list_location!" "%~dp0\temp\master!sess_rand!.txt"
 	if not exist "%~dp0\temp\master!sess_rand!.txt" echo An error occured while getting the script list. && exit /b
+	if exist "%~dp0\temp\master!sess_rand!.txt" echo Script List Last Fetched: %date% %time% >>"%~dp0\temp\master!sess_rand!.txt"
+	if exist "%~dp0\temp\master!sess_rand!.txt" echo "%~dp0\temp\master!sess_rand!.txt">"%~dp0\bin\config.bget":lastfetched
+	if exist "%~dp0\temp\master!sess_rand!.txt" echo !sess_rand! >"%~dp0\bin\config.bget":lastfetched_sessno
+	
+	:get_last_fetched
+	set /p last_fetched_file=<"%~dp0\bin\config.bget":lastfetched
+	if exist !last_fetched_file! echo. && for /f "delims=" %%# in ('findstr /b /c:"Script List Last Fetched:" !last_fetched_file!') do (set "display_last_fetched=%%#")
+	
+	REM add option to exit without displaying
+	if not "%~1"=="exit" echo !display_last_fetched!
 	exit /b
 
 ::downloads the files as specified
@@ -1142,6 +1830,8 @@ set pad=for %%# in (1 2) do if %%#==2 ( for /f "tokens=1-3 delims=." %%1 in ("^!
 )) else set args=
 
 goto :eof
+
+
 
 rem END OF ICKY FUNCTIONS
 

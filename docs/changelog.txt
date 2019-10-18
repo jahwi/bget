@@ -9,17 +9,17 @@ Changelog:
 v0.1   [23-NOV-2018]                 Released on Github
 v0.1.1 [23-NOV-2018]                 Fixed an issue where file paths containing spaces and brackets broke bget.
        [24-NOV-2018]                 Fixed an issue where the update script did not get downloaded.
-       [24-NOV-2018]                 Added the ability to specify file download name to the pastebin function.
+       [24-NOV-2018]                 Added the ability to specify file download name to the PASTEBIN command.
        [24-NOV-2018]                 Reformatted help text.
-       [24-NOV-2018]                 List function can now display script categories.
+       [24-NOV-2018]                 List command can now display script categories.
        [25-NOV-2018]                 Changed the scripts location to a separate repository.
-       [25-NOV-2018]                 GET, REMOVE, and UPDATE functions now accept simultaneous multiple scriptnames.
-       [25-NOV-2018]                 Added -doc switch to help function.
-       [26-NOV-2018]                 GET and UPDATE functions can now handle cab packages.
-       [26-NOV-2018]                 Added -force switch to UPGRADE function.
+       [25-NOV-2018]                 GET, REMOVE, and UPDATE commands now accept simultaneous multiple scriptnames.
+       [25-NOV-2018]                 Added -doc switch to HELP command.
+       [26-NOV-2018]                 GET and UPDATE commands can now handle cab packages.
+       [26-NOV-2018]                 Added -force switch to UPGRADE command.
        [26-NOV-2018]                 Bget -help -doc now prints the entire help doc instead of opening it with notepad
-v0.1.2 [27-NOV-2018]                 GET and UPDATE functions can now download/update all scripts with the -all switch.
-       [28-NOV-2018]                 REMOVE function can now remove all scripts with the -all switch.
+v0.1.2 [27-NOV-2018]                 GET and UPDATE commands can now download/update all scripts with the -all switch.
+       [28-NOV-2018]                 REMOVE command can now remove all scripts with the -all switch.
        [29-NOV-2018]                 Fixed an issue where powershell GET method didn't work with Windows 7 and under.
                                      BITS GET method no longer displays the bitsadmin download monitor output.
                                      Fixed an issue where calling Bget from another dir broke Bget.
@@ -27,27 +27,27 @@ v0.1.2 [27-NOV-2018]                 GET and UPDATE functions can now download/u
                                      Upgrade window no longer pops up. Yay.
                                      Fixed an issue where using the CURL GET method broke Bget.
                                      Fixed an issue where the input validation function flagged local file names as invalid.
-                                     Fixed an issue where applying -all to the INFO function would download all scripts.
+                                     Fixed an issue where applying -all to the INFO command would download all scripts.
 v0.1.3 [02-DEC-2018]                 Bget can now get files from other repositories.
-       [04-DEC-2018]                 The LIST server function now lists in a tabular format.
+       [04-DEC-2018]                 The LIST -server function now lists in a tabular format.
                                      Bget now displays version number and date pushed.
-       [05-DEC-2018]                 Bget can now open the scripts folder with the -OPENSCRIPTS function.
-                                     Fixed an issue where the UPGRADE function caused the cmd window to ignore exit commands.
-       [06-DEC-2018]                 Added -FORCE to UPDATE function. Force updates regardless of version.
-       [07-DEC-2018]                 Added -FULL to the LIST function. It allows one view the list with less formatting.
-v0.1.4 [14-DEC-2018]                 Added -SEARCH function. Use it to search scripts on the server.
-                                     Fixed an issue where the UPDATE function failed to update archived script.
+       [05-DEC-2018]                 Bget can now open the scripts folder with the -OPENSCRIPTS command.
+                                     Fixed an issue where the UPGRADE command caused the cmd window to ignore exit commands.
+       [06-DEC-2018]                 Added -FORCE to UPDATE command. Force updates regardless of version.
+       [07-DEC-2018]                 Added -FULL to the LIST command. It allows one view the list with less formatting.
+v0.1.4 [14-DEC-2018]                 Added -SEARCH command. Use it to search scripts on the server.
+                                     Fixed an issue where the UPDATE command failed to update archived script.
 v0.1.5 [18-DEC-2018]                 Fixed an issue where the # delimiter broke Bget.
        [20-DEC-2018]                 Fixed an issue where paths with spaces broke Bget.
-v0.1.6 [21-DEC-2018]                 The SEARCH function is no longer case-sensitive.
-v0.2.0 [10-JAN-2019]                 Added NEWSCRIPTS function. Use it to see what scripts we've added.
+v0.1.6 [21-DEC-2018]                 The SEARCH command is no longer case-sensitive.
+v0.2.0 [10-JAN-2019]                 Added NEWSCRIPTS command. Use it to see what scripts we've added.
                                      Invalid input no longer prints the help screen. Type bget -help for that.
                                      Bget no longer requires a -usemethod argument. Bget will now fall back to a default download
                                      method in the absence of a usemethod argument.
-                                     Added SET function. Use it to set global variables such as the default download method.
+                                     Added SET command. Use it to set global variables such as the default download method.
                                      The LOCAL function of the LIST switch now enumerates downloaded pastebin scripts.
                                      Changed function to remove psstebin scripts from "-remove pastebin" to "-remove -pastebin"
-                                     Calling the SET and LIST functions with no arguments now display the syntax, as opposed to throwing an error.
+                                     Calling the SET and LIST commands with no arguments now display the syntax, as opposed to throwing an error.
                                      Using the BITS method to download scripts from an external repo now shows a warning.
 v0.2.1 [14-JAN-2019]                 Upgrade script now displays version number when upgrading.
 v0.2.2 [15-JAN-2019]                 Fixed the unnecessary "could not find the file specified" ADS prompts in the upgrade script.
@@ -55,5 +55,19 @@ v0.3.0 [26-JAN-2019]                 Changed default script download folder to "
                                      Added ability to change the default scripts location to the SET switch.
                                      Added QUERY switch. Use it to query the values of select global variables.
                                      Began adherence to semantic versioning (at least we're trying to, haha.) https://semver.org/
-                                     The LIST function now displays a script's last-modified time.
+                                     The LIST command now displays a script's last-modified time.
                                      Hidden tags have been added to scripts for better search results.
+v0.4.0 [04-SEP-2019]                 Added NOBANNER command. Use it to run bget without the banner.
+                                     Added REFRESH command. Use it to download the latest script list from Bget's repo.
+                                     Added task counter to the GET, UPDATE and REMOVE commands.
+                                     Bget can now store script lists locally, for faster operations.
+                                     Added filter arguments -ONLY and -SORTBY to the LIST command. See readme for more details.
+                                     Added ability to toggle downloading a new script list on every get operation on or off. see SET snd QUERY for more details.
+                                     Added ability to view when the script list was last refreshed as a global variable. Check readme for more details.
+                                     Added -VERSION switch. Use it to view the version number of Bget and its core components.
+									 Added -logs switch to the REMOVE command. use it to clear the contents of Bget's temp folder.
+                                     You can now get help for specific commands, e.g BGET -help get.
+                                     The INFO command now displays the script size for scripts on Bget's repo.
+									 The HELP command now displays command-specific help, e.g. BGET -help -get.
+									 The SET command no longer requires adding a tack to the variables to be configured. E.g. BGET -set -ddm now becomes
+									  BGET -set ddm.

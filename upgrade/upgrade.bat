@@ -5,6 +5,7 @@ setlocal enabledelayedexpansion
 ::v0.3.0-14012019 added support for fetching Bget's version info.
 ::v0.3.1-15012019 fixed the unnecessary "could not find the file specified" prompts.
 ::v0.3.2-16012019 fix for "cleanup.bat not found" on some systems - solution by SetLucas.
+::v0.4.0-18102019 Cleaned up code a bit.
 
 
 ::init global vars
@@ -14,6 +15,21 @@ set bget_location=https://raw.githubusercontent.com/jahwi/bget/master/bget.bat
 set changelog_location=https://raw.githubusercontent.com/jahwi/bget/master/docs/changelog.txt
 set readme_location=https://raw.githubusercontent.com/jahwi/bget/master/docs/readme.txt
 set version_location=https://raw.githubusercontent.com/jahwi/bget/master/bin/version.txt
+set sorter_location=https://raw.githubusercontent.com/jahwi/bget/master/bin/srt.bat
+
+::location and destination of some upgrade files
+set "hash.txt_location=!upgrade_hash_location!"
+set hash.txt_destination=bin
+set "bget.bat_location=!bget_location!"
+set "changelog.txt_location=!changelog_location!"
+set changelog.txt_destination=docs
+set readme.txt_location=!readme_location!
+set readme.txt_destination=docs
+set version.txt_location=!version_location!
+set version.txt_destination=bin
+set srt.bat_location=!sorter_location!
+set srt.bat_destination=bin
+
 >nul 2>&1 set /p upgrade_method=<"%~dp0\%~nx0:upgrade_method"
 >nul 2>&1 set /p force_bool=<"%~dp0\%~nx0:force_bool"
 if not defined upgrade_method set upgrade_method=bits
@@ -33,17 +49,15 @@ if not exist "%~dp0\bin\hash.txt" (
 	echo No local hash found. Will upgrade anyway.
 	echo %random%%random%%random%>"%~dp0\bin\hash.txt"
 )
+>nul 2>&1 set/p current_upgrade_hash=<"%~dp0\bin\hash.txt"
 
-::compare old and new hashes
 
 ::force if switch is applied
-
-
->nul 2>&1 set/p current_upgrade_hash=<"%~dp0\bin\hash.txt"
 if /i "!force_bool!"=="yes" (
 	echo Forcing upgrade...
 	set current_upgrade_hash=%random%%random%%random%
 )
+::compare old and new hashes
 if /i "!new_upgrade_hash!"=="!current_upgrade_hash!" echo You already have the latest version. && exit /b
 
 ::the actual upgrade
@@ -51,23 +65,32 @@ if defined version echo Fetching version !version!.
 ::make dirs
 if not exist docs md docs
 if not exist temp md temp
-if exist "%~dp0\temp\changelog.txt" del /f /q "%~dp0\temp\changelog.txt"
-if exist "%~dp0\temp\bget.bat" del /f /q "%~dp0\temp\bget.bat"
-if exist "%~dp0\temp\hash.txt" del /f /q "%~dp0\temp\hash.txt"
-call :download -!upgrade_method! "!bget_location!" "%~dp0\temp\bget.bat"
-call :download -!upgrade_method! "!upgrade_hash_location!" "%~dp0\temp\hash.txt"
-call :download -!upgrade_method! "!changelog_location!" "%~dp0\temp\changelog.txt"
-call :download -!upgrade_method! "!readme_location!" "%~dp0\temp\readme.txt"
-if not exist "%~dp0\temp\hash.txt" echo Failed to get the Bget hash. && exit /b
-if not exist "%~dp0\temp\changelog.txt" echo Failed to get the changelog. && exit /b
-if not exist "%~dp0\temp\bget.bat" echo Failed to get Bget's latest version. && exit /b
+
+REM cleanup the temp folder, downlaod the new version,a nd check if downloaded.
+for %%# in (changelog.txt bget.bat hash.txt srt.bat readme.txt) do (
+	echo GET %%~#...
+	if exist "%~dp0\temp\%%~#" del /f /q "%%~#" >nul 2>&1
+	call :download -!upgrade_method! "!%%~#_location!" "%~dp0temp\%%~#"
+	if not exist "%~dp0temp\%%~#" echo Failed to get "%%~#" && exit /b
+	if exist "%~dp0temp\%%~#" move /Y "%~dp0temp\%%~#" "%~dp0\!%%~#_destination!\%%~#"
+)
+move /Y "%~dp0\temp\version!sess_rand!.txt" "%~dp0\bin\version.txt"
+
+REM call :download -!upgrade_method! "!bget_location!" "%~dp0\temp\bget.bat"
+REM call :download -!upgrade_method! "!upgrade_hash_location!" "%~dp0\temp\hash.txt"
+REM call :download -!upgrade_method! "!changelog_location!" "%~dp0\temp\changelog.txt"
+REM call :download -!upgrade_method! "!readme_location!" "%~dp0\temp\readme.txt"
+REM call :download -!upgrade_method! "!sorter_location!" "%~dp0\temp\srt.bat"
+REM if not exist "%~dp0\temp\hash.txt" echo Failed to get the Bget hash. && exit /b
+REM if not exist "%~dp0\temp\changelog.txt" echo Failed to get the changelog. && exit /b
+REM if not exist "%~dp0\temp\bget.bat" echo Failed to get Bget's latest version. && exit /b
 
 ::move downloaded files
-move /Y "%~dp0\temp\bget.bat"
-move /Y "%~dp0\temp\hash.txt" "%~dp0\bin\hash.txt"
-move /Y "%~dp0\temp\changelog.txt" "%~dp0\docs\changelog.txt"
-move /Y "%~dp0\temp\readme.txt" "%~dp0\docs\readme.txt"
-move /Y "%~dp0\temp\version!sess_rand!.txt" "%~dp0\bin\version.txt"
+REM move /Y "%~dp0\temp\bget.bat"
+REM move /Y "%~dp0\temp\hash.txt" "%~dp0\bin\hash.txt"
+REM move /Y "%~dp0\temp\srt.bat" "%~dp0\bin\srt.bat"
+REM move /Y "%~dp0\temp\changelog.txt" "%~dp0\docs\changelog.txt"
+REM move /Y "%~dp0\temp\readme.txt" "%~dp0\docs\readme.txt"
 
 ::start changelog
 start /max /d "%~dp0" notepad "docs\changelog.txt"

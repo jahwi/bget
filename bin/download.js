@@ -1,3 +1,4 @@
+////BgetVersion 0.1.1
 var url = WScript.Arguments(0),
   filename = WScript.Arguments(1),
   fso = WScript.CreateObject('Scripting.FileSystemObject'),

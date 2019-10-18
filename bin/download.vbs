@@ -1,3 +1,4 @@
+''''BgetVersion 0.1.1
 Option Explicit
 Dim args, http, fileSystem, adoStream, url, target, status
 
