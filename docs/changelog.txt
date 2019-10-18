@@ -57,7 +57,7 @@ v0.3.0 [26-JAN-2019]                 Changed default script download folder to "
                                      Began adherence to semantic versioning (at least we're trying to, haha.) https://semver.org/
                                      The LIST command now displays a script's last-modified time.
                                      Hidden tags have been added to scripts for better search results.
-v0.4.0 [04-SEP-2019]                 Added NOBANNER command. Use it to run bget without the banner.
+v0.4.0 [18-OCT-2019]                 Added NOBANNER command. Use it to run bget without the banner.
                                      Added REFRESH command. Use it to download the latest script list from Bget's repo.
                                      Added task counter to the GET, UPDATE and REMOVE commands.
                                      Bget can now store script lists locally, for faster operations.
