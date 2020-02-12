@@ -51,6 +51,9 @@ Here's an example:
 Scenario: You want to fetch a script named test from the server. The easiest way to do this would be:
 BGET -get -usecURL test
 
+Important Notes:
+1. Bget stores scripts in %APPDATA%\Bget\scripts\ by default. This can be configured using the SET command.
+
 Switches
 
 [A] -Get:
