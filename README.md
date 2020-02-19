@@ -61,7 +61,7 @@ There are currently 5 methods:
 
 Usage:
 
-`BGET [-switch] [-method] [-script]`
+`BGET [-switch] [-method] [script]`
 
 Where the methods are: -usejs, -usevbs, -useps, -usebits,  -usecurl.
 
