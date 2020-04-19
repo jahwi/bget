@@ -21,7 +21,7 @@
 6. [Contact](https://github.com/jahwi/bget/blob/master/README.md#contact)
 
 ## INTRODUCTION
-Bget is a batch-file command-line tool for handling Windows scripts. It is built to be a companion to those who write, use and maintain Windows scripts. It helps those who use scripts easily download, update and remove scripts. It’s built for scripters, by scripters.
+Bget is a batch-file command-line tool for handling Windows scripts. It is built to help script writers and users alike easily download, update and remove scripts. It’s built for scripters, by scripters.
 
 ## Features
 1. Download scripts from the Bget server: These scripts are vetted and sorted by us. We’ve gone about curating some of the most interesting scripts we could find that we think would be interesting and useful to you as well. Choose from over 100 scripts currently indexed by Bget.
@@ -34,12 +34,12 @@ Bget is a batch-file command-line tool for handling Windows scripts. It is built
 8. Multiple download methods: Bget has many ways to get a script. These are: Jscript, VBScript, Powershell, BITSAdmin and CURL.
 
 ## Running Bget
-Captain Obvious: Bget is a command-line tool, so it needs to be run from the command line. A typical Bget command looks like this:
+Captain Obvious: Bget is a command-line tool, so it needs to be run from the CLI. A typical Bget command looks like this:
 `Bget [-switch] [-method] [ARGUMENT]
 
 Here’s an example:
 
-Scenario: You want to fetch a script named test from the server.  The easiest way to do this would be:
+Fetching a script named 'test' from the server.  The easiest way to do this would be:
 
 `BGET -get -usecurl test`
 
