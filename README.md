@@ -39,7 +39,7 @@ Captain Obvious: Bget is a command-line tool, so it needs to be run from the CLI
 
 Here’s an example:
 
-Fetching a script named 'test' from the server.  The easiest way to do this would be:
+Fetching a script named `test` from the server.  The easiest way to do this would be:
 
 `BGET -get -usecurl test`
 
