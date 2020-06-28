@@ -35,7 +35,7 @@ Bget is a batch-file command-line tool for handling Windows scripts. It is built
 
 ## Running Bget
 Captain Obvious: Bget is a command-line tool, so it needs to be run from the CLI. A typical Bget command looks like this:
-`Bget [-switch] [-method] [ARGUMENT]
+`Bget [-switch] [-method] [ARGUMENT]`
 
 Here’s an example:
 
