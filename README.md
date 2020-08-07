@@ -34,7 +34,7 @@ Bget is a batch-file command-line tool for handling Windows scripts. It is built
 8. Multiple download methods: Bget has many ways to get a script. These are: Jscript, VBScript, Powershell, BITSAdmin and CURL.
 
 ## Running Bget
-Captain Obvious: Bget is a command-line tool, so it needs to be run from the CLI. A typical Bget command looks like this:
+A typical Bget command looks like this:
 
 `Bget [-switch] [-method] [ARGUMENT]`
 
@@ -42,7 +42,7 @@ Here’s an example:
 
 Fetching a script named `test` from the server.  The easiest way to do this would be:
 
-`BGET -get -usecurl test`
+`BGET -get test`
 
 You should open a Command Prompt window in Bget's path before running any of the commands. Optionally, you could also add Bget's path as an environment variable.
 
@@ -52,7 +52,7 @@ Run `BGET -help -doc` to get a comprehensive list of Bget's switches.
 
 
 ## Methods
-Bget’s  ‘methods’ are the various ways through which Bget interacts with servers.
+Bget’s  ‘methods’ are the download methods for grabbing resources from Bget's script repository.
 There are currently 5 methods:
 1.	The JS method: It uses a JS download script.
 2.	The VBS method: Uses a download script written in VBS.
@@ -76,6 +76,6 @@ Examples:
 6. `BGET -info -usejs test`
 
 ## Contact
-If you're having an issue with bget, would like to submit a script, contact us at batchget [at] gmail [dot com]
+If you're having an issue with bget, or would like to submit a script, contact us at batchget [at] gmail [dot com]
 
 
