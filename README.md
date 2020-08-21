@@ -18,7 +18,6 @@
 	- Powershell -PS
 	- BITSAdmin -BITS
 	- CURL
-6. [Contact](https://github.com/jahwi/bget/blob/master/README.md#contact)
 
 ## INTRODUCTION
 Bget is a batch-file command-line tool for handling Windows scripts. It is built to help script writers and users alike easily download, update and remove scripts. It’s built for scripters, by scripters.
@@ -74,8 +73,5 @@ Examples:
 4. `BGET -list -server -usebits`
 5. `BGET -upgrade -usecurl`
 6. `BGET -info -usejs test`
-
-## Contact
-If you're having an issue with bget, or would like to submit a script, contact us at batchget [at] gmail [dot com]
 
 
