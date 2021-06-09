@@ -1693,7 +1693,7 @@ exit
 	if exist !last_fetched_file! echo. && for /f "delims=" %%# in ('findstr /b /c:"Script List Last Fetched:" !last_fetched_file!') do (set "display_last_fetched=%%#")
 	
 	REM add option to exit without displaying
-	if not "%~1"=="exit" echo !display_last_fetched!
+	if not "%~1"=="exit" if defined display_last_fetched echo !display_last_fetched!
 	exit /b
 
 
