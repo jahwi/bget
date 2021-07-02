@@ -10,31 +10,28 @@ setlocal enabledelayedexpansion
 
 
 ::init global vars
-set upgrade_hash_location=https://raw.githubusercontent.com/jahwi/bget/master/bin/hash.txt
-set upgrade_script_location=https://raw.githubusercontent.com/jahwi/bget/master/upgrade/upgrade.bat
-set bget_location=https://raw.githubusercontent.com/jahwi/bget/master/bget.bat
-set changelog_location=https://raw.githubusercontent.com/jahwi/bget/master/docs/changelog.txt
-set readme_location=https://raw.githubusercontent.com/jahwi/bget/master/docs/readme.txt
-set version_location=https://raw.githubusercontent.com/jahwi/bget/master/bin/version.txt
-set sorter_location=https://raw.githubusercontent.com/jahwi/bget/master/bin/srt.bat
-set jsdown_location=https://raw.githubusercontent.com/jahwi/bget/master/bin/download.js
-set vbsdown_location=https://raw.githubusercontent.com/jahwi/bget/master/bin/download.vbs
-
 ::location and destination of some upgrade files
-set "hash.txt_location=!upgrade_hash_location!"
+set "hash.txt_location=https://raw.githubusercontent.com/jahwi/bget/master/bin/hash.txt"
 set hash.txt_destination=bin
-set "bget.bat_location=!bget_location!"
-set "changelog.txt_location=!changelog_location!"
+
+set "bget.bat_location=https://raw.githubusercontent.com/jahwi/bget/master/bget.bat"
+
+set "changelog.txt_location=https://raw.githubusercontent.com/jahwi/bget/master/docs/changelog.txt"
 set changelog.txt_destination=docs
-set readme.txt_location=!readme_location!
+
+set readme.txt_location=https://raw.githubusercontent.com/jahwi/bget/master/docs/readme.txt
 set readme.txt_destination=docs
-set version.txt_location=!version_location!
+
+set version.txt_location=https://raw.githubusercontent.com/jahwi/bget/master/bin/version.txt
 set version.txt_destination=bin
-set srt.bat_location=!sorter_location!
+
+set srt.bat_location=https://raw.githubusercontent.com/jahwi/bget/master/bin/srt.bat
 set srt.bat_destination=bin
-set download.js_location=!jsdown_location!
+
+set download.js_location=https://raw.githubusercontent.com/jahwi/bget/master/bin/download.js
 set download.js_destination=bin
-set download.vbs_location=!vbsdown_location!
+
+set download.vbs_location=https://raw.githubusercontent.com/jahwi/bget/master/bin/download.vbs
 set download.vbs_destination=bin
 
 >nul 2>&1 set /p upgrade_method=<"%~dp0\%~nx0:upgrade_method"
@@ -73,9 +70,9 @@ if defined version echo Fetching version !version!.
 if not exist docs md docs
 if not exist temp md temp
 
-REM cleanup the temp folder, downlaod the new version,a nd check if downloaded.
+REM cleanup the temp folder, download the new version, and check if downloaded successfully.
 for %%# in (changelog.txt bget.bat hash.txt srt.bat readme.txt download.js download.vbs) do (
-	echo GET %%~#...
+	echo Fetching %%~#...
 	if exist "%~dp0\temp\%%~#" del /f /q "%%~#" >nul 2>&1
 	call :download -!upgrade_method! "!%%~#_location!" "%~dp0temp\%%~#"
 	if not exist "%~dp0temp\%%~#" echo Failed to get "%%~#" && exit /b
@@ -86,24 +83,7 @@ for %%# in (changelog.txt bget.bat hash.txt srt.bat readme.txt download.js downl
 	echo Moving %%~#...
 	if exist "%~dp0temp\%%~#" move /Y "%~dp0temp\%%~#" "%~dp0\!%%~#_destination!\%%~#"
 )
-
 move /Y "%~dp0\temp\version!sess_rand!.txt" "%~dp0\bin\version.txt"
-
-REM call :download -!upgrade_method! "!bget_location!" "%~dp0\temp\bget.bat"
-REM call :download -!upgrade_method! "!upgrade_hash_location!" "%~dp0\temp\hash.txt"
-REM call :download -!upgrade_method! "!changelog_location!" "%~dp0\temp\changelog.txt"
-REM call :download -!upgrade_method! "!readme_location!" "%~dp0\temp\readme.txt"
-REM call :download -!upgrade_method! "!sorter_location!" "%~dp0\temp\srt.bat"
-REM if not exist "%~dp0\temp\hash.txt" echo Failed to get the Bget hash. && exit /b
-REM if not exist "%~dp0\temp\changelog.txt" echo Failed to get the changelog. && exit /b
-REM if not exist "%~dp0\temp\bget.bat" echo Failed to get Bget's latest version. && exit /b
-
-::move downloaded files
-REM move /Y "%~dp0\temp\bget.bat"
-REM move /Y "%~dp0\temp\hash.txt" "%~dp0\bin\hash.txt"
-REM move /Y "%~dp0\temp\srt.bat" "%~dp0\bin\srt.bat"
-REM move /Y "%~dp0\temp\changelog.txt" "%~dp0\docs\changelog.txt"
-REM move /Y "%~dp0\temp\readme.txt" "%~dp0\docs\readme.txt"
 
 ::start changelog
 start /max /d "%~dp0" notepad "docs\changelog.txt"

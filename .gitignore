@@ -8,3 +8,7 @@ hashify.bat
 hget.bat
 bin/locallist.bget
 bin/config.bget
+*.code-workspace
+bget2.bat
+bin/ta.bat
+bin/to.bat

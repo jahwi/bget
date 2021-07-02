@@ -76,6 +76,10 @@ BGET -get -usejs -all
 For Bget versions 0.2.0 and later, you no longer need to specify a download method.
 However, the default download method has been set to `JS` and this can be changed using the SET switch.
 
+The -only filter allows fetching scripts that only meet a specific criteria.
+Example: Bget -get -all -only author Jahwi
+The above would get all scripts by the author 'Jahwi'. Other filters are: Category, name, and Date
+
 [B] -Pastebin:
 This fetches a pastebin raw and saves it as a .bat script.
 Usage:
@@ -190,7 +194,7 @@ However, the default download method has been set to `JS` and this can be change
 Prints the help text.
 -help -doc opens this readme.
 you can also use BGET -help [command] to get help info related to a bget command.
-e.g. BGET -help -get
+e.g. BGET -help get
 
 [I] -OPENSCRIPTS
 Opens the scripts folder.
@@ -202,7 +206,6 @@ BGET -search -usemethod "string"
 Example:
 BGET -search -usejs "Jahwi"
 
-[K] -NEWSCRIPTS
 [K] -NEWSCRIPTS
 Shows you new scripts we've added.
 Usage:
@@ -245,6 +248,11 @@ BGET -NOBANNER -get test
 
 [O] -REFRESH
 Fetches the latest version of the script list, and stores it locally.
+Usage:
+BGET -REFRESH
+You can use the -REFRESH command in conjunction with other commands.
+Example:
+BGET -REFRESH -GET test
 
 Methods
 Bget's 'methods' are the various ways through which Bget interacts with servers. There are currently 5 methods:
